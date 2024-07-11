@@ -1,38 +1,304 @@
-.App {
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+
+.top-banner {
+  background-color: #d9d9d9;
+  color: black;
   text-align: center;
+  padding: 10px 0;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.top-banner p {
+  margin: 0;
+  font-weight: bold;
+  font-size: 1.1rem;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+/* Navbar styles */
+body {
+  font-family: 'Roboto', sans-serif;
+  line-height: 1.6;
+  color: #333;
+}
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: #f8f9fa;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.navbar-logo a {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+  text-decoration: none;
+}
+
+.navbar-links {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar-links li {
+  margin-right: 1rem;
+}
+
+.navbar-links a {
+  color: #333;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+}
+
+.navbar-links a:hover {
+  background-color: #e9ecef;
+  border-radius: 4px;
+}
+
+.navbar-auth {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-auth a {
+  margin-left: 1rem;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  border-radius: 4px;
+}
+
+.signin-btn {
+  background-color: #D9D9D9;
+  color: black;
+}
+
+.register-btn {
+  background-color: #D9D9D9;
+  color: black;
+}
+
+.register-btn:hover {
+  background-color: #76c8f1;
+}
+
+.app-container {
+  position: relative;
+  padding-top: 20px; /* Add some padding at the top */
+}
+
+.hero-image {
+  position: relative;
+  width: 740px;
+  height: 430px;
+  margin: 0 auto; /* Center the image horizontally */
+  margin-top: 20px; /* Add some space between navbar and image */
+  overflow: hidden;
+  border-radius: 54px;
+}
+
+.hero-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.hero-text {
+  margin-top: 20px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  line-height: 1.4;
+  width: 100%;
+  max-width: 740px;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 50px; /* Adjust this value to position the button vertically */
+}
+
+.explore-button {
+  background-color: black;
+  color: white;
+  border: none;
+  border-radius: 52px;
+  width: 316px;
+  height: 85px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.explore-button:hover {
+  transform: scale(1.05);
+}
+
+.wellness-section {
+  background-color: #D9D9D9;
+  padding: 40px 0;
+  margin-top: 40px;
+}
+
+.wellness-categories {
+  display: flex;
+  justify-content: space-around;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.category {
+  text-align: center;
+  width: 30%;
+}
+
+.category h3 {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.category p {
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.why-mindjourney {
+  max-width: 800px;
+  margin: 60px auto;
+  text-align: center;
+  padding: 0 20px;
+}
+
+.why-mindjourney h2 {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.why-mindjourney p {
+  font-size: 18px;
+  line-height: 1.6;
+  color: #555;
+}
+.grey-background-section {
+  background-color: #D9D9D9;
+  padding: 40px 0;
+  margin-top: 40px;
+}
+
+.wellness-categories {
+  display: flex;
+  justify-content: space-around;
+  max-width: 1200px;
+  margin: 0 auto 60px;
+}
+
+.category {
+  text-align: center;
+  width: 30%;
+}
+
+.category h3 {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.category p {
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.why-mindjourney {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 0 20px;
+}
+
+.why-mindjourney h2 {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.why-mindjourney p {
+  font-size: 18px;
+  line-height: 1.6;
+  color: #555;
+}
+
+.site-footer {
+  background-color: #333;
+  color: black;
+  padding: 40px 0;
+  margin-top: 60px;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.footer-logo h2 {
+  font-size: 24px;
+  margin: 0;
+}
+
+.footer-links ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.footer-links li {
+  margin-bottom: 10px;
+}
+
+.footer-links a {
+  color: black;
+  text-decoration: none;
+}
+
+.footer-links a:hover {
+  text-decoration: underline;
+}
+
+.footer-contact p {
+  margin: 5px 0;
+}
+
+@media (max-width: 768px) {
+  .footer-content {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+  }
+
+  .footer-logo, .footer-links, .footer-contact {
+      margin-bottom: 20px;
   }
 }
 
-.App-header {
-  background-color: #282c34;
+.site-footer {
+  background-color: white;
+  padding: 20px 0;
+}.app-container {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
 }
 
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.site-footer {
+  margin-top: auto;
 }
