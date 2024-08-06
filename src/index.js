@@ -14,14 +14,14 @@ import { getAnalytics } from "firebase/analytics";
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {npm install -g firebase-tools
-  apiKey: "AIzaSyAleqWWyqkV-Tb7Y1M0519d0uKft_x-XmY",
-  authDomain: "mindjourney-b42b5.firebaseapp.com",
-  projectId: "mindjourney-b42b5",
-  storageBucket: "mindjourney-b42b5.appspot.com",
-  messagingSenderId: "21313961207",
-  appId: "1:21313961207:web:3c44bb51600eb5dd45e7f2",
-  measurementId: "G-YHFCH82JLG"
+const firebaseConfig = {
+  apiKey: process.env.API_KEY,
+  authDomain: process.env.AUTH_DOMAIN,
+  projectId: process.env.PROJECT_ID,
+  storageBucket: process.env.STORAGE_BUCKET,
+  messagingSenderId: process.env.MESSAGING_SENDER_ID,
+  appId: process.env.APP_ID,
+  measurementId: process.env.MEASUREMENT_ID
 };
 
 // Initialize Firebase
