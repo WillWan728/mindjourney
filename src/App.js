@@ -1,9 +1,15 @@
 import React from "react";
-import './app.css';
+import './css/app.css';
 import Navbar from "./Navbar";
+import AboutUs from "./aboutus";
 import man from "./images/man.jpg";
 import Footer from "./footer";
 import RegisterUser from "./register";
+import LoginUser from "./login";
+import SleepTracker from "./sleeptracker";
+import FitnessTracker from "./fitnesstracker";
+import MentalHealthPage from "./mentalhealth"; 
+import Journaling from "./journaling";
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 const App = () => {
@@ -53,6 +59,12 @@ const App = () => {
                         </div>
                     } />
                     <Route path="/register" element={<RegisterUser />} />
+                    <Route path="/login" element={<LoginUser />} />
+                    <Route path="/sleeptracker" element={<SleepTracker />} />
+                    <Route path="/Fitness" element={<FitnessTracker />} />
+                    <Route path="/about" element={<AboutUs />}/>
+                    <Route path="/mentalhealth" element={<MentalHealthPage />} /> 
+                    <Route path="/journaling" element={<Journaling />} />
                 </Routes>
                 <Footer />
             </div>

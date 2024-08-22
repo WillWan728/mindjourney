@@ -1,0 +1,92 @@
+.journaling-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .journaling-container h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 30px;
+  }
+  
+  .prompt-container {
+    background-color: #f0f0f0;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .prompt-container h3 {
+    margin-top: 0;
+    color: #444;
+  }
+  
+  .prompt-container p {
+    font-size: 18px;
+    font-style: italic;
+    color: #555;
+  }
+  
+  .new-prompt-btn {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  
+  .entry-container {
+    margin-bottom: 30px;
+  }
+  
+  .entry-container textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    resize: vertical;
+  }
+  
+  .save-entry-btn {
+    background-color: #008CBA;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+  }
+  
+  .saved-entries h3 {
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 10px;
+  }
+  
+  .saved-entry {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 15px;
+  }
+  
+  .entry-date {
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 5px;
+  }
+  
+  .entry-prompt {
+    font-style: italic;
+    color: #555;
+    margin-bottom: 10px;
+  }
+  
+  .entry-content {
+    color: #333;
+  }

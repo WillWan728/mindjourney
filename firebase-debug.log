@@ -1,0 +1,65 @@
+[debug] [2024-08-06T15:59:21.100Z] ----------------------------------------------------------------------
+[debug] [2024-08-06T15:59:21.103Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\willi\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js init
+[debug] [2024-08-06T15:59:21.104Z] CLI Version:   13.15.0
+[debug] [2024-08-06T15:59:21.104Z] Platform:      win32
+[debug] [2024-08-06T15:59:21.104Z] Node Version:  v20.15.1
+[debug] [2024-08-06T15:59:21.105Z] Time:          Tue Aug 06 2024 16:59:21 GMT+0100 (British Summer Time)
+[debug] [2024-08-06T15:59:21.105Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2024-08-06T15:59:21.115Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2024-08-06T15:59:21.115Z] > authorizing via signed-in user (willwan728@gmail.com)
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  C:\Users\willi\OneDrive\Documents\Mindjourney
+
+[info] 
+=== Project Setup
+[info] 
+[info] First, let's associate this project directory with a Firebase project.
+[info] You can create multiple project aliases by running firebase use --add, 
+[info] but for now we'll just set up a default project.
+[info] 
+[debug] [2024-08-06T15:59:55.754Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects pageSize=100
+[debug] [2024-08-06T15:59:56.382Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects 200
+[debug] [2024-08-06T15:59:56.382Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects [omitted]
+[info] i  Using project mindjourney-b42b5 (mindjourney) 
+[info] 
+=== Database Setup
+[info] i  database: ensuring required API firebasedatabase.googleapis.com is enabled... 
+[debug] [2024-08-06T16:00:06.106Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/mindjourney-b42b5/services/firebasedatabase.googleapis.com [none]
+[debug] [2024-08-06T16:00:06.106Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/mindjourney-b42b5/services/firebasedatabase.googleapis.com x-goog-quota-user=projects/mindjourney-b42b5
+[debug] [2024-08-06T16:00:07.077Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/mindjourney-b42b5/services/firebasedatabase.googleapis.com 200
+[debug] [2024-08-06T16:00:07.078Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/mindjourney-b42b5/services/firebasedatabase.googleapis.com [omitted]
+[warn] !  database: missing required API firebasedatabase.googleapis.com. Enabling now... 
+[debug] [2024-08-06T16:00:07.079Z] >>> [apiv2][query] POST https://serviceusage.googleapis.com/v1/projects/mindjourney-b42b5/services/firebasedatabase.googleapis.com:enable [none]
+[debug] [2024-08-06T16:00:07.079Z] >>> [apiv2][(partial)header] POST https://serviceusage.googleapis.com/v1/projects/mindjourney-b42b5/services/firebasedatabase.googleapis.com:enable x-goog-quota-user=projects/mindjourney-b42b5
+[debug] [2024-08-06T16:00:07.727Z] <<< [apiv2][status] POST https://serviceusage.googleapis.com/v1/projects/mindjourney-b42b5/services/firebasedatabase.googleapis.com:enable 200
+[debug] [2024-08-06T16:00:07.727Z] <<< [apiv2][body] POST https://serviceusage.googleapis.com/v1/projects/mindjourney-b42b5/services/firebasedatabase.googleapis.com:enable [omitted]
+[debug] [2024-08-06T16:00:17.740Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/mindjourney-b42b5/services/firebasedatabase.googleapis.com [none]
+[debug] [2024-08-06T16:00:17.741Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/mindjourney-b42b5/services/firebasedatabase.googleapis.com x-goog-quota-user=projects/mindjourney-b42b5
+[debug] [2024-08-06T16:00:18.685Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/mindjourney-b42b5/services/firebasedatabase.googleapis.com 200
+[debug] [2024-08-06T16:00:18.686Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/mindjourney-b42b5/services/firebasedatabase.googleapis.com [omitted]
+[info] +  database: required API firebasedatabase.googleapis.com is enabled 
+[info] 
+[debug] [2024-08-06T16:00:18.691Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/mindjourney-b42b5 [none]
+[debug] [2024-08-06T16:00:18.991Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/mindjourney-b42b5 200
+[debug] [2024-08-06T16:00:18.992Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/mindjourney-b42b5 {"projectId":"mindjourney-b42b5","projectNumber":"21313961207","displayName":"mindjourney","name":"projects/mindjourney-b42b5","resources":{"hostingSite":"mindjourney-b42b5"},"state":"ACTIVE","etag":"1_f57ed3b5-7655-4435-ae77-0bfdfa346101"}
+[debug] [2024-08-06T16:00:32.227Z] >>> [apiv2][query] POST https://firebasedatabase.googleapis.com/v1beta/projects/mindjourney-b42b5/locations/europe-west1/instances databaseId=mindjourney-b42b5-default-rtdb&validateOnly=true
+[debug] [2024-08-06T16:00:32.227Z] >>> [apiv2][body] POST https://firebasedatabase.googleapis.com/v1beta/projects/mindjourney-b42b5/locations/europe-west1/instances {"type":"default_database"}
+[debug] [2024-08-06T16:00:33.329Z] <<< [apiv2][status] POST https://firebasedatabase.googleapis.com/v1beta/projects/mindjourney-b42b5/locations/europe-west1/instances 200
+[debug] [2024-08-06T16:00:33.330Z] <<< [apiv2][body] POST https://firebasedatabase.googleapis.com/v1beta/projects/mindjourney-b42b5/locations/europe-west1/instances {"name":"projects/21313961207/locations/europe-west1/instances/mindjourney-b42b5-default-rtdb","project":"projects/21313961207","databaseUrl":"https://mindjourney-b42b5-default-rtdb.europe-west1.firebasedatabase.app","type":"DEFAULT_DATABASE","state":"ACTIVE"}
+[debug] [2024-08-06T16:00:33.331Z] >>> [apiv2][query] POST https://firebasedatabase.googleapis.com/v1beta/projects/mindjourney-b42b5/locations/europe-west1/instances databaseId=mindjourney-b42b5-default-rtdb
+[debug] [2024-08-06T16:00:33.331Z] >>> [apiv2][body] POST https://firebasedatabase.googleapis.com/v1beta/projects/mindjourney-b42b5/locations/europe-west1/instances {"type":"default_database"}
+[debug] [2024-08-06T16:00:34.046Z] <<< [apiv2][status] POST https://firebasedatabase.googleapis.com/v1beta/projects/mindjourney-b42b5/locations/europe-west1/instances 200
+[debug] [2024-08-06T16:00:34.046Z] <<< [apiv2][body] POST https://firebasedatabase.googleapis.com/v1beta/projects/mindjourney-b42b5/locations/europe-west1/instances {"name":"projects/21313961207/locations/europe-west1/instances/mindjourney-b42b5-default-rtdb","project":"projects/21313961207","databaseUrl":"https://mindjourney-b42b5-default-rtdb.europe-west1.firebasedatabase.app","type":"DEFAULT_DATABASE","state":"ACTIVE"}
+[info] 
+[info] Firebase Realtime Database Security Rules allow you to define how your data should be
+[info] structured and when your data can be read from and written to.
+[info] 

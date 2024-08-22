@@ -1,23 +1,22 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 export default function Navbar() {
     return (
         <>
-            <div className="top-banner">
-                <p>Track Your Wellness Journey</p>
-            </div>
             <nav className="navbar">
                 <div className="navbar-logo">
-                    <a href="/">MindJourney</a>
+                    <Link to="/">MindJourney</Link>
                 </div>
                 <ul className="navbar-links">
-                    <li><a href="/Fitness">Fitness</a></li>
-                    <li><a href="/Sleeptracker">Sleep Tracker</a></li>
-                    <li><a href="/Journalling">Journaling</a></li>
+                    <li><Link to="/Fitness">Fitness</Link></li>
+                    <li><Link to="/Sleeptracker">Sleep Tracker</Link></li>
+                    <li><Link to="/mentalhealth">mental health</Link></li>
+                    <li><Link to="/about">About Us</Link></li>
                 </ul>
                 <div className="navbar-auth">
-                    <a href="/Signin" className="signin-btn">Sign In</a>
-                    <a href="/register" className="register-btn">Register</a>
+                    <Link to="/login" className="signin-btn">Sign In</Link>
+                    <Link to="/register" className="register-btn">Register</Link>
                 </div>
             </nav>
         </>
