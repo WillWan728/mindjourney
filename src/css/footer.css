@@ -1,0 +1,79 @@
+.site-footer {
+    background-color: #ccc; /* Gray background color for the entire footer */
+    color: var(--dark-color); /* Dark text color for contrast */
+    padding: 2rem 5%;
+    text-align: center;
+    box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 0; /* Square corners */
+}
+
+.footer-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    background-color: #ccc; /* Ensure background is the same gray */
+    padding: 2rem;
+    border-radius: 0; /* Square corners for the content box */
+}
+
+.footer-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; /* Space between the logo and the title */
+    margin-bottom: 1rem;
+}
+
+.footer-logo-image {
+    height: 2rem; /* Adjust the size of the logo as needed */
+    width: auto;
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+}
+
+.footer-links-group ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-links-group ul li {
+    margin-bottom: 0.5rem;
+}
+
+.footer-links a {
+    color: var(--dark-color); /* Dark color for the links */
+    text-decoration: none;
+    font-size: 1rem;
+    transition: color 0.3s ease;
+}
+
+.footer-links a:hover {
+    color: var(--main-color); /* Main color on hover */
+}
+
+.footer-contact p {
+    margin: 0.5rem 0;
+    font-size: 1rem;
+    color: var(--dark-color); /* Dark color for contrast */
+}
+
+@media (min-width: 768px) {
+    .footer-content {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+    
+    .footer-logo, .footer-links, .footer-contact {
+        text-align: left;
+    }
+    
+    .footer-links {
+        justify-content: flex-start;
+    }
+}
