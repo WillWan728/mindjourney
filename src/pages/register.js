@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import logomind from '../images/logo mind.png'; 
+import { useNavigate } from 'react-router-dom';
 import '../css/register.css';
+import Navbar from './navbar';
+import { auth } from '../config/firebase'; 
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 
 const RegisterUser = () => {
     const [formData, setFormData] = useState({
@@ -12,6 +14,7 @@ const RegisterUser = () => {
     });
 
     const [error, setError] = useState('');
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -21,56 +24,42 @@ const RegisterUser = () => {
         }));
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
+    // In RegisterUser component
+const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
 
-        // Basic validation
-        if (!formData.username || !formData.email || !formData.password || !formData.confirmPassword) {
-            setError('All fields are required');
-            return;
-        }
+    if (!formData.username || !formData.email || !formData.password || !formData.confirmPassword) {
+        setError('All fields are required');
+        return;
+    }
 
-        if (formData.password !== formData.confirmPassword) {
-            setError('Passwords do not match');
-            return;
-        }
+    if (formData.password !== formData.confirmPassword) {
+        setError('Passwords do not match');
+        return;
+    }
 
-        // Here you would typically send the data to your backend API
-        try {
-            const response = await fetch('/api/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    username: formData.username,
-                    email: formData.email,
-                    password: formData.password
-                }),
-            });
+    try {
+        // Firebase authentication for user registration
+        const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+        const user = userCredential.user;
 
-            if (response.ok) {
-                // Handle successful registration (e.g., redirect to login page)
-                console.log('User registered successfully');
-            } else {
-                const data = await response.json();
-                setError(data.message || 'Registration failed');
-            }
-        } catch (error) {
-            setError('An error occurred. Please try again.');
-        }
-    };
+        // Update the user's profile with the username
+        await updateProfile(user, {
+            displayName: formData.username
+        });
 
+        console.log('User registered successfully', user);
+        // Redirect to dashboard after successful registration
+        navigate('/dashboard', { state: { username: formData.username } });
+    } catch (error) {
+        console.error('Registration error:', error.code, error.message);
+        setError(`Registration failed: ${error.message}`);
+    }
+};
     return (
         <div className="register-page">
-            <header className="register-header">
-                <Link to="/" className="logo-container"> 
-                    <img src={logomind} alt="Mind Journey Logo" className="logo-image" />
-                    <div className="logo-text">MindJourney</div>
-                </Link>
-            </header>
-
+            <Navbar />
             <div className="register-container">
                 <h2>Create an Account</h2>
                 <form onSubmit={handleSubmit} className="register-form">

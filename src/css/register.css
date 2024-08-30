@@ -2,14 +2,14 @@
     max-width: 400px;
     margin: 40px auto;
     padding: 20px;
-    background-color: var(--light-color); /* Changed to light color from your theme */
+    background-color: var(--light-color); /* Light color from your theme */
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .register-container h2 {
     text-align: center;
-    color: var(--text-color); /* Updated to theme's text color */
+    color: var(--text-color); /* Theme's text color */
     margin-bottom: 20px;
 }
 
@@ -25,25 +25,25 @@
 .form-group label {
     display: block;
     margin-bottom: 5px;
-    color: var(--dark-color); /* Updated to dark color from your theme */
+    color: var(--dark-color); /* Dark color from your theme */
 }
 
 .form-group input {
     width: 100%;
     padding: 8px;
-    border: 1px solid var(--accent-color); /* Updated to accent color */
+    border: 1px solid var(--accent-color); /* Accent color */
     border-radius: 4px;
     font-size: 16px;
 }
 
 .error-message {
-    color: #ff0000; /* Kept the error message color red for better visibility */
+    color: #ff0000; /* Red color for error messages */
     margin-bottom: 10px;
 }
 
 .register-button {
-    background-color: var(--button-color); /* Updated to button color from your theme */
-    color: var(--text-color); /* Updated to text color */
+    background-color: var(--main-color); /* Green/Turquoise button color from your theme */
+    color: var(--light-color); /* Text color for contrast */
     border: none;
     padding: 10px;
     border-radius: 4px;
@@ -53,8 +53,9 @@
 }
 
 .register-button:hover {
-    background-color: var(--button-hover-color); /* Updated to button hover color */
+    background-color: var(--main-color-hover); /* Darker shade of green/turquoise for hover */
 }
+
 .register-header {
     display: flex;
     justify-content: center; /* Centers the entire header (logo + text) horizontally */
@@ -63,21 +64,4 @@
     background-color: var(--background-color);
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     margin-bottom: 20px; /* Adds space below the header */
-}
-
-.logo-container {
-    display: flex;
-    align-items: center;
-    text-decoration: none;
-}
-
-.logo-image {
-    height: 50px; /* Adjust size as needed */
-    margin-right: 10px; /* Space between the logo and the text */
-}
-
-.logo-text {
-    font-size: 2rem; /* Larger text for the title */
-    font-weight: bold;
-    color: var(--text-color);
 }

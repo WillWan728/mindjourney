@@ -1,7 +1,6 @@
 import React from 'react';
 import '../css/aboutus.css';
-import team from '../images/man.jpg';  
-
+import team from '../images/team.jpg';  
 
 const AboutUs = () => {
     return (

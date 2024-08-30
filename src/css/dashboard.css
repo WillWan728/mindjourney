@@ -1,0 +1,128 @@
+/* ../css/dashboard.css */
+
+:root {
+  --main-color: #5f9ea0;
+  --secondary-color: #8fbc8f;
+  --light-color: #f0f5f5;
+  --dark-color: #4a6a6d;
+  --accent-color: #d7c49e;
+  --background-color: #f6f6f6;
+  --text-color: #000000;
+  --button-color: #5f9ea0;
+  --button-hover-color: #4a6a6d;
+}
+
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.dashboard-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.dashboard {
+  flex: 1;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.dashboard-header h1 {
+  color: var(--dark-color);
+  font-size: 24px;
+}
+
+.weekly-wellbeing-score {
+  background-color: var(--light-color);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.weekly-wellbeing-score h2 {
+  color: var(--main-color);
+  margin-bottom: 10px;
+}
+
+.improve-button {
+  background-color: var(--button-color);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.improve-button:hover {
+  background-color: var(--button-hover-color);
+}
+
+.dashboard-content {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.card-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.card {
+  background-color: var(--light-color);
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  transition: transform 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.card-header .emoji {
+  font-size: 24px;
+  margin-right: 10px;
+}
+
+.card-header h3 {
+  margin: 0;
+  color: var(--main-color);
+}
+
+.card-content p {
+  margin: 5px 0;
+}
+
+@media (max-width: 1024px) {
+  .dashboard-content {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-content {
+    grid-template-columns: 1fr;
+  }
+}

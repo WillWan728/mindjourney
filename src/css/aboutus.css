@@ -41,12 +41,11 @@
     font-style: italic;
     font-weight: 500;
     color: #4a4a4a;
-    border-left: 4px solid #3498db;
+    border-left: 4px solid #5f9ea0;
     padding-left: 15px; /* Reduced from 20px */
     margin: 20px 0; /* Reduced from 30px 0 */
 }
 
-/* New styles for layout adjustment */
 .about-us-content {
     display: flex;
     flex-wrap: wrap;

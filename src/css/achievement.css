@@ -1,0 +1,90 @@
+/* achievements.css */
+
+.achievements-page-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  
+  .dashboard-container {
+    flex: 1;
+    padding: 20px;
+    background-color: var(--background-color);
+  }
+  
+  .dashboard {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .dashboard-header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .dashboard-header h1 {
+    color: var(--dark-color);
+    font-size: 24px;
+  }
+  
+  .achievement-card {
+    background-color: var(--light-color);
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    padding: 20px;
+  }
+  
+  .achievement-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  .achievement-card .card-header {
+    border-bottom: 1px solid var(--accent-color);
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .achievement-card h3 {
+    color: var(--main-color);
+    margin: 0;
+  }
+  
+  .achievement-card p {
+    color: var(--text-color);
+    opacity: 0.8;
+  }
+  
+  .alert {
+    background-color: var(--accent-color);
+    border-left: 4px solid var(--main-color);
+    margin-bottom: 20px;
+  }
+  
+  .grid {
+    display: grid;
+  }
+  
+  .gap-6 {
+    gap: 1.5rem;
+  }
+  
+  @media (min-width: 768px) {
+    .md\:grid-cols-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .lg\:grid-cols-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .dashboard {
+      padding: 10px;
+    }
+  }
+  

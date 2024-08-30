@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import '../css/journaling.css';
+import Navbar2 from './navbar2';
 
 const Journaling = () => {
   const [prompt, setPrompt] = useState('');
@@ -21,7 +22,7 @@ const Journaling = () => {
 
   useEffect(() => {
     getRandomPrompt();
-  }, );
+  }, []);
 
   const getRandomPrompt = () => {
     const randomIndex = Math.floor(Math.random() * prompts.length);
@@ -47,33 +48,36 @@ const Journaling = () => {
   };
 
   return (
-    <div className="journaling-container">
-      <h1>Guided Journaling</h1>
-      <div className="prompt-container">
-        <h3>Today's Prompt:</h3>
-        <p>{prompt}</p>
-        <button onClick={getRandomPrompt} className="new-prompt-btn">Get New Prompt</button>
+    <>
+      <Navbar2 />
+      <div className="journaling-container">
+        <h1>Journaling</h1>
+        <div className="prompt-container">
+          <h3>Today's Prompt:</h3>
+          <p>{prompt}</p>
+          <button onClick={getRandomPrompt} className="new-prompt-btn">Get New Prompt</button>
+        </div>
+        <div className="entry-container">
+          <textarea
+            value={entry}
+            onChange={handleEntryChange}
+            placeholder="Start writing your thoughts here..."
+            rows="10"
+          />
+          <button onClick={saveEntry} className="save-entry-btn">Save Entry</button>
+        </div>
+        <div className="saved-entries">
+          <h3>Previous Entries</h3>
+          {savedEntries.map((savedEntry) => (
+            <div key={savedEntry.id} className="saved-entry">
+              <p className="entry-date">{savedEntry.date}</p>
+              <p className="entry-prompt">{savedEntry.prompt}</p>
+              <p className="entry-content">{savedEntry.content}</p>
+            </div>
+          ))}
+        </div>
       </div>
-      <div className="entry-container">
-        <textarea
-          value={entry}
-          onChange={handleEntryChange}
-          placeholder="Start writing your thoughts here..."
-          rows="10"
-        />
-        <button onClick={saveEntry} className="save-entry-btn">Save Entry</button>
-      </div>
-      <div className="saved-entries">
-        <h3>Previous Entries</h3>
-        {savedEntries.map((savedEntry) => (
-          <div key={savedEntry.id} className="saved-entry">
-            <p className="entry-date">{savedEntry.date}</p>
-            <p className="entry-prompt">{savedEntry.prompt}</p>
-            <p className="entry-content">{savedEntry.content}</p>
-          </div>
-        ))}
-      </div>
-    </div>
+    </>
   );
 };
 

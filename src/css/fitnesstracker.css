@@ -1,164 +1,145 @@
 .fitness-tracker {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 40px 20px;
-    font-family: 'Arial', sans-serif;
-    color: #333;
+  font-family: Arial, sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
-.fitness-tracker h1 {
-    font-size: 32px;
-    font-weight: 700;
-    color: #2c3e50;
-    text-align: center;
-    margin-bottom: 40px;
+.page-title {
+  text-align: center;
+  color: #333;
+  margin-bottom: 30px;
 }
 
-.dashboard {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 40px;
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
 }
 
-.chart-container {
-    flex: 2;
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+.feature-card {
+  background-color: #f0f5f5;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.stats-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    margin-left: 20px;
+.feature-card h2 {
+  color: #5f9ea0;
+  margin-top: 0;
+  margin-bottom: 20px;
 }
 
-.stat-box {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
+.tracker-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
 }
 
-.stat-box h3 {
-    font-size: 18px;
-    margin-bottom: 10px;
-    color: #2c3e50;
-}
-
-.stat-box p {
-    font-size: 24px;
-    font-weight: 700;
-    color: #3498db;
-}
-
-.content-container {
-    display: flex;
-    justify-content: space-between;
-}
-
-.form-container {
-    flex: 1;
-    background-color: #fff;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    margin-right: 20px;
-}
-
-.form-container h2 {
-    font-size: 24px;
-    color: #2c3e50;
-    margin-bottom: 20px;
-}
-
-.form-group {
-    margin-bottom: 20px;
-}
-
-label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 600;
-    color: #34495e;
-}
-
-input, select, textarea {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 16px;
-}
-
-textarea {
-    height: 100px;
-    resize: vertical;
+.tracker-form input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
 }
 
 .submit-button {
-    background-color: #3498db;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 12px 20px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+  background-color: #5f9ea0;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
 }
 
 .submit-button:hover {
-    background-color: #2980b9;
+  background-color: #4a6a6d;
 }
 
-.fitness-log {
-    flex: 1;
-    background-color: #fff;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+.log-list {
+  list-style-type: none;
+  padding: 0;
+  max-height: 200px;
+  overflow-y: auto;
 }
 
-.fitness-log h2 {
-    font-size: 24px;
-    color: #2c3e50;
-    margin-bottom: 20px;
+.log-list li {
+  background-color: white;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.fitness-log ul {
-    list-style-type: none;
-    padding: 0;
+.chart-container {
+  margin-top: 30px;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.fitness-log li {
-    background-color: #f8f9fa;
-    margin-bottom: 15px;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.fitness-log li h3 {
-    font-size: 18px;
-    color: #2c3e50;
-    margin-bottom: 10px;
-}
-
-.fitness-log li p {
-    margin: 5px 0;
-    color: #34495e;
+.chart-container canvas {
+  max-height: 400px !important;
 }
 
 @media (max-width: 768px) {
-    .dashboard, .content-container {
-        flex-direction: column;
-    }
+  .feature-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .chart-container {
+    max-width: 100%;
+  }
+  
+  .chart-container canvas {
+    max-height: 300px !important;
+  }
+}
 
-    .stats-container, .form-container, .fitness-log {
-        margin: 0 0 20px 0;
-    }
+.fitness-tracker {
+  /* Existing styles... */
+}
+
+/* ... (other existing styles) ... */
+
+.delete-button {
+  background-color: #ff4136;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  margin-left: 10px;
+}
+
+.delete-button:hover {
+  background-color: #d63229;
+}
+
+.history-button {
+  background-color: #0074d9;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.history-button:hover {
+  background-color: #0056b3;
+}
+
+.error-message {
+  color: #ff4136;
+  background-color: #ffecec;
+  border: 1px solid #ff4136;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 20px;
 }

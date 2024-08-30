@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+import Navbar2 from './navbar2';
 import '../css/sleep.css';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
@@ -92,6 +93,7 @@ const SleepTracker = () => {
 
     const chartOptions = {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
             legend: {
                 position: 'top',
@@ -105,80 +107,87 @@ const SleepTracker = () => {
 
     return (
         <div className="sleep-tracker">
-            <h1>Sleep Tracker</h1>
-            
-            <div className="dashboard">
-                <div className="chart-container">
-                    <Line options={chartOptions} data={getLastWeekData()} />
+            <Navbar2 />
+            <div className="container">
+                <h1 className="page-title">Sleep Tracker</h1>
+                
+                <div className="feature-grid">
+                    <div className="feature-card">
+                        <h2>Log Today's Sleep</h2>
+                        <form onSubmit={handleSubmit} className="tracker-form">
+                            <div className="form-group">
+                                <label htmlFor="date">Date:</label>
+                                <input type="date" id="date" name="date" value={formData.date} onChange={handleInputChange} required />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="bedtime">Bedtime:</label>
+                                <input type="time" id="bedtime" name="bedtime" value={formData.bedtime} onChange={handleInputChange} required />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="waketime">Wake time:</label>
+                                <input type="time" id="waketime" name="waketime" value={formData.waketime} onChange={handleInputChange} required />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="quality">Sleep Quality (1-10):</label>
+                                <input type="number" id="quality" name="quality" min="1" max="10" value={formData.quality} onChange={handleInputChange} required />
+                            </div>
+
+                            <h3>Questions about Yesterday's Sleep</h3>
+                            <div className="form-group">
+                                <label htmlFor="feelRested">Did you feel well-rested?</label>
+                                <select id="feelRested" name="feelRested" value={yesterdayQuestions.feelRested} onChange={handleYesterdayQuestions} required>
+                                    <option value="">Select an option</option>
+                                    <option value="yes">Yes</option>
+                                    <option value="no">No</option>
+                                </select>
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="dreamed">Did you dream?</label>
+                                <select id="dreamed" name="dreamed" value={yesterdayQuestions.dreamed} onChange={handleYesterdayQuestions} required>
+                                    <option value="">Select an option</option>
+                                    <option value="yes">Yes</option>
+                                    <option value="no">No</option>
+                                </select>
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="wakeUps">How many times did you wake up?</label>
+                                <input type="number" id="wakeUps" name="wakeUps" min="0" value={yesterdayQuestions.wakeUps} onChange={handleYesterdayQuestions} required />
+                            </div>
+
+                            <div className="form-group">
+                                <label htmlFor="notes">Notes about your sleep:</label>
+                                <textarea id="notes" name="notes" value={formData.notes} onChange={handleInputChange} />
+                            </div>
+
+                            <button type="submit" className="submit-button">Save Entry</button>
+                        </form>
+                    </div>
+                    
+                    <div className="feature-card">
+                        <h2>Sleep Statistics</h2>
+                        <div className="stats-container">
+                            <div className="stat-box">
+                                <h3>Average Sleep Quality</h3>
+                                <p>{calculateAverageSleepQuality()}</p>
+                            </div>
+                            <div className="stat-box">
+                                <h3>Average Sleep Duration</h3>
+                                <p>{calculateAverageSleepDuration()}</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
-                <div className="stats-container">
-                    <div className="stat-box">
-                        <h3>Average Sleep Quality</h3>
-                        <p>{calculateAverageSleepQuality()}</p>
-                    </div>
-                    <div className="stat-box">
-                        <h3>Average Sleep Duration</h3>
-                        <p>{calculateAverageSleepDuration()}</p>
+                <div className="feature-card">
+                    <h2>Sleep Quality Over Time</h2>
+                    <div className="chart-container">
+                        <Line options={chartOptions} data={getLastWeekData()} />
                     </div>
                 </div>
-            </div>
-
-            <div className="content-container">
-                <div className="form-container">
-                    <h2>Log Today's Sleep</h2>
-                    <form onSubmit={handleSubmit}>
-                        <div className="form-group">
-                            <label htmlFor="date">Date:</label>
-                            <input type="date" id="date" name="date" value={formData.date} onChange={handleInputChange} required />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="bedtime">Bedtime:</label>
-                            <input type="time" id="bedtime" name="bedtime" value={formData.bedtime} onChange={handleInputChange} required />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="waketime">Wake time:</label>
-                            <input type="time" id="waketime" name="waketime" value={formData.waketime} onChange={handleInputChange} required />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="quality">Sleep Quality (1-10):</label>
-                            <input type="number" id="quality" name="quality" min="1" max="10" value={formData.quality} onChange={handleInputChange} required />
-                        </div>
-
-                        <h3>Questions about Yesterday's Sleep</h3>
-                        <div className="form-group">
-                            <label htmlFor="feelRested">Did you feel well-rested?</label>
-                            <select id="feelRested" name="feelRested" value={yesterdayQuestions.feelRested} onChange={handleYesterdayQuestions} required>
-                                <option value="">Select an option</option>
-                                <option value="yes">Yes</option>
-                                <option value="no">No</option>
-                            </select>
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="dreamed">Did you dream?</label>
-                            <select id="dreamed" name="dreamed" value={yesterdayQuestions.dreamed} onChange={handleYesterdayQuestions} required>
-                                <option value="">Select an option</option>
-                                <option value="yes">Yes</option>
-                                <option value="no">No</option>
-                            </select>
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="wakeUps">How many times did you wake up?</label>
-                            <input type="number" id="wakeUps" name="wakeUps" min="0" value={yesterdayQuestions.wakeUps} onChange={handleYesterdayQuestions} required />
-                        </div>
-
-                        <div className="form-group">
-                            <label htmlFor="notes">Notes about your sleep:</label>
-                            <textarea id="notes" name="notes" value={formData.notes} onChange={handleInputChange} />
-                        </div>
-
-                        <button type="submit" className="submit-button">Save Entry</button>
-                    </form>
-                </div>
-
-                <div className="sleep-log">
+                
+                <div className="feature-card">
                     <h2>Sleep Log</h2>
-                    <ul>
+                    <ul className="log-list">
                         {sleepLog.map((entry, index) => (
                             <li key={index}>
                                 <h3>{entry.date}</h3>

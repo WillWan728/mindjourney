@@ -1,17 +1,18 @@
 import React from 'react';
-import logomind from '../images/logo mind.png'; 
-import '../css/navbar.css'
+import { Link } from 'react-router-dom';
+import logomind from '../images/logo mind.png';
+import '../css/navbar.css';
 
 const Navbar = () => {
   return (
     <header className="homepage-header">
       <div className="logo-container">
         <img src={logomind} alt="Mind Journey Logo" className="logo-image" />
-        <div className="logo-text">MindJourney</div>
+        <span className="logo-text">MindJourney</span>
       </div>
       <div className="auth-buttons">
-        <a href="/login" className="auth-button">Login</a>
-        <a href="/register" className="auth-button">Sign Up</a>
+        <Link to="/login" className="auth-link"><span>Login</span></Link>
+        <Link to="/register" className="auth-link"><span>Register</span></Link>
       </div>
     </header>
   );

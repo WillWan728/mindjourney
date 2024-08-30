@@ -1,4 +1,3 @@
-/* src/components/Navbar.css */
 .homepage-header {
   display: flex;
   justify-content: space-between;
@@ -11,6 +10,12 @@
 .logo-container {
   display: flex;
   align-items: center;
+}
+
+.logo-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
 }
 
 .logo-image {

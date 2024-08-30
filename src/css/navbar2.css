@@ -1,0 +1,107 @@
+/* ../css/navbar2.css */
+
+.navbar2 {
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 10px 0;
+}
+
+.navbar-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+}
+
+.logo-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+}
+
+.logo-image {
+  width: 40px;
+  height: 40px;
+  margin-right: 10px;
+}
+
+.logo-text {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #5f9ea0;
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: #4a6a6d;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #5f9ea0;
+}
+
+.profile-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile-button, .sign-out-button {
+  padding: 8px 16px;
+  border-radius: 20px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.profile-button {
+  background-color: #5f9ea0;
+  color: #ffffff;
+}
+
+.profile-button:hover {
+  background-color: #4a6a6d;
+}
+
+.sign-out-button {
+  background-color: #f0f5f5;
+  color: #4a6a6d;
+  border: none;
+  cursor: pointer;
+}
+
+.sign-out-button:hover {
+  background-color: #e0ebeb;
+  color: #5f9ea0;
+}
+
+@media (max-width: 768px) {
+  .navbar-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .nav-links {
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+
+  .profile-container {
+    margin-top: 10px;
+  }
+}

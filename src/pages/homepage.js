@@ -1,6 +1,6 @@
 import React from 'react';
 import '../css/homepage.css';
-import Navbar from '../pages/navbar' 
+import Navbar from './navbar' 
 import people from '../images/people.png';
 
 const FeatureItem = ({ title, number, description }) => (
@@ -66,7 +66,7 @@ const WellbeingScoreSection = () => (
 function HomePage() {
   return (
     <div className="homepage">
-      <Navbar /> {/* Use the Navbar component */}
+      <Navbar /> 
       <div className="homepage-content">
         <div className="content-wrapper">
           <h2 className="welcome-text">Welcome to MindJourney</h2>

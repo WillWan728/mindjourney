@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import logomind from '../images/logo mind.png';
+import { useNavigate } from 'react-router-dom';
 import '../css/login.css';
+import Navbar from './navbar';
+import { auth } from '../config/firebase';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 
 const LoginUser = () => {
     const [formData, setFormData] = useState({
-        username: '',
+        email: '',
         password: ''
     });
 
     const [error, setError] = useState('');
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -23,57 +26,35 @@ const LoginUser = () => {
         e.preventDefault();
         setError('');
 
-        // Basic validation
-        if (!formData.username || !formData.password) {
-            setError('Username and password are required');
+        if (!formData.email || !formData.password) {
+            setError('Email and password are required');
             return;
         }
 
-        // Here you would typically send the data to your backend API for authentication
         try {
-            // Replace with your actual API call
-            const response = await fetch('/api/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    username: formData.username,
-                    password: formData.password
-                }),
-            });
-
-            if (response.ok) {
-                // Handle successful login (e.g., redirect to dashboard)
-                console.log('User logged in successfully');
-            } else {
-                const data = await response.json();
-                setError(data.message || 'Login failed');
-            }
+            const userCredential = await signInWithEmailAndPassword(auth, formData.email, formData.password);
+            const user = userCredential.user;
+            console.log('User logged in successfully', user);
+            navigate('/dashboard', { state: { username: user.displayName || user.email } });
         } catch (error) {
-            setError('An error occurred. Please try again.');
+            console.error('Login error:', error.code, error.message);
+            setError(`Login failed: ${error.message}`);
         }
     };
 
     return (
         <div className="login-page">
-            <header className="login-header">
-                <Link to="/" className="logo-container">
-                    <img src={logomind} alt="Mind Journey Logo" className="logo-image" />
-                    <div className="logo-text">MindJourney</div>
-                </Link>
-            </header>
-
+            <Navbar />
             <div className="login-container">
                 <h2>Login to Your Account</h2>
                 <form onSubmit={handleSubmit} className="login-form">
                     <div className="form-group">
-                        <label htmlFor="username">Username</label>
+                        <label htmlFor="email">Email</label>
                         <input
-                            type="text"
-                            id="username"
-                            name="username"
-                            value={formData.username}
+                            type="email"
+                            id="email"
+                            name="email"
+                            value={formData.email}
                             onChange={handleChange}
                             required
                         />

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import '../css/moodtracker.css'
+import Navbar2 from './navbar2';
 
 const MoodTracker = () => {
   const [moodColor, setMoodColor] = useState('#FFFF00');
@@ -57,6 +58,7 @@ const MoodTracker = () => {
 
   return (
     <div className="mood-tracker-container">
+      <Navbar2/>
       <h1>Mood Tracker</h1>
       <div className="mood-selector">
         <h3>How are you feeling today?</h3>
@@ -64,12 +66,11 @@ const MoodTracker = () => {
           value={moodColor} 
           onChange={(e) => setMoodColor(e.target.value)}
         >
-          <option value="#FF0000">Angry (Red)</option>
-          <option value="#FFA500">Stressed (Orange)</option>
-          <option value="#FFFF00">Happy (Yellow)</option>
-          <option value="#008000">Calm (Green)</option>
-          <option value="#0000FF">Sad (Blue)</option>
-          <option value="#800080">Anxious (Purple)</option>
+          <option value="#FF0000">Angry 😡</option>
+          <option value="#FFA500">Stressed 😩</option>
+          <option value="#FFFF00">Happy 😀</option>
+          <option value="#008000">Calm 🙂‍↕️</option>
+          <option value="#0000FF">Sad 😟</option>
         </select>
       </div>
       <div className="mood-factors">

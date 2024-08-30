@@ -21,7 +21,7 @@ export default function Footer() {
                     <div className="footer-links-group">
                         <ul>
                             <li><a href="/Terms">Terms and Conditions</a></li>
-                            <li><a href="/about">About us</a></li>
+                            <li><a href="/homeaboutpage">About us</a></li>
                             <li><a href="Twitter">Twitter</a></li>
                         </ul>
                     </div>
