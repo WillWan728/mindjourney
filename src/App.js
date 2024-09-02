@@ -14,31 +14,32 @@ import Homepage from "./pages/homepage.js";
 import DashboardPage from "./pages/dashboard.js";
 import MindfulExercisePage from "./pages/mindfull.js";
 import HealthyHabitsPage from "./pages/healthyhabit.js";
-import AchievementPage from "./pages/achivement.js";
+import AchievementPage from "./pages/achievement.js";
 
 const App = () => {
     return (
-        <Router>
-            <div className="app-container">
-                <Routes>
-                    <Route path="/" element={<Homepage />} /> 
-                    <Route path="/register" element={<RegisterUser />} />
-                    <Route path="/login" element={<LoginUser />} />
-                    <Route path="/sleeptracker" element={<SleepTracker />} />
-                    <Route path="/fitness" element={<FitnessTracker />} />
-                    <Route path="/about" element={<AboutUs />} />
-                    <Route path="/mentalhealth" element={<MentalHealthPage />} />
-                    <Route path="/journaling" element={<Journaling />} />
-                    <Route path="/moodtracker" element={<MoodTracker />} />
-                    <Route path="/dashboard" element={<DashboardPage/>} />
-                    <Route path="/homeaboutpage" element={<HomeAboutUsPage/>} />
-                    <Route path="/mindfulness" element={<MindfulExercisePage/>} />
-                    <Route path="/healthyhabits" element={<HealthyHabitsPage/>} />
-                    <Route path="/achievements" element={<AchievementPage/>} />
-                </Routes>
-                <Footer />
-            </div>
-        </Router>
+     
+            <Router>
+                <div className="app-container">
+                    <Routes>
+                        <Route path="/" element={<Homepage />} /> 
+                        <Route path="/register" element={<RegisterUser />} />
+                        <Route path="/login" element={<LoginUser />} />
+                        <Route path="/sleeptracker" element={<SleepTracker />} />
+                        <Route path="/fitness" element={<FitnessTracker />} />
+                        <Route path="/about" element={<AboutUs />} />
+                        <Route path="/mentalhealth" element={<MentalHealthPage />} />
+                        <Route path="/journaling" element={<Journaling />} />
+                        <Route path="/moodtracker" element={<MoodTracker />} />
+                        <Route path="/dashboard" element={<DashboardPage />} />
+                        <Route path="/homeaboutpage" element={<HomeAboutUsPage />} />
+                        <Route path="/mindfulness" element={<MindfulExercisePage />} />
+                        <Route path="/healthyhabits" element={<HealthyHabitsPage />} />
+                        <Route path="/achievements" element={<AchievementPage />} />
+                    </Routes>
+                    <Footer />
+                </div>
+            </Router>
     );
 };
 

@@ -1,3 +1,4 @@
+/* Fitness Tracker Styles */
 .fitness-tracker {
   font-family: Arial, sans-serif;
   max-width: 1200px;
@@ -37,14 +38,17 @@
   margin-bottom: 20px;
 }
 
-.tracker-form input {
+.tracker-form input,
+.tracker-form select,
+.tracker-form textarea {
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 16px;
 }
 
-.submit-button {
+.submit-button,
+.history-button {
   background-color: #5f9ea0;
   color: white;
   border: none;
@@ -55,14 +59,24 @@
   transition: background-color 0.3s;
 }
 
-.submit-button:hover {
+.submit-button:hover,
+.history-button:hover {
   background-color: #4a6a6d;
+}
+
+.history-button {
+  background-color: #0074d9;
+  margin-top: 10px;
+}
+
+.history-button:hover {
+  background-color: #0056b3;
 }
 
 .log-list {
   list-style-type: none;
   padding: 0;
-  max-height: 200px;
+  max-height: 300px;
   overflow-y: auto;
 }
 
@@ -73,37 +87,6 @@
   border-radius: 4px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
-
-.chart-container {
-  margin-top: 30px;
-  max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.chart-container canvas {
-  max-height: 400px !important;
-}
-
-@media (max-width: 768px) {
-  .feature-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .chart-container {
-    max-width: 100%;
-  }
-  
-  .chart-container canvas {
-    max-height: 300px !important;
-  }
-}
-
-.fitness-tracker {
-  /* Existing styles... */
-}
-
-/* ... (other existing styles) ... */
 
 .delete-button {
   background-color: #ff4136;
@@ -120,19 +103,15 @@
   background-color: #d63229;
 }
 
-.history-button {
-  background-color: #0074d9;
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  margin-top: 10px;
+.chart-container {
+  margin-top: 30px;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.history-button:hover {
-  background-color: #0056b3;
+.chart-container canvas {
+  max-height: 400px !important;
 }
 
 .error-message {
@@ -142,4 +121,18 @@
   padding: 10px;
   border-radius: 4px;
   margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .feature-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .chart-container {
+    max-width: 100%;
+  }
+  
+  .chart-container canvas {
+    max-height: 300px !important;
+  }
 }

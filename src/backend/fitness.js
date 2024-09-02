@@ -1,5 +1,3 @@
-// File: src/services/firebaseService.js
-
 import { collection, addDoc, getDocs, query, where, Timestamp, orderBy,  deleteDoc, doc } from 'firebase/firestore';
 import { auth, db } from '../config/firebase';
 

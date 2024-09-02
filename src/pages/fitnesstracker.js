@@ -271,104 +271,102 @@ const FitnessTracker = () => {
   return (
     <div className="fitness-tracker">
       <Navbar2 />
-      <div className="container">
-        <h1 className="page-title">Fitness Tracker</h1>
-        {error && <div className="error-message">{error}</div>}
-        <div className="feature-grid">
-          <div className="feature-card">
-            <h2>Exercise Log</h2>
-            <form onSubmit={handleExerciseSubmit} className="tracker-form">
-              <input 
-                type="date" 
-                value={exerciseForm.date} 
-                onChange={(e) => setExerciseForm({...exerciseForm, date: e.target.value})} 
-                required 
-              />
-              <input 
-                type="text" 
-                value={exerciseForm.type} 
-                onChange={(e) => setExerciseForm({...exerciseForm, type: e.target.value})} 
-                placeholder="Exercise Type" 
-                required 
-              />
-              <input 
-                type="number" 
-                value={exerciseForm.duration} 
-                onChange={(e) => setExerciseForm({...exerciseForm, duration: e.target.value})} 
-                placeholder="Duration (minutes)" 
-                required 
-              />
-              <input 
-                type="number" 
-                value={exerciseForm.caloriesBurned} 
-                onChange={(e) => setExerciseForm({...exerciseForm, caloriesBurned: e.target.value})} 
-                placeholder="Calories Burned" 
-                required 
-              />
-              <input 
-                type="number" 
-                value={exerciseForm.distance} 
-                onChange={(e) => setExerciseForm({...exerciseForm, distance: e.target.value})} 
-                placeholder="Distance" 
-              />
-              <input 
-                type="number" 
-                value={exerciseForm.sets} 
-                onChange={(e) => setExerciseForm({...exerciseForm, sets: e.target.value})} 
-                placeholder="Sets" 
-              />
-              <input 
-                type="number" 
-                value={exerciseForm.reps} 
-                onChange={(e) => setExerciseForm({...exerciseForm, reps: e.target.value})} 
-                placeholder="Reps" 
-              />
-              <input 
-                type="number" 
-                value={exerciseForm.weight} 
-                onChange={(e) => setExerciseForm({...exerciseForm, weight: e.target.value})} 
-                placeholder="Weight" 
-              />
-              <textarea 
-                value={exerciseForm.notes} 
-                onChange={(e) => setExerciseForm({...exerciseForm, notes: e.target.value})} 
-                placeholder="Notes" 
-              />
-              <button type="submit" className="submit-button" disabled={loading}>Add Exercise</button>
-            </form>
-            {renderExerciseList()}
-          </div>
-          
-          <div className="feature-card">
-            <h2>Nutrition Log</h2>
-            <form onSubmit={handleMealSubmit} className="tracker-form">
-              <input 
-                type="date" 
-                value={mealForm.date} 
-                onChange={(e) => setMealForm({...mealForm, date: e.target.value})} 
-                required 
-              />
-              <input 
-                type="text" 
-                value={mealForm.name} 
-                onChange={(e) => setMealForm({...mealForm, name: e.target.value})} 
-                placeholder="Meal Name" 
-                required 
-              />
-              <input 
-                type="number" 
-                value={mealForm.calories} 
-                onChange={(e) => setMealForm({...mealForm, calories: e.target.value})} 
-                placeholder="Calories" 
-                required 
-              />
-              <button type="submit" className="submit-button" disabled={loading}>Add Meal</button>
-            </form>
-            {renderMealList()}
-          </div>
+      <h1 className="page-title">Fitness Tracker</h1>
+      {error && <div className="error-message">{error}</div>}
+      <div className="content-grid">
+        <div className="feature-card exercise-log">
+          <h2>Exercise Log</h2>
+          <form onSubmit={handleExerciseSubmit} className="tracker-form">
+            <input 
+              type="date" 
+              value={exerciseForm.date} 
+              onChange={(e) => setExerciseForm({...exerciseForm, date: e.target.value})} 
+              required 
+            />
+            <input 
+              type="text" 
+              value={exerciseForm.type} 
+              onChange={(e) => setExerciseForm({...exerciseForm, type: e.target.value})} 
+              placeholder="Exercise Type" 
+              required 
+            />
+            <input 
+              type="number" 
+              value={exerciseForm.duration} 
+              onChange={(e) => setExerciseForm({...exerciseForm, duration: e.target.value})} 
+              placeholder="Duration (minutes)" 
+              required 
+            />
+            <input 
+              type="number" 
+              value={exerciseForm.caloriesBurned} 
+              onChange={(e) => setExerciseForm({...exerciseForm, caloriesBurned: e.target.value})} 
+              placeholder="Calories Burned" 
+              required 
+            />
+            <input 
+              type="number" 
+              value={exerciseForm.distance} 
+              onChange={(e) => setExerciseForm({...exerciseForm, distance: e.target.value})} 
+              placeholder="Distance" 
+            />
+            <input 
+              type="number" 
+              value={exerciseForm.sets} 
+              onChange={(e) => setExerciseForm({...exerciseForm, sets: e.target.value})} 
+              placeholder="Sets" 
+            />
+            <input 
+              type="number" 
+              value={exerciseForm.reps} 
+              onChange={(e) => setExerciseForm({...exerciseForm, reps: e.target.value})} 
+              placeholder="Reps" 
+            />
+            <input 
+              type="number" 
+              value={exerciseForm.weight} 
+              onChange={(e) => setExerciseForm({...exerciseForm, weight: e.target.value})} 
+              placeholder="Weight" 
+            />
+            <textarea 
+              value={exerciseForm.notes} 
+              onChange={(e) => setExerciseForm({...exerciseForm, notes: e.target.value})} 
+              placeholder="Notes" 
+            />
+            <button type="submit" className="submit-button" disabled={loading}>Add Exercise</button>
+          </form>
+          {renderExerciseList()}
         </div>
         
-        <div className="chart-container feature-card">
+        <div className="feature-card calorie-tracker">
+          <h2>Nutrition Log</h2>
+          <form onSubmit={handleMealSubmit} className="tracker-form">
+            <input 
+              type="date" 
+              value={mealForm.date} 
+              onChange={(e) => setMealForm({...mealForm, date: e.target.value})} 
+              required 
+            />
+            <input 
+              type="text" 
+              value={mealForm.name} 
+              onChange={(e) => setMealForm({...mealForm, name: e.target.value})} 
+              placeholder="Meal Name" 
+              required 
+            />
+            <input 
+              type="number" 
+              value={mealForm.calories} 
+              onChange={(e) => setMealForm({...mealForm, calories: e.target.value})} 
+              placeholder="Calories" 
+              required 
+            />
+            <button type="submit" className="submit-button" disabled={loading}>Add Meal</button>
+          </form>
+          {renderMealList()}
+        </div>
+        
+        <div className="feature-card calories-overview">
           <h2>Calorie Overview</h2>
           {renderChart()}
         </div>
