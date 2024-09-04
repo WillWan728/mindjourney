@@ -1,0 +1,167 @@
+/* css/meditation.css */
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+}
+
+.meditation-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.main-title {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.tab-navigation {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.tab-navigation button {
+  background-color: #f0f0f0;
+  border: none;
+  padding: 10px 20px;
+  margin: 0 5px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.tab-navigation button.active {
+  background-color: #5f9ea0;
+  color: white;
+}
+
+.content-box {
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+.exercises-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.category-buttons {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.category-buttons button {
+  background-color: #f0f0f0;
+  border: none;
+  padding: 8px 16px;
+  margin: 0 5px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.category-buttons button.active {
+  background-color: #5f9ea0;
+  color: white;
+}
+
+.exercise-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.exercise-card {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  transition: transform 0.3s ease;
+  cursor: pointer;
+}
+
+.exercise-card:hover {
+  transform: translateY(-5px);
+}
+
+.exercise-card h3 {
+  color: #5f9ea0;
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
+.error-message {
+  background-color: #ffcccb;
+  color: #d8000c;
+  padding: 10px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+}
+
+.exercise-details {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  max-width: 80%;
+  max-height: 80%;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.exercise-details h2 {
+  color: #5f9ea0;
+  margin-top: 0;
+}
+
+.exercise-details ol {
+  padding-left: 20px;
+}
+
+.exercise-details button {
+  background-color: #5f9ea0;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 20px;
+}
+
+/* Add styles for meditation form, history, etc. here */
+
+@media (max-width: 900px) {
+  .exercise-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .exercise-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .category-buttons,
+  .tab-navigation {
+    flex-direction: column;
+  }
+  
+  .category-buttons button,
+  .tab-navigation button {
+    margin-bottom: 5px;
+    border-radius: 5px;
+  }
+}

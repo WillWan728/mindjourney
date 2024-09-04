@@ -1,9 +1,12 @@
-/* ../css/navbar2.css */
+/* navbar2.css */
 
 .navbar2 {
   background-color: #ffffff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 10px 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
 .navbar-content {
@@ -16,92 +19,92 @@
 }
 
 .logo-container {
-  display: flex;
-  align-items: center;
+  flex: 1;
 }
 
 .logo-link {
   display: flex;
   align-items: center;
   text-decoration: none;
-  color: inherit;
+  color: #333;
 }
 
 .logo-image {
-  width: 40px;
-  height: 40px;
+  height: 30px;
   margin-right: 10px;
 }
 
 .logo-text {
-  font-size: 1.2rem;
+  font-size: 1.2em;
   font-weight: bold;
-  color: #5f9ea0;
+  color: #333;
 }
 
-.nav-links {
+.nav-links-container {
+  flex: 2;
   display: flex;
+  justify-content: center;
   gap: 20px;
 }
 
 .nav-link {
+  color: #333;
   text-decoration: none;
-  color: #4a6a6d;
   font-weight: 500;
-  transition: color 0.3s ease;
+  padding: 5px 10px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
 }
 
 .nav-link:hover {
-  color: #5f9ea0;
+  background-color: #f0f0f0;
 }
 
 .profile-container {
+  flex: 1;
   display: flex;
-  align-items: center;
+  justify-content: flex-end;
   gap: 10px;
 }
 
-.profile-button, .sign-out-button {
-  padding: 8px 16px;
-  border-radius: 20px;
-  text-decoration: none;
-  font-weight: 500;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.profile-button {
-  background-color: #5f9ea0;
-  color: #ffffff;
-}
-
-.profile-button:hover {
-  background-color: #4a6a6d;
-}
-
+.profile-button,
 .sign-out-button {
-  background-color: #f0f5f5;
-  color: #4a6a6d;
+  background-color: #5f9ea0;
+  color: white;
   border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
   cursor: pointer;
+  text-decoration: none;
+  font-size: 0.9em;
+  transition: background-color 0.3s ease;
 }
 
+.profile-button:hover,
 .sign-out-button:hover {
-  background-color: #e0ebeb;
-  color: #5f9ea0;
+  background-color: #4f8e90;
 }
 
 @media (max-width: 768px) {
   .navbar-content {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
   }
 
-  .nav-links {
-    margin-top: 10px;
-    flex-wrap: wrap;
+  .logo-container,
+  .nav-links-container,
+  .profile-container {
+    flex: none;
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .nav-links-container {
+    flex-direction: column;
+    align-items: center;
   }
 
   .profile-container {
-    margin-top: 10px;
+    justify-content: center;
   }
 }

@@ -7,14 +7,16 @@ import SleepTracker from "./pages/sleeptracker";
 import FitnessTracker from "./pages/fitnesstracker";
 import AboutUs from "./pages/about";
 import HomeAboutUsPage from "./pages/homeaboutpage.js";
-import MentalHealthPage from "./pages/mentalhealth";
-import Journaling from "./pages/journaling";
 import MoodTracker from "./pages/moodtracker";
 import Homepage from "./pages/homepage.js"; 
 import DashboardPage from "./pages/dashboard.js";
-import MindfulExercisePage from "./pages/mindfull.js";
+import MindfulExercisePage from "./pages/meditation.js";
 import HealthyHabitsPage from "./pages/healthyhabit.js";
-import AchievementPage from "./pages/achievement.js";
+import AchievementPage from "./pages/achivement.js";
+import ProfilePage from "./pages/profile.js";
+import WellbeingScore from "./pages/wellbeing.js";
+import Goals from "./pages/goals.js";
+import TestPage from "./pages/test.js";
 
 const App = () => {
     return (
@@ -28,14 +30,16 @@ const App = () => {
                         <Route path="/sleeptracker" element={<SleepTracker />} />
                         <Route path="/fitness" element={<FitnessTracker />} />
                         <Route path="/about" element={<AboutUs />} />
-                        <Route path="/mentalhealth" element={<MentalHealthPage />} />
-                        <Route path="/journaling" element={<Journaling />} />
                         <Route path="/moodtracker" element={<MoodTracker />} />
                         <Route path="/dashboard" element={<DashboardPage />} />
                         <Route path="/homeaboutpage" element={<HomeAboutUsPage />} />
                         <Route path="/mindfulness" element={<MindfulExercisePage />} />
                         <Route path="/healthyhabits" element={<HealthyHabitsPage />} />
                         <Route path="/achievements" element={<AchievementPage />} />
+                        <Route path="/profile" element={<ProfilePage/>}/>
+                        <Route path="/wellbeing" element={<WellbeingScore/>}/>
+                        <Route path="/goals" element={<Goals/>}/>
+                        <Route path="/test" element={<TestPage/>}/>
                     </Routes>
                     <Footer />
                 </div>

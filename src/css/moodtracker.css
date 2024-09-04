@@ -1,109 +1,166 @@
-body {
-    font-family: Arial, sans-serif;
-    line-height: 1.6;
-    margin: 0;
-    padding: 0;
-    background-color: #f4f4f4;
-}
-
 .mood-tracker-container {
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
-}
-
-.mood-tracker-container h1 {
+  }
+  
+  .main-title {
     text-align: center;
     color: #333;
-    margin-bottom: 30px;
-}
-
-.mood-selector, .mood-factors, .mood-notes {
-    background-color: #f0f0f0;
-    border-radius: 8px;
-    padding: 20px;
     margin-bottom: 20px;
-}
-
-.mood-selector h3, .mood-factors h3, .mood-notes h3 {
-    margin-top: 0;
-    color: #444;
-}
-
-#mood-color {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 16px;
-}
-
-.checkbox-group {
+  }
+  
+  .tab-navigation {
     display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-.checkbox-group label {
-    display: flex;
-    align-items: center;
-    font-size: 16px;
-    color: #555;
-}
-
-#mood-notes {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 16px;
-    resize: vertical;
-}
-
-.save-mood-btn {
-    background-color: #4CAF50;
-    color: white;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  
+  .tab-navigation button {
+    background-color: #f0f0f0;
     border: none;
     padding: 10px 20px;
-    border-radius: 4px;
+    margin: 0 5px;
     cursor: pointer;
+    border-radius: 5px 5px 0 0;
+    transition: background-color 0.3s ease;
+  }
+  
+  .tab-navigation button.active {
+    background-color: #5f9ea0;
+    color: white;
+  }
+  
+  .add-mood-log,
+  .mood-history {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 5px;
+  }
+  
+  .mood-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .form-group label {
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+  
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .form-group textarea {
+    height: 100px;
+    resize: vertical;
+  }
+  
+  button[type="submit"] {
+    background-color: #5f9ea0;
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 4px;
     font-size: 16px;
-    margin-top: 10px;
-}
-
-.saved-moods h3 {
-    border-bottom: 2px solid #ddd;
-    padding-bottom: 10px;
-}
-
-.mood-entry {
+  }
+  
+  .checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+  }
+  
+  .checkbox-label input {
+    margin-right: 10px;
+  }
+  
+  .saved-mood {
     background-color: #fff;
     border: 1px solid #ddd;
     border-radius: 4px;
     padding: 15px;
     margin-bottom: 15px;
-}
-
-.mood-date {
-    font-size: 14px;
-    color: #888;
-    margin-bottom: 5px;
-}
-
-.mood-color {
-    width: 20px;
-    height: 20px;
+    position: relative;
+  }
+  
+  .delete-mood-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .mood-display {
     display: inline-block;
-    margin-right: 10px;
-    border-radius: 50%;
-}
-
-.mood-factors-list {
-    font-style: italic;
-    color: #555;
+    padding: 5px 10px;
+    border-radius: 4px;
+    color: white;
+    font-weight: bold;
     margin-bottom: 10px;
-}
+  }
+  
+  .mood-factors-list,
+  .mood-notes-content {
+    margin-bottom: 5px;
+  }
 
-.mood-notes-content {
-    color: #333;
-}
+  .factors-group {
+    margin-bottom: 1rem;
+  }
+  
+  .factors-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+  }
+  
+  .factor-label {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+  }
+  
+  .factor-label input {
+    margin-right: 0.5rem;
+  }
+  
+  .random-prompt-btn {
+    margin-top: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .random-prompt-btn:hover {
+    background-color: #e0e0e0;
+  }
+  .entry-content {
+    background-color: yellow;
+    padding: 10px;
+    margin: 10px 0;
+  }

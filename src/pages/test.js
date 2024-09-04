@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Navbar2 from './navbar2';
 import '../css/mindfullness.css';
 
-const MindfulExercisePage = () => {
+const TestPage = () => {
   const [selectedExercise, setSelectedExercise] = useState(null);
 
   const exercises = [
@@ -76,4 +76,4 @@ const MindfulExercisePage = () => {
   );
 };
 
-export default MindfulExercisePage;
+export default TestPage;

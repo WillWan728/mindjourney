@@ -1,37 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { Line } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
-import Navbar2 from './navbar2';
-import '../css/fitnesstracker.css';
-import { addExercise, fetchExercises, addMeal, fetchMeals, deleteExercise, deleteMeal } from '../backend/fitness';
 import { auth } from '../config/firebase';
-
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+import { addExercise, fetchExercises, addMeal, fetchMeals, deleteExercise, deleteMeal, addWater, fetchWater, deleteWater } from '../backend/fitness';
+import Navbar2 from './navbar2';
+import ExerciseForm from './exerciseform';
+import MealForm from './mealform';
+import WaterForm from './waterform';
+import History from './history';
+import Overview from './overview';
+import '../css/fitnesstracker.css';
 
 const FitnessTracker = () => {
   const [user, setUser] = useState(null);
   const [exercises, setExercises] = useState([]);
   const [meals, setMeals] = useState([]);
-  const [exerciseForm, setExerciseForm] = useState({
-    date: new Date().toISOString().split('T')[0],
-    type: '',
-    duration: '',
-    caloriesBurned: '',
-    distance: '',
-    notes: '',
-    reps: '',
-    sets: '',
-    weight: ''
-  });
-  const [mealForm, setMealForm] = useState({
-    date: new Date().toISOString().split('T')[0],
-    name: '',
-    calories: ''
-  });
+  const [waterIntakes, setWaterIntakes] = useState([]);
+  const [exerciseForm, setExerciseForm] = useState({ /* initial state */ });
+  const [mealForm, setMealForm] = useState({ /* initial state */ });
+  const [waterForm, setWaterForm] = useState({ /* initial state */ });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showFullExerciseHistory, setShowFullExerciseHistory] = useState(false);
-  const [showFullMealHistory, setShowFullMealHistory] = useState(false);
+  const [activeTab, setActiveTab] = useState('exercise');
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -49,9 +37,14 @@ const FitnessTracker = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [exercisesData, mealsData] = await Promise.all([fetchExercises(), fetchMeals()]);
+      const [exercisesData, mealsData, waterData] = await Promise.all([
+        fetchExercises(),
+        fetchMeals(),
+        fetchWater()
+      ]);
       setExercises(exercisesData);
       setMeals(mealsData);
+      setWaterIntakes(waterData);
     } catch (error) {
       console.error("Error fetching data: ", error);
       setError("Failed to load data. Please try again later.");
@@ -66,17 +59,7 @@ const FitnessTracker = () => {
       setLoading(true);
       await addExercise(exerciseForm);
       await fetchData();
-      setExerciseForm({
-        ...exerciseForm,
-        type: '',
-        duration: '',
-        caloriesBurned: '',
-        distance: '',
-        notes: '',
-        reps: '',
-        sets: '',
-        weight: ''
-      });
+      setExerciseForm({ /* reset form */ });
     } catch (error) {
       console.error("Error submitting exercise: ", error);
       setError("Failed to add exercise. Please try again.");
@@ -91,14 +74,25 @@ const FitnessTracker = () => {
       setLoading(true);
       await addMeal(mealForm);
       await fetchData();
-      setMealForm({
-        ...mealForm,
-        name: '',
-        calories: ''
-      });
+      setMealForm({ /* reset form */ });
     } catch (error) {
       console.error("Error submitting meal: ", error);
       setError("Failed to add meal. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleWaterSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      await addWater(waterForm);
+      await fetchData();
+      setWaterForm({ /* reset form */ });
+    } catch (error) {
+      console.error("Error submitting water intake: ", error);
+      setError("Failed to add water intake. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -130,134 +124,17 @@ const FitnessTracker = () => {
     }
   };
 
-  const renderChart = () => {
-    const sortedData = [...meals, ...exercises].sort((a, b) => a.date - b.date);
-  
-    const data = {
-      labels: sortedData.map(item => item.date.toLocaleDateString()),
-      datasets: [
-        {
-          label: 'Calories Consumed',
-          data: sortedData.map(item => item.calories || 0),
-          borderColor: 'rgb(75, 192, 192)',
-          backgroundColor: 'rgba(75, 192, 192, 0.5)',
-          pointRadius: 5,
-          pointHoverRadius: 8,
-          fill: false,
-        },
-        {
-          label: 'Calories Burned',
-          data: sortedData.map(item => item.caloriesBurned || 0),
-          borderColor: 'rgb(255, 99, 132)',
-          backgroundColor: 'rgba(255, 99, 132, 0.5)',
-          pointRadius: 5,
-          pointHoverRadius: 8,
-          fill: false,
-        }
-      ]
-    };
-  
-    const options = {
-      responsive: true,
-      plugins: {
-        legend: { position: 'top' },
-        title: { 
-          display: true, 
-          text: 'Calorie Intake and Burned' 
-        },
-        tooltip: {
-          callbacks: {
-            label: function(context) {
-              let label = context.dataset.label || '';
-              if (label) {
-                label += ': ';
-              }
-              if (context.parsed.y !== null) {
-                label += context.parsed.y;
-              }
-              const dataPoint = sortedData[context.dataIndex];
-              if (dataPoint.type) {
-                label += ` (${dataPoint.type})`;
-              } else if (dataPoint.name) {
-                label += ` (${dataPoint.name})`;
-              }
-              return label;
-            }
-          }
-        }
-      },
-      scales: {
-        x: {
-          title: {
-            display: true,
-            text: 'Date'
-          }
-        },
-        y: {
-          title: {
-            display: true,
-            text: 'Calories'
-          },
-          beginAtZero: true
-        }
-      }
-    };
-  
-    return <Line data={data} options={options} />;
-  };
-
-  const renderExerciseList = () => {
-    const exercisesToShow = showFullExerciseHistory ? exercises : exercises.slice(0, 3);
-    return (
-      <>
-        <ul className="log-list">
-          {exercisesToShow.map((exercise, index) => (
-            <li key={index}>
-              {exercise.date.toLocaleDateString()}: {exercise.type} for {exercise.duration} minutes, 
-              burned {exercise.caloriesBurned} calories
-              {exercise.distance > 0 && `, distance: ${exercise.distance}`}
-              {exercise.sets > 0 && `, sets: ${exercise.sets}`}
-              {exercise.reps > 0 && `, reps: ${exercise.reps}`}
-              {exercise.weight > 0 && `, weight: ${exercise.weight}`}
-              {exercise.notes && `, notes: ${exercise.notes}`}
-              <button onClick={() => handleDeleteExercise(exercise.id)} className="delete-button">Delete</button>
-            </li>
-          ))}
-        </ul>
-        {exercises.length > 3 && (
-          <button 
-            onClick={() => setShowFullExerciseHistory(!showFullExerciseHistory)} 
-            className="history-button"
-          >
-            {showFullExerciseHistory ? "Show Less" : "View Full History"}
-          </button>
-        )}
-      </>
-    );
-  };
-
-  const renderMealList = () => {
-    const mealsToShow = showFullMealHistory ? meals : meals.slice(0, 3);
-    return (
-      <>
-        <ul className="log-list">
-          {mealsToShow.map((meal, index) => (
-            <li key={index}>
-              {meal.date.toLocaleDateString()}: {meal.name} - {meal.calories} calories
-              <button onClick={() => handleDeleteMeal(meal.id)} className="delete-button">Delete</button>
-            </li>
-          ))}
-        </ul>
-        {meals.length > 3 && (
-          <button 
-            onClick={() => setShowFullMealHistory(!showFullMealHistory)} 
-            className="history-button"
-          >
-            {showFullMealHistory ? "Show Less" : "View Full History"}
-          </button>
-        )}
-      </>
-    );
+  const handleDeleteWater = async (waterId) => {
+    try {
+      setLoading(true);
+      await deleteWater(waterId);
+      await fetchData();
+    } catch (error) {
+      console.error("Error deleting water intake: ", error);
+      setError("Failed to delete water intake. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (loading) {
@@ -269,109 +146,92 @@ const FitnessTracker = () => {
   }
 
   return (
-    <div className="fitness-tracker">
+    <>
       <Navbar2 />
-      <h1 className="page-title">Fitness Tracker</h1>
-      {error && <div className="error-message">{error}</div>}
-      <div className="content-grid">
-        <div className="feature-card exercise-log">
-          <h2>Exercise Log</h2>
-          <form onSubmit={handleExerciseSubmit} className="tracker-form">
-            <input 
-              type="date" 
-              value={exerciseForm.date} 
-              onChange={(e) => setExerciseForm({...exerciseForm, date: e.target.value})} 
-              required 
-            />
-            <input 
-              type="text" 
-              value={exerciseForm.type} 
-              onChange={(e) => setExerciseForm({...exerciseForm, type: e.target.value})} 
-              placeholder="Exercise Type" 
-              required 
-            />
-            <input 
-              type="number" 
-              value={exerciseForm.duration} 
-              onChange={(e) => setExerciseForm({...exerciseForm, duration: e.target.value})} 
-              placeholder="Duration (minutes)" 
-              required 
-            />
-            <input 
-              type="number" 
-              value={exerciseForm.caloriesBurned} 
-              onChange={(e) => setExerciseForm({...exerciseForm, caloriesBurned: e.target.value})} 
-              placeholder="Calories Burned" 
-              required 
-            />
-            <input 
-              type="number" 
-              value={exerciseForm.distance} 
-              onChange={(e) => setExerciseForm({...exerciseForm, distance: e.target.value})} 
-              placeholder="Distance" 
-            />
-            <input 
-              type="number" 
-              value={exerciseForm.sets} 
-              onChange={(e) => setExerciseForm({...exerciseForm, sets: e.target.value})} 
-              placeholder="Sets" 
-            />
-            <input 
-              type="number" 
-              value={exerciseForm.reps} 
-              onChange={(e) => setExerciseForm({...exerciseForm, reps: e.target.value})} 
-              placeholder="Reps" 
-            />
-            <input 
-              type="number" 
-              value={exerciseForm.weight} 
-              onChange={(e) => setExerciseForm({...exerciseForm, weight: e.target.value})} 
-              placeholder="Weight" 
-            />
-            <textarea 
-              value={exerciseForm.notes} 
-              onChange={(e) => setExerciseForm({...exerciseForm, notes: e.target.value})} 
-              placeholder="Notes" 
-            />
-            <button type="submit" className="submit-button" disabled={loading}>Add Exercise</button>
-          </form>
-          {renderExerciseList()}
+      <div className="fitness-tracker-container">
+        <h1 className="main-title">Fitness Tracker</h1>
+        {error && <div className="error-message">{error}</div>}
+        <div className="tab-navigation">
+          <button 
+            className={activeTab === 'exercise' ? 'active' : ''} 
+            onClick={() => setActiveTab('exercise')}
+          >
+            Log Exercise
+          </button>
+          <button 
+            className={activeTab === 'meal' ? 'active' : ''} 
+            onClick={() => setActiveTab('meal')}
+          >
+            Log Meal
+          </button>
+          <button 
+            className={activeTab === 'water' ? 'active' : ''} 
+            onClick={() => setActiveTab('water')}
+          >
+            Log Water
+          </button>
+          <button 
+            className={activeTab === 'history' ? 'active' : ''} 
+            onClick={() => setActiveTab('history')}
+          >
+            History
+          </button>
+          <button 
+            className={activeTab === 'overview' ? 'active' : ''} 
+            onClick={() => setActiveTab('overview')}
+          >
+            Fitness Overview
+          </button>
         </div>
-        
-        <div className="feature-card calorie-tracker">
-          <h2>Nutrition Log</h2>
-          <form onSubmit={handleMealSubmit} className="tracker-form">
-            <input 
-              type="date" 
-              value={mealForm.date} 
-              onChange={(e) => setMealForm({...mealForm, date: e.target.value})} 
-              required 
+        <div className="tab-content">
+          {activeTab === 'exercise' && (
+            <ExerciseForm 
+              exerciseForm={exerciseForm}
+              setExerciseForm={setExerciseForm}
+              handleExerciseSubmit={handleExerciseSubmit}
+              loading={loading}
             />
-            <input 
-              type="text" 
-              value={mealForm.name} 
-              onChange={(e) => setMealForm({...mealForm, name: e.target.value})} 
-              placeholder="Meal Name" 
-              required 
+          )}
+          
+          {activeTab === 'meal' && (
+            <MealForm 
+              mealForm={mealForm}
+              setMealForm={setMealForm}
+              handleMealSubmit={handleMealSubmit}
+              loading={loading}
             />
-            <input 
-              type="number" 
-              value={mealForm.calories} 
-              onChange={(e) => setMealForm({...mealForm, calories: e.target.value})} 
-              placeholder="Calories" 
-              required 
+          )}
+          
+          {activeTab === 'water' && (
+            <WaterForm 
+              waterForm={waterForm}
+              setWaterForm={setWaterForm}
+              handleWaterSubmit={handleWaterSubmit}
+              loading={loading}
             />
-            <button type="submit" className="submit-button" disabled={loading}>Add Meal</button>
-          </form>
-          {renderMealList()}
-        </div>
-        
-        <div className="feature-card calories-overview">
-          <h2>Calorie Overview</h2>
-          {renderChart()}
+          )}
+          
+          {activeTab === 'history' && (
+            <History 
+              exercises={exercises}
+              meals={meals}
+              waterIntakes={waterIntakes}
+              handleDeleteExercise={handleDeleteExercise}
+              handleDeleteMeal={handleDeleteMeal}
+              handleDeleteWater={handleDeleteWater}
+            />
+          )}
+          
+          {activeTab === 'overview' && (
+            <Overview 
+              exercises={exercises}
+              meals={meals}
+              waterIntakes={waterIntakes}
+            />
+          )}
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

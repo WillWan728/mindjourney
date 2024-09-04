@@ -68,8 +68,8 @@ export const updateSleepLog = async (sleepLogId, updatedData) => {
     if (updatedData.waketime) updateFields.waketime = Timestamp.fromDate(new Date(`${updatedData.date} ${updatedData.waketime}`));
     if (updatedData.quality) updateFields.quality = parseInt(updatedData.quality);
     if (updatedData.wakeUps) updateFields.wakeUps = parseInt(updatedData.wakeUps);
-    if (updatedData.feelRested) updateFields.feelRested = updatedData.feelRested === 'yes';
-    if (updatedData.dreamed) updateFields.dreamed = updatedData.dreamed === 'yes';
+    if (updatedData.feelRested !== undefined) updateFields.feelRested = updatedData.feelRested === 'yes';
+    if (updatedData.dreamed !== undefined) updateFields.dreamed = updatedData.dreamed === 'yes';
     await updateDoc(sleepLogRef, updateFields);
     console.log('Sleep log updated successfully');
   } catch (error) {
@@ -89,3 +89,4 @@ export const deleteSleepLog = async (sleepLogId) => {
     throw error;
   }
 };
+

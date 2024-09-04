@@ -1,92 +1,146 @@
-.journaling-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-  
-  .journaling-container h1 {
-    text-align: center;
-    color: #333;
-    margin-bottom: 30px;
-  }
-  
-  .prompt-container {
-    background-color: #f0f0f0;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 20px;
-  }
-  
-  .prompt-container h3 {
-    margin-top: 0;
-    color: #444;
-  }
-  
-  .prompt-container p {
-    font-size: 18px;
-    font-style: italic;
-    color: #555;
-  }
-  
-  .new-prompt-btn {
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-  }
-  
-  .entry-container {
-    margin-bottom: 30px;
-  }
-  
-  .entry-container textarea {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 16px;
-    resize: vertical;
-  }
-  
-  .save-entry-btn {
-    background-color: #008CBA;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-    margin-top: 10px;
-  }
-  
-  .saved-entries h3 {
-    border-bottom: 2px solid #ddd;
-    padding-bottom: 10px;
-  }
-  
-  .saved-entry {
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 15px;
-    margin-bottom: 15px;
-  }
-  
-  .entry-date {
-    font-size: 14px;
-    color: #888;
-    margin-bottom: 5px;
-  }
-  
-  .entry-prompt {
-    font-style: italic;
-    color: #555;
-    margin-bottom: 10px;
-  }
-  
-  .entry-content {
-    color: #333;
-  }
+body .journaling-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+
+  box-sizing: border-box;
+}
+
+body .journaling-container h1 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 30px;
+}
+
+body .journaling-container .prompt-container {
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+body .journaling-container .prompt-container h3 {
+  margin-top: 0;
+  color: #444;
+}
+
+body .journaling-container .prompt-container p {
+  font-size: 18px;
+  font-style: italic;
+  color: #555;
+  min-height: 120px; /* Approximately 6 lines of text */
+  margin-bottom: 15px;
+}
+
+body .journaling-container .new-prompt-btn,
+body .journaling-container .save-entry-btn {
+  background-color: #5f9ea0;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+body .journaling-container .new-prompt-btn:hover,
+body .journaling-container .save-entry-btn:hover {
+  background-color: #d7c49e;
+}
+
+body .journaling-container .entry-container {
+  margin-bottom: 20px;
+}
+
+body .journaling-container .entry-container input[type="text"] {
+  width: 100%;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 24px;
+  margin-bottom: 15px;
+  box-sizing: border-box;
+}
+
+body .journaling-container .entry-container textarea {
+  width: 100%;
+  height: 200px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  resize: none !important;
+  box-sizing: border-box;
+}
+
+body .journaling-container .button-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+body .journaling-container .saved-entries {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 15px;
+  background-color: #f9f9f9;
+}
+
+body .journaling-container .saved-entries h3 {
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 10px;
+  margin-top: 0;
+}
+
+body .journaling-container .saved-entry {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 15px;
+  margin-bottom: 15px;
+  position: relative;
+}
+
+body .journaling-container .entry-date {
+  font-size: 14px;
+  color: #888;
+  margin-bottom: 5px;
+}
+
+body .journaling-container .entry-heading {
+  font-size: 20px;
+  color: #333;
+  margin: 10px 0;
+}
+
+body .journaling-container .entry-prompt {
+  font-style: italic;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+body .journaling-container .entry-content {
+  color: #333;
+}
+
+body .journaling-container .delete-entry-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+body .journaling-container .delete-entry-btn:hover {
+  background-color: #d32f2f;
+}

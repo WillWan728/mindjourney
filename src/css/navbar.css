@@ -1,15 +1,25 @@
+/* homepage-header.css */
+
 .homepage-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 1rem 5%;
-  background-color: var(--background-color);
+  background-color: #ffffff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.logo-container {
+.header-content {
   display: flex;
+  justify-content: space-between;
   align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.logo-container {
+  flex: 1;
 }
 
 .logo-link {
@@ -19,33 +29,97 @@
 }
 
 .logo-image {
-  height: 2rem;
+  height: 30px;
   width: auto;
   margin-right: 0.5rem;
 }
 
 .logo-text {
-  font-size: 1.5rem;
+  font-size: 1.2em;
   font-weight: bold;
-  color: var(--main-color);
+  color: #000000;
+}
+
+.nav-links-container {
+  flex: 2;
+  display: flex;
+  justify-content: center;
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+}
+
+.nav-link {
+  color: #000000;
+  text-decoration: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #40E0D0; /* Turquoise color */
 }
 
 .auth-buttons {
+  flex: 1;
   display: flex;
+  justify-content: flex-end;
   gap: 1rem;
 }
 
 .auth-button {
-  padding: 0.5rem 1rem;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
   text-decoration: none;
-  color: var(--main-color);
-  border: 2px solid var(--main-color);
-  border-radius: 25px;
+  font-size: 0.9em;
   transition: all 0.3s ease;
-  font-weight: 600;
 }
 
-.auth-button:hover {
-  background-color: var(--main-color);
-  color: var(--light-color);
+.auth-button.login,
+.auth-button.register {
+  background-color: #5f9ea0;
+  color: white;
+}
+
+
+.auth-button.login:hover {
+  background-color: #5f9ea0;
+}
+
+.auth-button.register {
+  background-color:#5f9ea0 ;
+  color: black;
+  border: 2px solid #5f9ea0;
+}
+
+.auth-button.register:hover {
+  background-color: #5f9ea0;
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .logo-container,
+  .nav-links-container,
+  .auth-buttons {
+    flex: none;
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .nav-links {
+    justify-content: center;
+  }
+
+  .auth-buttons {
+    justify-content: center;
+  }
 }

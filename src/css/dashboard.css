@@ -24,13 +24,13 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
 .dashboard {
   flex: 1;
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
   display: flex;
   flex-direction: column;
 }
@@ -43,19 +43,18 @@ body {
 .dashboard-header h1 {
   color: var(--dark-color);
   font-size: 24px;
+  margin: 0;
 }
 
-.weekly-wellbeing-score {
+.overall-wellbeing-score-container {
   background-color: var(--light-color);
   border-radius: 10px;
   padding: 20px;
   margin-bottom: 20px;
-  text-align: center;
 }
 
-.weekly-wellbeing-score h2 {
-  color: var(--main-color);
-  margin-bottom: 10px;
+.overall-wellbeing-score {
+  text-align: center;
 }
 
 .improve-button {
@@ -66,6 +65,8 @@ body {
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.2s;
+  display: inline-block;
+  margin-top: 10px;
 }
 
 .improve-button:hover {
@@ -122,6 +123,10 @@ body {
 }
 
 @media (max-width: 768px) {
+  .dashboard-container {
+    padding: 10px;
+  }
+  
   .dashboard-content {
     grid-template-columns: 1fr;
   }

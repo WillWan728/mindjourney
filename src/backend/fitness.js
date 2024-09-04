@@ -1,8 +1,19 @@
-import { collection, addDoc, getDocs, query, where, Timestamp, orderBy,  deleteDoc, doc } from 'firebase/firestore';
+import { 
+  collection, 
+  addDoc, 
+  getDocs, 
+  query, 
+  where, 
+  Timestamp, 
+  orderBy,  
+  deleteDoc, 
+  doc 
+} from 'firebase/firestore';
 import { auth, db } from '../config/firebase';
 
 const EXERCISE_COLLECTION = 'exercises';
 const MEAL_COLLECTION = 'meals';
+const WATER_COLLECTION = 'water';
 
 export const addExercise = async (exerciseData) => {
   try {
@@ -70,6 +81,7 @@ export const addMeal = async (mealData) => {
       userId: user.uid,
       name: mealData.name,
       calories: Number(mealData.calories),
+      waterAmount: Number(mealData.waterAmount),
       date: Timestamp.fromDate(new Date(mealData.date))
     });
     return docRef.id;
@@ -113,25 +125,87 @@ export const fetchMeals = async () => {
 };
 
 export const deleteExercise = async (exerciseId) => {
-    try {
-      const user = auth.currentUser;
-      if (!user) throw new Error("User not authenticated");
-  
-      await deleteDoc(doc(db, EXERCISE_COLLECTION, exerciseId));
-    } catch (error) {
-      console.error("Error deleting exercise: ", error);
-      throw error;
-    }
-  };
+  try {
+    const user = auth.currentUser;
+    if (!user) throw new Error("User not authenticated");
 
-  export const deleteMeal = async (mealId) => {
+    await deleteDoc(doc(db, EXERCISE_COLLECTION, exerciseId));
+  } catch (error) {
+    console.error("Error deleting exercise: ", error);
+    throw error;
+  }
+};
+
+export const deleteMeal = async (mealId) => {
+  try {
+    const user = auth.currentUser;
+    if (!user) throw new Error("User not authenticated");
+
+    await deleteDoc(doc(db, MEAL_COLLECTION, mealId));
+  } catch (error) {
+    console.error("Error deleting meal: ", error);
+    throw error;
+  }
+};
+
+export const addWater = async (waterData) => {
+  try {
+    const user = auth.currentUser;
+    if (!user) throw new Error('User must be logged in to add water intake');
+    
+    const docRef = await addDoc(collection(db, WATER_COLLECTION), {
+      ...waterData,
+      userId: user.uid,
+      timestamp: Timestamp.fromDate(new Date(waterData.date))
+    });
+    return docRef.id;
+  } catch (error) {
+    console.error("Error adding water intake: ", error);
+    throw error;
+  }
+};
+
+export const fetchWater = async () => {
+  try {
+    const user = auth.currentUser;
+    if (!user) throw new Error('User must be logged in to fetch water intake');
+
+    let q = query(
+      collection(db, WATER_COLLECTION),
+      where('userId', '==', user.uid)
+    );
+
     try {
-      const user = auth.currentUser;
-      if (!user) throw new Error("User not authenticated");
-  
-      await deleteDoc(doc(db, MEAL_COLLECTION, mealId));
-    } catch (error) {
-      console.error("Error deleting meal: ", error);
-      throw error;
+      q = query(q, orderBy('timestamp', 'desc'));
+      const querySnapshot = await getDocs(q);
+      return querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        date: doc.data().timestamp.toDate()
+      }));
+    } catch (indexError) {
+      console.warn("Index not yet ready, fetching without ordering:", indexError);
+      const querySnapshot = await getDocs(q);
+      return querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        date: doc.data().timestamp.toDate()
+      }));
     }
-  };
+  } catch (error) {
+    console.error("Error fetching water intake: ", error);
+    throw error;
+  }
+};
+
+export const deleteWater = async (waterId) => {
+  try {
+    const user = auth.currentUser;
+    if (!user) throw new Error('User must be logged in to delete water intake');
+
+    await deleteDoc(doc(db, WATER_COLLECTION, waterId));
+  } catch (error) {
+    console.error("Error deleting water intake: ", error);
+    throw error;
+  }
+};
