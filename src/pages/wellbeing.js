@@ -66,7 +66,6 @@ const WellbeingPage = () => {
     const oneWeekAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
 
     try {
-      // Fetch data from the last week
       const exercises = await fetchExercises(userId, oneWeekAgo, now);
       const water = await fetchWater(userId, oneWeekAgo, now);
       const moods = await fetchMoods(userId, oneWeekAgo, now);

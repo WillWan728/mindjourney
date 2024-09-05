@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../css/register.css';
 import Navbar from './navbar';
-import { auth } from '../config/firebase'; 
+import { auth, db } from '../config/firebase'; 
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
 
 const RegisterUser = () => {
     const [formData, setFormData] = useState({
@@ -24,39 +25,45 @@ const RegisterUser = () => {
         }));
     };
 
-    // In RegisterUser component
-const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
 
-    if (!formData.username || !formData.email || !formData.password || !formData.confirmPassword) {
-        setError('All fields are required');
-        return;
-    }
+        if (!formData.username || !formData.email || !formData.password || !formData.confirmPassword) {
+            setError('All fields are required');
+            return;
+        }
 
-    if (formData.password !== formData.confirmPassword) {
-        setError('Passwords do not match');
-        return;
-    }
+        if (formData.password !== formData.confirmPassword) {
+            setError('Passwords do not match');
+            return;
+        }
 
-    try {
-        // Firebase authentication for user registration
-        const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
-        const user = userCredential.user;
+        try {
+            // Firebase authentication for user registration
+            const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+            const user = userCredential.user;
 
-        // Update the user's profile with the username
-        await updateProfile(user, {
-            displayName: formData.username
-        });
+            // Update the user's profile with the username
+            await updateProfile(user, {
+                displayName: formData.username
+            });
 
-        console.log('User registered successfully', user);
-        // Redirect to dashboard after successful registration
-        navigate('/dashboard', { state: { username: formData.username } });
-    } catch (error) {
-        console.error('Registration error:', error.code, error.message);
-        setError(`Registration failed: ${error.message}`);
-    }
-};
+            // Create a user document in Firestore
+            await setDoc(doc(db, 'users', user.uid), {
+                username: formData.username,
+                email: formData.email,
+                hasCompletedWellbeingSetup: false
+            });
+
+            console.log('User registered successfully', user);
+            // Redirect to wellbeing setup page after successful registration
+            navigate('/wellbeingSetup');
+        } catch (error) {
+            console.error('Registration error:', error.code, error.message);
+            setError(`Registration failed: ${error.message}`);
+        }
+    };
     return (
         <div className="register-page">
             <Navbar />

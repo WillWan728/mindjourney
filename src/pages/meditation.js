@@ -10,7 +10,6 @@ import {
   fetchMeditations,
   addMeditation,
   calculateTotalMeditationTime,
-  getMeditationStreak,
   getAverageMeditationDuration,
   getMostFrequentExercise
 } from '../backend/meditation';
@@ -173,10 +172,6 @@ const Meditation = () => {
         <div className="stat-item">
           <h3>Total Meditation Time</h3>
           <p>{calculateTotalMeditationTime(meditationLogs)} minutes</p>
-        </div>
-        <div className="stat-item">
-          <h3>Current Streak</h3>
-          <p>{getMeditationStreak(meditationLogs)} days</p>
         </div>
         <div className="stat-item">
           <h3>Average Duration</h3>

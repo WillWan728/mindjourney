@@ -30,9 +30,9 @@ const Navbar2 = () => {
         <div className="nav-links-container">
           <Link to="/fitness" className="nav-link">Fitness</Link>
           <Link to="/sleeptracker" className="nav-link">Sleep</Link>
+          <Link to="/mindfulness" className="nav-link">Meditation</Link>
           <Link to="/wellbeing" className="nav-link">Wellbeing</Link>
           <Link to="/achievements" className="nav-link">Achievements</Link>
-          <Link to="/about" className="nav-link">About Us</Link>
         </div>
         <div className="profile-container">
           <Link to="/profile" className="profile-button">Profile</Link>

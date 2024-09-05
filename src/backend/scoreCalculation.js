@@ -1,15 +1,18 @@
-// src/backend/wellbeing.js
-
 export const calculateOverallWellbeingScore = (componentScores) => {
   const { fitness, sleep, mood, meditation } = componentScores;
   
-  // Count how many components have a non-zero score
-  const activeComponents = [fitness, sleep, mood, meditation].filter(score => score > 0).length;
-  
-  // If no components are active, return 0
-  if (activeComponents === 0) return 0;
-  
-  // Calculate the average score of active components
-  const totalScore = fitness + sleep + mood + meditation;
-  return totalScore / activeComponents;
+  // Each component contributes 25% to the total score
+  const fitnessScore = fitness * 0.25;
+  const sleepScore = sleep * 0.25;
+  const moodScore = mood * 0.25;
+  const meditationScore = meditation * 0.25;
+
+  // Sum up all the weighted scores
+  const totalScore = fitnessScore + sleepScore + moodScore + meditationScore;
+
+  // Convert to percentage and round to nearest integer
+  const percentageScore = Math.round(totalScore * 10);
+
+  // Ensure the score doesn't exceed 100%
+  return Math.min(percentageScore, 100);
 };

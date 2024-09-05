@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { auth, db } from '../config/firebase';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 import '../css/login.css';
 import Navbar from './navbar';
-import { auth } from '../config/firebase';
-import { signInWithEmailAndPassword } from 'firebase/auth';
 
-const LoginUser = () => {
+const Login = () => {
     const [formData, setFormData] = useState({
         email: '',
         password: ''
@@ -27,15 +28,33 @@ const LoginUser = () => {
         setError('');
 
         if (!formData.email || !formData.password) {
-            setError('Email and password are required');
+            setError('All fields are required');
             return;
         }
 
         try {
+            // Firebase authentication for user login
             const userCredential = await signInWithEmailAndPassword(auth, formData.email, formData.password);
             const user = userCredential.user;
-            console.log('User logged in successfully', user);
-            navigate('/dashboard', { state: { username: user.displayName || user.email } });
+
+            // Check if user has completed wellbeing setup
+            const userDocRef = doc(db, 'users', user.uid);
+            const userDoc = await getDoc(userDocRef);
+
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                if (!userData.hasCompletedWellbeingSetup) {
+                    // Redirect to wellbeing setup if not completed
+                    navigate('/wellbeingSetup');
+                } else {
+                    // Redirect to dashboard if wellbeing setup is completed
+                    navigate('/dashboard');
+                }
+            } else {
+                console.error('User document does not exist');
+                setError('An error occurred. Please try again.');
+            }
+
         } catch (error) {
             console.error('Login error:', error.code, error.message);
             setError(`Login failed: ${error.message}`);
@@ -46,7 +65,7 @@ const LoginUser = () => {
         <div className="login-page">
             <Navbar />
             <div className="login-container">
-                <h2>Login to Your Account</h2>
+                <h2>Login</h2>
                 <form onSubmit={handleSubmit} className="login-form">
                     <div className="form-group">
                         <label htmlFor="email">Email</label>
@@ -78,4 +97,4 @@ const LoginUser = () => {
     );
 };
 
-export default LoginUser;
+export default Login;

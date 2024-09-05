@@ -26,8 +26,6 @@ const calculateSleepStatistics = (sleepLogs) => {
     return {
       avgDuration: 'N/A',
       avgQuality: 'N/A',
-      avgBedtime: null,
-      avgWaketime: null
     };
   }
 

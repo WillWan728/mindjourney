@@ -16,7 +16,7 @@ import AchievementPage from "./pages/achivement.js";
 import ProfilePage from "./pages/profile.js";
 import WellbeingScore from "./pages/wellbeing.js";
 import Goals from "./pages/goals.js";
-import TestPage from "./pages/test.js";
+import GoalSetupPage from "./pages/welbeingSetup.js";
 
 const App = () => {
     return (
@@ -39,7 +39,7 @@ const App = () => {
                         <Route path="/profile" element={<ProfilePage/>}/>
                         <Route path="/wellbeing" element={<WellbeingScore/>}/>
                         <Route path="/goals" element={<Goals/>}/>
-                        <Route path="/test" element={<TestPage/>}/>
+                        <Route path="/wellbeingSetup" element={<GoalSetupPage/>}/>
                     </Routes>
                     <Footer />
                 </div>

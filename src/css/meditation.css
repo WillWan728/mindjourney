@@ -8,7 +8,7 @@ body {
 }
 
 .meditation-container {
-  max-width: 1200px;
+  max-width: 800px;
   margin: 0 auto;
   padding: 20px;
 }
@@ -41,9 +41,8 @@ body {
 }
 
 .content-box {
-  background-color: #ffffff;
+  background-color: #f9f9f9;
   border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   padding: 20px;
 }
 
@@ -164,4 +163,66 @@ body {
     margin-bottom: 5px;
     border-radius: 5px;
   }
+}
+/* Add these styles to your existing meditation.css file */
+
+.history-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.log-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.log-item {
+  background-color: #ffffff;
+  margin-bottom: 10px;
+  padding: 15px;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.log-content {
+  flex-grow: 1;
+}
+
+.log-content p {
+  margin: 5px 0;
+}
+
+.log-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.edit-button,
+.delete-button {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.edit-button {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.edit-button:hover {
+  background-color: #45a049;
+}
+
+.delete-button {
+  background-color: #f44336;
+  color: white;
+}
+
+.delete-button:hover {
+  background-color: #da190b;
 }

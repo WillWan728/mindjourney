@@ -1,10 +1,18 @@
 import React from 'react';
+import { triggerAchievementCheck } from '../utils/achivementUtils';
 
 const ExerciseForm = ({ exerciseForm, setExerciseForm, handleExerciseSubmit, loading }) => {
+  const onSubmit = async (event) => {
+    event.preventDefault();
+    await handleExerciseSubmit(event);
+    // Trigger achievement check after successfully logging exercise
+    await triggerAchievementCheck('exercise_completed');
+  };
+
   return (
     <div className="exercise-log">
       <h2>Log Exercise</h2>
-      <form onSubmit={handleExerciseSubmit} className="fitness-form">
+      <form onSubmit={onSubmit} className="fitness-form">
         <div className="form-group">
           <label htmlFor="exercise-date">Date</label>
           <input 
