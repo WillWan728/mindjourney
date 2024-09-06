@@ -21,6 +21,13 @@ const Card = ({ title, emoji, link, children }) => (
   </Link>
 );
 
+const formatMinutes = (minutes) => {
+  if (!minutes) return 'No data';
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+  return `${hours}h ${remainingMinutes}m`;
+}; 
+
 const calculateSleepStatistics = (sleepLogs) => {
   if (!sleepLogs || sleepLogs.length === 0) {
     return {
@@ -160,7 +167,7 @@ const Dashboard = () => {
             
             <Card title="Mindfulness" emoji="🧘" link="/mindfulness">
               <p>Meditations completed: {dashboardData.meditation?.completedSessions || 'No data'}</p>
-              <p>Total mindful minutes: {dashboardData.meditation?.totalMinutes || 'No data'}</p>
+              <p>Total mindful minutes: {formatMinutes(dashboardData.meditation?.totalMinutes)}</p>
             </Card>
             
             <Card title="Goals" emoji="🎯" link="/goals">

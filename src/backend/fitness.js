@@ -1,4 +1,4 @@
-// fitness.js
+// src/backend/fitness.js
 import { 
   collection, 
   addDoc, 
@@ -47,28 +47,17 @@ export const fetchExercises = async () => {
 
     let q = query(
       collection(db, EXERCISE_COLLECTION),
-      where('userId', '==', user.uid)
+      where('userId', '==', user.uid),
+      orderBy('date', 'desc')
     );
 
-    try {
-      q = query(q, orderBy('date', 'desc'));
-      const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        date: doc.data().date.toDate(),
-        caloriesBurned: Number(doc.data().caloriesBurned)
-      }));
-    } catch (indexError) {
-      console.warn("Index not yet ready, fetching without ordering:", indexError);
-      const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        date: doc.data().date.toDate(),
-        caloriesBurned: Number(doc.data().caloriesBurned)
-      }));
-    }
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      date: doc.data().date.toDate(),
+      caloriesBurned: Number(doc.data().caloriesBurned)
+    }));
   } catch (error) {
     console.error("Error fetching exercises: ", error);
     throw error;
@@ -96,7 +85,6 @@ export const addMeal = async (mealData) => {
       userId: user.uid,
       name: mealData.name,
       calories: Number(mealData.calories),
-      waterAmount: Number(mealData.waterAmount),
       date: Timestamp.fromDate(new Date(mealData.date))
     });
     return docRef.id;
@@ -113,33 +101,21 @@ export const fetchMeals = async () => {
 
     let q = query(
       collection(db, MEAL_COLLECTION),
-      where('userId', '==', user.uid)
+      where('userId', '==', user.uid),
+      orderBy('date', 'desc')
     );
 
-    try {
-      q = query(q, orderBy('date', 'desc'));
-      const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        date: doc.data().date.toDate()
-      }));
-    } catch (indexError) {
-      console.warn("Index not yet ready, fetching without ordering:", indexError);
-      const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        date: doc.data().date.toDate()
-      }));
-    }
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      date: doc.data().date.toDate()
+    }));
   } catch (error) {
     console.error("Error fetching meals: ", error);
     throw error;
   }
 };
-
-// Continuing from where we left off in fitness.js
 
 export const deleteMeal = async (mealId) => {
   try {
@@ -177,26 +153,16 @@ export const fetchWater = async () => {
 
     let q = query(
       collection(db, WATER_COLLECTION),
-      where('userId', '==', user.uid)
+      where('userId', '==', user.uid),
+      orderBy('date', 'desc')
     );
 
-    try {
-      q = query(q, orderBy('date', 'desc'));
-      const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        date: doc.data().date.toDate()
-      }));
-    } catch (indexError) {
-      console.warn("Index not yet ready, fetching without ordering:", indexError);
-      const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        date: doc.data().date.toDate()
-      }));
-    }
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      date: doc.data().date.toDate()
+    }));
   } catch (error) {
     console.error("Error fetching water intake: ", error);
     throw error;
@@ -214,92 +180,3 @@ export const deleteWater = async (waterId) => {
     throw error;
   }
 };
-
-// Helper function to get today's date at midnight
-const getTodayAtMidnight = () => {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return today;
-};
-
-// Function to get today's total calories burned
-export const getTodayTotalCaloriesBurned = async () => {
-  try {
-    const user = auth.currentUser;
-    if (!user) throw new Error("User not authenticated");
-
-    const today = getTodayAtMidnight();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-
-    const q = query(
-      collection(db, EXERCISE_COLLECTION),
-      where('userId', '==', user.uid),
-      where('date', '>=', today),
-      where('date', '<', tomorrow)
-    );
-
-    const querySnapshot = await getDocs(q);
-    const totalCalories = querySnapshot.docs.reduce((sum, doc) => sum + doc.data().caloriesBurned, 0);
-
-    return totalCalories;
-  } catch (error) {
-    console.error("Error getting today's total calories burned: ", error);
-    throw error;
-  }
-};
-
-// Function to get today's total water intake
-export const getTodayTotalWaterIntake = async () => {
-  try {
-    const user = auth.currentUser;
-    if (!user) throw new Error("User not authenticated");
-
-    const today = getTodayAtMidnight();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-
-    const q = query(
-      collection(db, WATER_COLLECTION),
-      where('userId', '==', user.uid),
-      where('date', '>=', today),
-      where('date', '<', tomorrow)
-    );
-
-    const querySnapshot = await getDocs(q);
-    const totalWater = querySnapshot.docs.reduce((sum, doc) => sum + doc.data().amount, 0);
-
-    return totalWater;
-  } catch (error) {
-    console.error("Error getting today's total water intake: ", error);
-    throw error;
-  }
-};
-
-// Function to get today's total calories consumed
-export const getTodayTotalCaloriesConsumed = async () => {
-  try {
-    const user = auth.currentUser;
-    if (!user) throw new Error("User not authenticated");
-
-    const today = getTodayAtMidnight();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-
-    const q = query(
-      collection(db, MEAL_COLLECTION),
-      where('userId', '==', user.uid),
-      where('date', '>=', today),
-      where('date', '<', tomorrow)
-    );
-
-    const querySnapshot = await getDocs(q);
-    const totalCalories = querySnapshot.docs.reduce((sum, doc) => sum + doc.data().calories, 0);
-
-    return totalCalories;
-  } catch (error) {
-    console.error("Error getting today's total calories consumed: ", error);
-    throw error;
-  }
-};
-
