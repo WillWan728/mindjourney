@@ -40,10 +40,12 @@ body {
   color: white;
 }
 
-.tab-content {
-  background-color: #f9f9f9;
+.add-fitness-log,
+.fitness-history {
+  background-color: #ffffff;
   padding: 20px;
   border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .fitness-form {
@@ -59,6 +61,7 @@ body {
 
 .form-group label {
   margin-bottom: 5px;
+  font-weight: bold;
 }
 
 .form-group input,
@@ -67,6 +70,15 @@ body {
   padding: 8px;
   border: 1px solid #ddd;
   border-radius: 4px;
+  font-size: 14px;
+}
+
+.form-group input[type="date"],
+.form-group input[type="time"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-color: #fff;
 }
 
 .form-group textarea {
@@ -74,7 +86,7 @@ body {
   resize: vertical;
 }
 
-.submit-button {
+button[type="submit"] {
   grid-column: 1 / -1;
   background-color: #5f9ea0;
   color: white;
@@ -83,43 +95,16 @@ body {
   cursor: pointer;
   border-radius: 4px;
   transition: background-color 0.3s ease;
+  font-size: 16px;
 }
 
-.submit-button:hover {
+button[type="submit"]:hover {
   background-color: #4f8a8b;
 }
 
-.submit-button:disabled {
+button[type="submit"]:disabled {
   background-color: #cccccc;
   cursor: not-allowed;
-}
-
-.log-list {
-  list-style-type: none;
-  padding: 0;
-}
-
-.log-list li {
-  background-color: #ffffff;
-  margin-bottom: 10px;
-  padding: 10px;
-  border-radius: 4px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-}
-
-.delete-button {
-  background-color: #ff6b6b;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  margin-left: 10px;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.3s ease;
-}
-
-.delete-button:hover {
-  background-color: #ee5253;
 }
 
 .error-message {
@@ -128,6 +113,50 @@ body {
   padding: 10px;
   margin-bottom: 20px;
   border-radius: 4px;
+  text-align: center;
+}
+
+.history-section {
+  margin-bottom: 30px;
+}
+
+.history-section h2 {
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.log-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.log-list li {
+  background-color: #f9f9f9;
+  margin-bottom: 10px;
+  padding: 15px;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.log-list li p {
+  margin: 0;
+}
+
+.delete-button {
+  background-color: #ff6b6b;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.delete-button:hover {
+  background-color: #ee5253;
 }
 
 /* Responsive design */

@@ -1,3 +1,4 @@
+// fitness.js
 import { 
   collection, 
   addDoc, 
@@ -55,7 +56,8 @@ export const fetchExercises = async () => {
       return querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
-        date: doc.data().date.toDate()
+        date: doc.data().date.toDate(),
+        caloriesBurned: Number(doc.data().caloriesBurned)
       }));
     } catch (indexError) {
       console.warn("Index not yet ready, fetching without ordering:", indexError);
@@ -63,11 +65,24 @@ export const fetchExercises = async () => {
       return querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
-        date: doc.data().date.toDate()
+        date: doc.data().date.toDate(),
+        caloriesBurned: Number(doc.data().caloriesBurned)
       }));
     }
   } catch (error) {
     console.error("Error fetching exercises: ", error);
+    throw error;
+  }
+};
+
+export const deleteExercise = async (exerciseId) => {
+  try {
+    const user = auth.currentUser;
+    if (!user) throw new Error("User not authenticated");
+
+    await deleteDoc(doc(db, EXERCISE_COLLECTION, exerciseId));
+  } catch (error) {
+    console.error("Error deleting exercise: ", error);
     throw error;
   }
 };
@@ -124,17 +139,7 @@ export const fetchMeals = async () => {
   }
 };
 
-export const deleteExercise = async (exerciseId) => {
-  try {
-    const user = auth.currentUser;
-    if (!user) throw new Error("User not authenticated");
-
-    await deleteDoc(doc(db, EXERCISE_COLLECTION, exerciseId));
-  } catch (error) {
-    console.error("Error deleting exercise: ", error);
-    throw error;
-  }
-};
+// Continuing from where we left off in fitness.js
 
 export const deleteMeal = async (mealId) => {
   try {
@@ -154,9 +159,9 @@ export const addWater = async (waterData) => {
     if (!user) throw new Error('User must be logged in to add water intake');
     
     const docRef = await addDoc(collection(db, WATER_COLLECTION), {
-      ...waterData,
       userId: user.uid,
-      timestamp: Timestamp.fromDate(new Date(waterData.date))
+      amount: Number(waterData.amount),
+      date: Timestamp.fromDate(new Date(waterData.date))
     });
     return docRef.id;
   } catch (error) {
@@ -176,12 +181,12 @@ export const fetchWater = async () => {
     );
 
     try {
-      q = query(q, orderBy('timestamp', 'desc'));
+      q = query(q, orderBy('date', 'desc'));
       const querySnapshot = await getDocs(q);
       return querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
-        date: doc.data().timestamp.toDate()
+        date: doc.data().date.toDate()
       }));
     } catch (indexError) {
       console.warn("Index not yet ready, fetching without ordering:", indexError);
@@ -189,7 +194,7 @@ export const fetchWater = async () => {
       return querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
-        date: doc.data().timestamp.toDate()
+        date: doc.data().date.toDate()
       }));
     }
   } catch (error) {
@@ -209,3 +214,92 @@ export const deleteWater = async (waterId) => {
     throw error;
   }
 };
+
+// Helper function to get today's date at midnight
+const getTodayAtMidnight = () => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return today;
+};
+
+// Function to get today's total calories burned
+export const getTodayTotalCaloriesBurned = async () => {
+  try {
+    const user = auth.currentUser;
+    if (!user) throw new Error("User not authenticated");
+
+    const today = getTodayAtMidnight();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const q = query(
+      collection(db, EXERCISE_COLLECTION),
+      where('userId', '==', user.uid),
+      where('date', '>=', today),
+      where('date', '<', tomorrow)
+    );
+
+    const querySnapshot = await getDocs(q);
+    const totalCalories = querySnapshot.docs.reduce((sum, doc) => sum + doc.data().caloriesBurned, 0);
+
+    return totalCalories;
+  } catch (error) {
+    console.error("Error getting today's total calories burned: ", error);
+    throw error;
+  }
+};
+
+// Function to get today's total water intake
+export const getTodayTotalWaterIntake = async () => {
+  try {
+    const user = auth.currentUser;
+    if (!user) throw new Error("User not authenticated");
+
+    const today = getTodayAtMidnight();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const q = query(
+      collection(db, WATER_COLLECTION),
+      where('userId', '==', user.uid),
+      where('date', '>=', today),
+      where('date', '<', tomorrow)
+    );
+
+    const querySnapshot = await getDocs(q);
+    const totalWater = querySnapshot.docs.reduce((sum, doc) => sum + doc.data().amount, 0);
+
+    return totalWater;
+  } catch (error) {
+    console.error("Error getting today's total water intake: ", error);
+    throw error;
+  }
+};
+
+// Function to get today's total calories consumed
+export const getTodayTotalCaloriesConsumed = async () => {
+  try {
+    const user = auth.currentUser;
+    if (!user) throw new Error("User not authenticated");
+
+    const today = getTodayAtMidnight();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const q = query(
+      collection(db, MEAL_COLLECTION),
+      where('userId', '==', user.uid),
+      where('date', '>=', today),
+      where('date', '<', tomorrow)
+    );
+
+    const querySnapshot = await getDocs(q);
+    const totalCalories = querySnapshot.docs.reduce((sum, doc) => sum + doc.data().calories, 0);
+
+    return totalCalories;
+  } catch (error) {
+    console.error("Error getting today's total calories consumed: ", error);
+    throw error;
+  }
+};
+
