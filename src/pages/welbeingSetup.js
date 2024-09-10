@@ -48,7 +48,6 @@ const WellbeingSetup = () => {
         navigate('/dashboard');
       } catch (error) {
         console.error('Error saving wellbeing parameters:', error);
-        // Handle error (show message to user, etc.)
       }
     }
   };

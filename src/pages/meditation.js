@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { auth } from '../config/firebase';
+import { auth, db } from '../config/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 import Navbar2 from './navbar2';
 import '../css/meditation.css';
 import {
@@ -23,12 +24,15 @@ const Meditation = () => {
   const [error, setError] = useState(null);
   const [user, setUser] = useState(null);
   const [selectedExercise, setSelectedExercise] = useState(null);
+  const [weeklyMeditationGoal, setWeeklyMeditationGoal] = useState(0);
+  const [weeklyMeditationTime, setWeeklyMeditationTime] = useState(0);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(user => {
       if (user) {
         setUser(user);
         fetchMeditationLogs(user.uid);
+        fetchMeditationGoal(user.uid);
       } else {
         setUser(null);
         setMeditationLogs([]);
@@ -37,6 +41,10 @@ const Meditation = () => {
 
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    calculateWeeklyMeditationTime();
+  }, [meditationLogs]);
 
   const fetchMeditationLogs = async (userId) => {
     setIsLoading(true);
@@ -52,6 +60,28 @@ const Meditation = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const fetchMeditationGoal = async (userId) => {
+    try {
+      const docRef = doc(db, 'wellbeing', userId);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setWeeklyMeditationGoal(data.weeklyMeditationMinutes || 0);
+      }
+    } catch (error) {
+      console.error("Error fetching meditation goal: ", error);
+    }
+  };
+
+  const calculateWeeklyMeditationTime = () => {
+    const now = new Date();
+    const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const weeklyTime = meditationLogs
+      .filter(log => log.date.toDate() > oneWeekAgo)
+      .reduce((total, log) => total + log.duration, 0);
+    setWeeklyMeditationTime(weeklyTime);
   };
 
   const handleInputChange = (e) => {
@@ -210,6 +240,11 @@ const Meditation = () => {
       <Navbar2 />
       <div className="meditation-container">
         <h1 className="main-title">Meditation and Mindfulness</h1>
+        
+        <div className="meditation-goals">
+          <p>Weekly Meditation: {weeklyMeditationTime} / {weeklyMeditationGoal} minutes</p>
+        </div>
+        
         <div className="tab-navigation">
           {Object.values(TABS).map(tab => (
             <button

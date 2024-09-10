@@ -1,6 +1,6 @@
-// FitnessTracker.js
 import React, { useState, useEffect } from 'react';
-import { auth } from '../config/firebase';
+import { auth, db } from '../config/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 import { addExercise, fetchExercises, addMeal, fetchMeals, deleteExercise, deleteMeal, addWater, fetchWater, deleteWater } from '../backend/fitness';
 import Navbar2 from './navbar2';
 import '../css/fitnesstracker.css';
@@ -16,12 +16,17 @@ const FitnessTracker = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('exercise');
+  const [wellbeingParams, setWellbeingParams] = useState(null);
+  const [currentExerciseMinutes, setCurrentExerciseMinutes] = useState(0);
+  const [dailyCalories, setDailyCalories] = useState(0);
+  const [lastCalorieDate, setLastCalorieDate] = useState(null);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       setUser(user);
       if (user) {
         fetchData();
+        fetchWellbeingParams(user.uid);
       } else {
         setLoading(false);
       }
@@ -29,6 +34,58 @@ const FitnessTracker = () => {
 
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    calculateCurrentExerciseMinutes();
+    calculateDailyCalories();
+  }, [exercises, meals]);
+
+  const fetchWellbeingParams = async (userId) => {
+    try {
+      const docRef = doc(db, 'wellbeing', userId);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        setWellbeingParams(docSnap.data());
+      }
+    } catch (error) {
+      console.error("Error fetching wellbeing parameters: ", error);
+      setError("Failed to load wellbeing parameters. Please try again later.");
+    }
+  };
+
+  const calculateCurrentExerciseMinutes = () => {
+    const currentDate = new Date();
+    const weekStart = new Date(currentDate.setDate(currentDate.getDate() - currentDate.getDay()));
+    weekStart.setHours(0, 0, 0, 0);
+
+    const totalMinutes = exercises.reduce((total, exercise) => {
+      const exerciseDate = new Date(exercise.date);
+      if (exerciseDate >= weekStart) {
+        return total + parseInt(exercise.duration);
+      }
+      return total;
+    }, 0);
+
+    setCurrentExerciseMinutes(totalMinutes);
+  };
+
+  const calculateDailyCalories = () => {
+    const currentDate = new Date().toDateString();
+    if (lastCalorieDate !== currentDate) {
+      setDailyCalories(0);
+      setLastCalorieDate(currentDate);
+    }
+
+    const todayCalories = meals.reduce((total, meal) => {
+      const mealDate = new Date(meal.date).toDateString();
+      if (mealDate === currentDate) {
+        return total + parseInt(meal.calories);
+      }
+      return total;
+    }, 0);
+
+    setDailyCalories(todayCalories);
+  };
 
   const fetchData = async () => {
     try {
@@ -41,6 +98,7 @@ const FitnessTracker = () => {
       setExercises(exercisesData);
       setMeals(mealsData);
       setWaterIntakes(waterData);
+      calculateDailyCalories();
     } catch (error) {
       console.error("Error fetching data: ", error);
       setError("Failed to load data. Please try again later.");
@@ -147,6 +205,14 @@ const FitnessTracker = () => {
       <div className="fitness-tracker-container">
         <h1 className="main-title">Fitness Tracker</h1>
         {error && <div className="error-message">{error}</div>}
+        
+        {wellbeingParams && (
+          <div className="fitness-goals">
+            <p>Weekly Exercise: {currentExerciseMinutes} / {wellbeingParams.weeklyExerciseMinutes} minutes</p>
+            <p>Daily Calories: {dailyCalories} / {wellbeingParams.dailyCalorieTarget} calories</p>
+          </div>
+        )}
+
         <div className="tab-navigation">
           <button 
             className={activeTab === 'exercise' ? 'active' : ''} 

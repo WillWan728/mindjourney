@@ -146,8 +146,8 @@ const Dashboard = () => {
           
           <main className="dashboard-content">
             <Card title="Sleep" emoji="💤" link="/sleeptracker">
-              <p><strong>Average Sleep Duration:</strong> {sleepStats.avgDuration} hours</p>
-              <p><strong>Average Sleep Quality:</strong> {sleepStats.avgQuality}/10</p>
+            <p>Avg Sleep Duration: {sleepStats.avgDuration} hours</p>
+            <p>Avg Sleep Quality: {sleepStats.avgQuality}/10</p>
             </Card>
             
             <Card title="Fitness" emoji="🏃‍♂️" link="/fitness">

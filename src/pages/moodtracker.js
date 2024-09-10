@@ -6,11 +6,11 @@ import { saveMood, deleteMood, fetchMoods } from '../backend/moodDiary';
 
 const moodOptions = [
   { value: '', label: 'Select a mood' },
-  { value: 'angry', label: 'Angry 😡', color: '#FF0000' },
-  { value: 'stressed', label: 'Stressed 😩', color: '#FFA500' },
-  { value: 'happy', label: 'Happy 😀', color: '#FFFF00' },
-  { value: 'calm', label: 'Calm 🙂‍↕️', color: '#008000' },
-  { value: 'sad', label: 'Sad 😟', color: '#0000FF' },
+  { value: 'angry', label: 'Angry 😡', color: '#FF0000', score: 1 },
+  { value: 'stressed', label: 'Stressed 😩', color: '#FFA500', score: 2 },
+  { value: 'sad', label: 'Sad 😟', color: '#0000FF', score: 3 },
+  { value: 'calm', label: 'Calm 🙂‍↕️', color: '#008000', score: 4 },
+  { value: 'happy', label: 'Happy 😀', color: '#FFFF00', score: 5 },
 ];
 
 const prompts = [
@@ -26,7 +26,7 @@ const prompts = [
   "What's something new you'd like to learn? Why does it interest you?"
 ];
 
-const factorOptions = ['Work', 'Relationships', 'Health', 'Finance', 'Hobbies'];
+const factorOptions = ['Work', 'Relationships', 'Health', 'Finance', 'Hobbies','Other'];
 
 const MoodTracker = () => {
   const [mood, setMood] = useState('');
@@ -38,6 +38,8 @@ const MoodTracker = () => {
   const [currentPrompt, setCurrentPrompt] = useState('');
   const [diaryTitle, setDiaryTitle] = useState('');
   const [diaryEntry, setDiaryContent] = useState('');
+  const [currentMoodScore, setCurrentMoodScore] = useState(0);
+  const [targetMoodScore, setTargetMoodScore] = useState(4); // Default target mood score
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(user => {
@@ -51,11 +53,20 @@ const MoodTracker = () => {
       }
     });
 
-    // Set initial random prompt
     setRandomPrompt();
 
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (savedMoods.length > 0) {
+      const latestMood = savedMoods[0];
+      const latestMoodOption = moodOptions.find(option => option.value === latestMood.mood);
+      if (latestMoodOption) {
+        setCurrentMoodScore(latestMoodOption.score);
+      }
+    }
+  }, [savedMoods]);
 
   const setRandomPrompt = () => {
     const randomIndex = Math.floor(Math.random() * prompts.length);
@@ -141,6 +152,11 @@ const MoodTracker = () => {
       <Navbar2 />
       <div className="mood-tracker-container">
         <h1 className="main-title">Mood Tracker</h1>
+        
+        <div className="mood-goals">
+          <p>Current Mood Score: {currentMoodScore} / Target Mood Score: {targetMoodScore}</p>
+        </div>
+        
         <div className="tab-navigation">
           <button 
             className={activeTab === 'add' ? 'active' : ''} 
@@ -233,7 +249,6 @@ const MoodTracker = () => {
                   <p className="mood-factors-list">Factors: {savedMood.factors.join(', ')}</p>
                   <h4 className="diary-title">{savedMood.diaryTitle}</h4>
                   <p className="diary-entry">{savedMood.diaryEntry}</p>
-                  <p className="mood-notes-content">{savedMood.notes}</p>
                 </div>
               ))
             ) : (

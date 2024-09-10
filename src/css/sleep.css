@@ -10,6 +10,22 @@
   margin-bottom: 20px;
 }
 
+.sleep-goals {
+  background-color: #ffffff;
+  border-radius: 5px;
+  padding: 20px;
+  margin-bottom: 20px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%; /* Ensure it takes full width of its container */
+}
+
+.sleep-goals p {
+  margin: 5px 0;
+  font-size: 1.1em;
+  color: #333;
+}
+
 .tab-navigation {
   display: flex;
   justify-content: center;
@@ -37,6 +53,7 @@
   background-color: #f9f9f9;
   padding: 20px;
   border-radius: 5px;
+  width: 100%; /* Ensure all containers have the same width */
 }
 
 .sleep-form {
@@ -72,4 +89,12 @@ button[type="submit"] {
   background-color: #5f9ea0;
   color: white;
   border: none;
-  padding: 10px;}
+  padding: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button[type="submit"]:hover {
+  background-color: #4f8e90;
+}

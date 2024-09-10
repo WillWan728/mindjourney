@@ -146,20 +146,6 @@ const ProfilePage = () => {
             </form>
           )}
 
-          {activeTab === 'goals' && (
-            <form onSubmit={handleSubmit} className="profile-form">
-              <div className="form-group">
-                <label htmlFor="calories">Daily Calorie Goal:</label>
-                <input type="number" id="calories" name="calories" value={user.goals.calories} onChange={handleGoalChange} />
-              </div>
-              <div className="form-group">
-                <label htmlFor="sleep">Daily Sleep Goal (hours):</label>
-                <input type="number" id="sleep" name="sleep" value={user.goals.sleep} onChange={handleGoalChange} />
-              </div>
-              <button type="submit" className="submit-button" disabled={loading}>Save Goals</button>
-            </form>
-          )}
-
           {activeTab === 'wellbeing' && (
             <form onSubmit={handleSubmit} className="profile-form">
               <div className="form-group">

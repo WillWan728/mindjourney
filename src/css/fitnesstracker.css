@@ -19,6 +19,23 @@ body {
   margin-bottom: 20px;
 }
 
+.fitness-goals {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.fitness-goals p {
+  margin: 10px 0;
+  font-size: 16px;
+  color: #555;
+}
+
 .tab-navigation {
   display: flex;
   justify-content: center;
@@ -31,7 +48,7 @@ body {
   padding: 10px 20px;
   margin: 0 5px;
   cursor: pointer;
-  border-radius: 5px 5px 0 0;
+  border-radius: 5px;
   transition: background-color 0.3s ease;
 }
 
@@ -46,44 +63,47 @@ body {
   padding: 20px;
   border-radius: 5px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .fitness-form {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 15px;
+  gap: 20px;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
 
 .form-group label {
   margin-bottom: 5px;
   font-weight: bold;
+  color: #555;
+  text-align: center;
+  width: 100%;
 }
 
 .form-group input,
 .form-group select,
 .form-group textarea {
-  padding: 8px;
+  padding: 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 14px;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
 }
 
-.form-group input[type="date"],
-.form-group input[type="time"] {
+.form-group input[type="date"] {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
   background-color: #fff;
-}
-
-.form-group textarea {
-  height: 100px;
-  resize: vertical;
 }
 
 button[type="submit"] {
@@ -91,11 +111,13 @@ button[type="submit"] {
   background-color: #5f9ea0;
   color: white;
   border: none;
-  padding: 10px;
+  padding: 12px;
   cursor: pointer;
   border-radius: 4px;
   transition: background-color 0.3s ease;
   font-size: 16px;
+  margin-top: 10px;
+  width: 100%;
 }
 
 button[type="submit"]:hover {
@@ -107,58 +129,6 @@ button[type="submit"]:disabled {
   cursor: not-allowed;
 }
 
-.error-message {
-  background-color: #ffcccb;
-  color: #d8000c;
-  padding: 10px;
-  margin-bottom: 20px;
-  border-radius: 4px;
-  text-align: center;
-}
-
-.history-section {
-  margin-bottom: 30px;
-}
-
-.history-section h2 {
-  color: #333;
-  margin-bottom: 15px;
-}
-
-.log-list {
-  list-style-type: none;
-  padding: 0;
-}
-
-.log-list li {
-  background-color: #f9f9f9;
-  margin-bottom: 10px;
-  padding: 15px;
-  border-radius: 4px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.log-list li p {
-  margin: 0;
-}
-
-.delete-button {
-  background-color: #ff6b6b;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.3s ease;
-}
-
-.delete-button:hover {
-  background-color: #ee5253;
-}
-
 /* Responsive design */
 @media (max-width: 600px) {
   .fitness-form {
@@ -166,11 +136,11 @@ button[type="submit"]:disabled {
   }
 
   .tab-navigation {
-    flex-direction: column;
+    flex-wrap: wrap;
   }
 
   .tab-navigation button {
-    margin-bottom: 5px;
-    border-radius: 5px;
+    margin-bottom: 10px;
+    flex: 1 0 calc(50% - 10px);
   }
 }

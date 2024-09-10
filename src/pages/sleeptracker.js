@@ -20,6 +20,8 @@ const SleepTracker = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [editingLogId, setEditingLogId] = useState(null);
   const [activeTab, setActiveTab] = useState('add');
+  const [sleepGoal, setSleepGoal] = useState(8); // Default sleep goal of 8 hours
+  const [currentSleepDuration, setCurrentSleepDuration] = useState(0);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(user => {
@@ -35,6 +37,17 @@ const SleepTracker = () => {
 
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (sleepLogs.length > 0) {
+      const lastLog = sleepLogs[0]; // Assuming logs are sorted with the most recent first
+      const bedtime = new Date(lastLog.bedtime);
+      const waketime = new Date(lastLog.waketime);
+      let duration = (waketime - bedtime) / (1000 * 60 * 60); // in hours
+      if (duration < 0) duration += 24; // Adjust for sleep past midnight
+      setCurrentSleepDuration(duration);
+    }
+  }, [sleepLogs]);
 
   const fetchSleepLogs = async (userId) => {
     try {
@@ -188,6 +201,10 @@ const SleepTracker = () => {
       <Navbar2 />
       <div className="sleep-tracker-container">
         <h1 className="main-title">Sleep Tracker</h1>
+        
+        <div className="sleep-goals">
+          <p>Daily Sleep Goal: {currentSleepDuration.toFixed(1)} / {sleepGoal} hours</p>
+        </div>
         
         <div className="tab-navigation">
           <button className={activeTab === 'add' ? 'active' : ''} onClick={() => setActiveTab('add')}>
