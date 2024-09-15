@@ -1,4 +1,3 @@
-/* profiletracker.css */
 body {
   margin: 0;
   padding: 0;
@@ -108,3 +107,36 @@ body {
     border-radius: 5px;
   }
 }
+/* Add these new styles to your existing profiletracker.css file */
+
+.edit-wellbeing-button-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.edit-wellbeing-button {
+  background-color: #5f9ea0;
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.edit-wellbeing-button:hover {
+  background-color: #4a6a6d;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.edit-wellbeing-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* You can add these styles to your existing CSS file, keeping all other styles intact */

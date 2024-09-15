@@ -1,13 +1,23 @@
 import React from 'react';
-import { triggerAchievementCheck } from '../utils/achivementUtils';
 
 const ExerciseForm = ({ exerciseForm, setExerciseForm, handleExerciseSubmit, loading }) => {
-  const onSubmit = async (event) => {
+  const onSubmit = (event) => {
     event.preventDefault();
-    await handleExerciseSubmit(event);
-    // Trigger achievement check after successfully logging exercise
-    await triggerAchievementCheck('exercise_completed');
+    handleExerciseSubmit(event);
   };
+
+  const handleInputChange = (e) => {
+    const { id, value } = e.target;
+    const field = id.split('-')[1];
+  
+    setExerciseForm((prevForm) => ({
+      ...prevForm,
+      [field]: ['caloriesBurned', 'duration', 'distance', 'sets', 'reps', 'weight'].includes(field)
+        ? (value === '' ? '' : (field === 'caloriesBurned' ? parseInt(value, 10) : parseFloat(value)))
+        : value
+    }));
+  };
+  
 
   return (
     <div className="exercise-log">
@@ -19,7 +29,7 @@ const ExerciseForm = ({ exerciseForm, setExerciseForm, handleExerciseSubmit, loa
             id="exercise-date"
             type="date" 
             value={exerciseForm.date} 
-            onChange={(e) => setExerciseForm({...exerciseForm, date: e.target.value})} 
+            onChange={handleInputChange}
             required 
           />
         </div>
@@ -29,7 +39,7 @@ const ExerciseForm = ({ exerciseForm, setExerciseForm, handleExerciseSubmit, loa
             id="exercise-type"
             type="text" 
             value={exerciseForm.type} 
-            onChange={(e) => setExerciseForm({...exerciseForm, type: e.target.value})} 
+            onChange={handleInputChange}
             placeholder="e.g., Running, Weightlifting, Yoga" 
             required 
           />
@@ -40,18 +50,18 @@ const ExerciseForm = ({ exerciseForm, setExerciseForm, handleExerciseSubmit, loa
             id="exercise-duration"
             type="number" 
             value={exerciseForm.duration} 
-            onChange={(e) => setExerciseForm({...exerciseForm, duration: e.target.value})} 
+            onChange={handleInputChange}
             placeholder="Duration in minutes" 
             required 
           />
         </div>
         <div className="form-group">
-          <label htmlFor="exercise-calories">Calories Burned</label>
+          <label htmlFor="exercise-caloriesBurned">Calories Burned</label>
           <input 
-            id="exercise-calories"
+            id="exercise-caloriesBurned"
             type="number" 
             value={exerciseForm.caloriesBurned} 
-            onChange={(e) => setExerciseForm({...exerciseForm, caloriesBurned: e.target.value})} 
+            onChange={handleInputChange}
             placeholder="Estimated calories burned" 
             required 
           />
@@ -62,7 +72,7 @@ const ExerciseForm = ({ exerciseForm, setExerciseForm, handleExerciseSubmit, loa
             id="exercise-distance"
             type="number" 
             value={exerciseForm.distance} 
-            onChange={(e) => setExerciseForm({...exerciseForm, distance: e.target.value})} 
+            onChange={handleInputChange}
             placeholder="Distance in km (if applicable)" 
           />
         </div>
@@ -72,7 +82,7 @@ const ExerciseForm = ({ exerciseForm, setExerciseForm, handleExerciseSubmit, loa
             id="exercise-sets"
             type="number" 
             value={exerciseForm.sets} 
-            onChange={(e) => setExerciseForm({...exerciseForm, sets: e.target.value})} 
+            onChange={handleInputChange}
             placeholder="Number of sets (if applicable)" 
           />
         </div>
@@ -82,7 +92,7 @@ const ExerciseForm = ({ exerciseForm, setExerciseForm, handleExerciseSubmit, loa
             id="exercise-reps"
             type="number" 
             value={exerciseForm.reps} 
-            onChange={(e) => setExerciseForm({...exerciseForm, reps: e.target.value})} 
+            onChange={handleInputChange}
             placeholder="Number of reps (if applicable)" 
           />
         </div>
@@ -92,7 +102,7 @@ const ExerciseForm = ({ exerciseForm, setExerciseForm, handleExerciseSubmit, loa
             id="exercise-weight"
             type="number" 
             value={exerciseForm.weight} 
-            onChange={(e) => setExerciseForm({...exerciseForm, weight: e.target.value})} 
+            onChange={handleInputChange}
             placeholder="Weight used in kg (if applicable)" 
           />
         </div>
@@ -101,7 +111,7 @@ const ExerciseForm = ({ exerciseForm, setExerciseForm, handleExerciseSubmit, loa
           <textarea 
             id="exercise-notes"
             value={exerciseForm.notes} 
-            onChange={(e) => setExerciseForm({...exerciseForm, notes: e.target.value})} 
+            onChange={handleInputChange}
             placeholder="Any additional notes" 
           />
         </div>

@@ -4,6 +4,20 @@ import { db } from '../config/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { calculateOverallWellbeingScore } from './scoreCalculation';
 
+const emotionToEmojiMap = {
+  "Happy": "😊",
+  "Excited": "🤩",
+  "Calm": "😌",
+  "Content": "🙂",
+  "Okay": "😐",
+  "Tired": "😴",
+  "Stressed": "😩",
+  "Anxious": "😰",
+  "Sad": "😢",
+  "Angry": "😠"
+  // Add more emotions and corresponding emojis as needed
+};
+
 export const getDashboardData = async (userId) => {
   if (!userId) {
     console.error('User ID is undefined');
@@ -131,10 +145,29 @@ const calculateFitnessData = (exercises) => {
 };
 
 const calculateMoodData = (moods) => {
+  console.log('Raw mood data:', moods); // Log raw mood data
+
+  // Sort moods by date, most recent first
+  const sortedMoods = moods.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  
+  let latestMood = 'Not logged yet';
+  if (sortedMoods.length > 0) {
+    const latest = sortedMoods[0];
+    console.log('Latest mood entry:', latest); // Log the latest mood entry
+
+    if (latest.mood) {
+      const emoji = emotionToEmojiMap[latest.mood] || '😶'; // Use a neutral face if mood doesn't match any in the map
+      latestMood = `${latest.mood} ${emoji}`;
+    } else {
+      latestMood = 'Mood data incomplete';
+      console.warn('Incomplete mood data:', latest);
+    }
+  }
+
   return {
     totalEntries: moods.length,
-    latestMood: moods.length > 0 ? moods[moods.length - 1].value : null,
-    score: moods.length > 0 ? 100 : 0  // Full score if there are any mood entries
+    latestMood: latestMood,
+    score: moods.length > 0 ? 100 : 0
   };
 };
 

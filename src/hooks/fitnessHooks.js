@@ -1,36 +1,45 @@
-// src/hooks/useFitnessData.js
-import { useState, useEffect } from 'react';
-import { useAuth } from './useAuth';
-import { db } from '../config/firebase';
-import { collection, addDoc, getDocs, query, where, orderBy, deleteDoc, doc, Timestamp } from 'firebase/firestore';
+import { useState, useEffect, useCallback } from 'react';
+import { auth } from '../config/firebase';
+import { 
+  addExercise, 
+  fetchExercises, 
+  addMeal, 
+  fetchMeals, 
+  deleteExercise, 
+  deleteMeal, 
+  addWater, 
+  fetchWater, 
+  deleteWater,
+  fetchWellbeingParams,
+} from '../backend/fitness';
 
-const EXERCISE_COLLECTION = 'exercises';
-const MEAL_COLLECTION = 'meals';
-const WATER_COLLECTION = 'water';
+const useFitnessData = () => {
+  const [user, setUser] = useState(null);
+  const [exercises, setExercises] = useState([]);
+  const [meals, setMeals] = useState([]);
+  const [waterIntakes, setWaterIntakes] = useState([]);
+  const [exerciseForm, setExerciseForm] = useState({ 
+    type: '', duration: '', caloriesBurned: '', date: '', 
+    distance: '', sets: '', reps: '', weight: '', notes: '' 
+  });
+  const [mealForm, setMealForm] = useState({ 
+    name: '', calories: '', date: '', description: '', 
+    protein: '', carbs: '', fat: '', notes: '' 
+  });
+  const [waterForm, setWaterForm] = useState({ amount: '', date: '', time: '', type: '', notes: '' });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [wellbeingParams, setWellbeingParams] = useState(null);
+  const [currentExerciseMinutes, setCurrentExerciseMinutes] = useState(0);
+  const [dailyCalories, setDailyCalories] = useState(0);
 
-export const useFitnessData = () => {
-    const { user } = useAuth();
-    const [exercises, setExercises] = useState([]);
-    const [meals, setMeals] = useState([]);
-    const [waterIntakes, setWaterIntakes] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-  
-    useEffect(() => {
-      if (user) {
-        fetchData();
-      } else {
-        setLoading(false);
-      }
-    }, [user]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       const [exercisesData, mealsData, waterData] = await Promise.all([
-        fetchCollection(EXERCISE_COLLECTION),
-        fetchCollection(MEAL_COLLECTION),
-        fetchCollection(WATER_COLLECTION)
+        fetchExercises(),
+        fetchMeals(),
+        fetchWater()
       ]);
       setExercises(exercisesData);
       setMeals(mealsData);
@@ -41,31 +50,77 @@ export const useFitnessData = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const fetchCollection = async (collectionName) => {
-    const q = query(
-      collection(db, collectionName),
-      where('userId', '==', user.uid),
-      orderBy('date', 'desc')
-    );
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      date: doc.data().date.toDate()
-    }));
-  };
+  const fetchUserWellbeingParams = useCallback(async () => {
+    try {
+      const params = await fetchWellbeingParams();
+      setWellbeingParams(params);
+    } catch (error) {
+      console.error("Error fetching wellbeing parameters: ", error);
+      setError("Failed to load wellbeing parameters. Please try again later.");
+    }
+  }, []);
 
-  const addExercise = async (exerciseData) => {
+  const calculateCurrentExerciseMinutes = useCallback(() => {
+    const currentDate = new Date();
+    const weekStart = new Date(currentDate.setDate(currentDate.getDate() - currentDate.getDay()));
+    weekStart.setHours(0, 0, 0, 0);
+
+    const totalMinutes = exercises.reduce((total, exercise) => {
+      const exerciseDate = new Date(exercise.date);
+      if (exerciseDate >= weekStart) {
+        return total + parseInt(exercise.duration);
+      }
+      return total;
+    }, 0);
+
+    setCurrentExerciseMinutes(totalMinutes);
+  }, [exercises]);
+
+  const calculateDailyCalories = useCallback(() => {
+    const currentDate = new Date().toDateString();
+    const todayCalories = meals.reduce((total, meal) => {
+      const mealDate = new Date(meal.date).toDateString();
+      if (mealDate === currentDate) {
+        return total + parseInt(meal.calories);
+      }
+      return total;
+    }, 0);
+
+    setDailyCalories(todayCalories);
+  }, [meals]);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setUser(user);
+      if (user) {
+        fetchData();
+        fetchUserWellbeingParams();
+      } else {
+        setLoading(false);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [fetchData, fetchUserWellbeingParams]);
+
+  useEffect(() => {
+    calculateCurrentExerciseMinutes();
+    calculateDailyCalories();
+  }, [exercises, meals, calculateCurrentExerciseMinutes, calculateDailyCalories]);
+
+  const handleExerciseSubmit = async (e) => {
+    e.preventDefault();
     try {
       setLoading(true);
-      await addDoc(collection(db, EXERCISE_COLLECTION), {
-        userId: user.uid,
-        ...exerciseData,
-        date: Timestamp.fromDate(new Date(exerciseData.date))
-      });
+      setError(null);
+      await addExercise(exerciseForm);
       await fetchData();
+      setExerciseForm({ 
+        type: '', duration: '', caloriesBurned: '', date: '', 
+        distance: '', sets: '', reps: '', weight: '', notes: '' 
+      });
     } catch (error) {
       console.error("Error submitting exercise: ", error);
       setError("Failed to add exercise. Please try again.");
@@ -74,15 +129,16 @@ export const useFitnessData = () => {
     }
   };
 
-  const addMeal = async (mealData) => {
+  const handleMealSubmit = async (e) => {
+    e.preventDefault();
     try {
       setLoading(true);
-      await addDoc(collection(db, MEAL_COLLECTION), {
-        userId: user.uid,
-        ...mealData,
-        date: Timestamp.fromDate(new Date(mealData.date))
-      });
+      await addMeal(mealForm);
       await fetchData();
+      setMealForm({ 
+        name: '', calories: '', date: '', description: '', 
+        protein: '', carbs: '', fat: '', notes: '' 
+      });
     } catch (error) {
       console.error("Error submitting meal: ", error);
       setError("Failed to add meal. Please try again.");
@@ -91,15 +147,13 @@ export const useFitnessData = () => {
     }
   };
 
-  const addWater = async (waterData) => {
+  const handleWaterSubmit = async (e) => {
+    e.preventDefault();
     try {
       setLoading(true);
-      await addDoc(collection(db, WATER_COLLECTION), {
-        userId: user.uid,
-        ...waterData,
-        date: Timestamp.fromDate(new Date(waterData.date))
-      });
+      await addWater(waterForm);
       await fetchData();
+      setWaterForm({ amount: '', date: '', time: '', type: '', notes: '' });
     } catch (error) {
       console.error("Error submitting water intake: ", error);
       setError("Failed to add water intake. Please try again.");
@@ -108,10 +162,10 @@ export const useFitnessData = () => {
     }
   };
 
-  const deleteExercise = async (exerciseId) => {
+  const handleDeleteExercise = async (exerciseId) => {
     try {
       setLoading(true);
-      await deleteDoc(doc(db, EXERCISE_COLLECTION, exerciseId));
+      await deleteExercise(exerciseId);
       await fetchData();
     } catch (error) {
       console.error("Error deleting exercise: ", error);
@@ -121,10 +175,10 @@ export const useFitnessData = () => {
     }
   };
 
-  const deleteMeal = async (mealId) => {
+  const handleDeleteMeal = async (mealId) => {
     try {
       setLoading(true);
-      await deleteDoc(doc(db, MEAL_COLLECTION, mealId));
+      await deleteMeal(mealId);
       await fetchData();
     } catch (error) {
       console.error("Error deleting meal: ", error);
@@ -134,10 +188,10 @@ export const useFitnessData = () => {
     }
   };
 
-  const deleteWater = async (waterId) => {
+  const handleDeleteWater = async (waterId) => {
     try {
       setLoading(true);
-      await deleteDoc(doc(db, WATER_COLLECTION, waterId));
+      await deleteWater(waterId);
       await fetchData();
     } catch (error) {
       console.error("Error deleting water intake: ", error);
@@ -148,16 +202,28 @@ export const useFitnessData = () => {
   };
 
   return {
+    user,
+    loading,
+    error,
     exercises,
     meals,
     waterIntakes,
-    loading,
-    error,
-    addExercise,
-    addMeal,
-    addWater,
-    deleteExercise,
-    deleteMeal,
-    deleteWater
+    exerciseForm,
+    setExerciseForm,
+    mealForm,
+    setMealForm,
+    waterForm,
+    setWaterForm,
+    wellbeingParams,
+    currentExerciseMinutes,
+    dailyCalories,
+    handleExerciseSubmit,
+    handleMealSubmit,
+    handleWaterSubmit,
+    handleDeleteExercise,
+    handleDeleteMeal,
+    handleDeleteWater,
   };
 };
+
+export default useFitnessData;

@@ -13,6 +13,7 @@ const WellbeingSetup = () => {
     sleepHoursPerNight: '',
     targetMoodScore: '',
     weeklyMeditationMinutes: '',
+    dailyMoodCheck: false,
   });
 
   useEffect(() => {
@@ -31,7 +32,8 @@ const WellbeingSetup = () => {
   }, []);
 
   const handleChange = (e) => {
-    setWellbeingParams({ ...wellbeingParams, [e.target.name]: e.target.value });
+    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+    setWellbeingParams({ ...wellbeingParams, [e.target.name]: value });
   };
 
   const handleSubmit = async (e) => {
@@ -39,12 +41,8 @@ const WellbeingSetup = () => {
     const user = auth.currentUser;
     if (user) {
       try {
-        // Save wellbeing parameters
         await setDoc(doc(db, 'wellbeing', user.uid), wellbeingParams);
-        
-        // Update user document to mark wellbeing setup as completed
         await setDoc(doc(db, 'users', user.uid), { hasCompletedWellbeingSetup: true }, { merge: true });
-        
         navigate('/dashboard');
       } catch (error) {
         console.error('Error saving wellbeing parameters:', error);
@@ -103,19 +101,18 @@ const WellbeingSetup = () => {
             />
             <small>Recommended: 7-9 hours per night for adults</small>
           </div>
-          <div className="form-group">
-            <label htmlFor="targetMoodScore">Mood Target (1-5 scale)</label>
-            <input
-              type="number"
-              id="targetMoodScore"
-              name="targetMoodScore"
-              value={wellbeingParams.targetMoodScore}
-              onChange={handleChange}
-              min="1"
-              max="5"
-              required
-            />
-            <small>5 being the best mood, aim for a realistic improvement</small>
+          <div className="form-group mood-check-group">
+            <label htmlFor="dailyMoodCheck">Commit to daily mood awareness check-in</label>
+            <small>Taking a moment each day to reflect on your emotional state can improve self-awareness and emotional intelligence.</small>
+            <div className="checkbox-container">
+              <input
+                type="checkbox"
+                id="dailyMoodCheck"
+                name="dailyMoodCheck"
+                checked={wellbeingParams.dailyMoodCheck}
+                onChange={handleChange}
+              />
+            </div>
           </div>
           <div className="form-group">
             <label htmlFor="weeklyMeditationMinutes">Weekly Meditation Target (minutes)</label>

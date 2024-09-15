@@ -1,5 +1,3 @@
-// src/pages/WellbeingPage.js
-
 import React, { useState, useEffect } from 'react';
 import { auth } from '../config/firebase';
 import { fetchExercises, fetchWater } from '../backend/fitness';

@@ -1,16 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { auth } from '../config/firebase';
+import { auth, db } from '../config/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 import '../css/moodtracker.css';
 import Navbar2 from './navbar2';
 import { saveMood, deleteMood, fetchMoods } from '../backend/moodDiary';
 
 const moodOptions = [
-  { value: '', label: 'Select a mood' },
-  { value: 'angry', label: 'Angry 😡', color: '#FF0000', score: 1 },
-  { value: 'stressed', label: 'Stressed 😩', color: '#FFA500', score: 2 },
-  { value: 'sad', label: 'Sad 😟', color: '#0000FF', score: 3 },
-  { value: 'calm', label: 'Calm 🙂‍↕️', color: '#008000', score: 4 },
-  { value: 'happy', label: 'Happy 😀', color: '#FFFF00', score: 5 },
+  { value: '', label: 'Select a mood', emoji: '', score: 0 },
+  { value: 'ecstatic', label: 'Ecstatic', emoji: '🤩', score: 5 },
+  { value: 'excited', label: 'Excited', emoji: '😃', score: 4.5 },
+  { value: 'happy', label: 'Happy', emoji: '😊', score: 4 },
+  { value: 'okay', label: 'Okay', emoji: '😐', score: 3 },
+  { value: 'sad', label: 'Sad', emoji: '😢', score: 2 },
+  { value: 'angry', label: 'Angry', emoji: '😠', score: 1 },
+  { value: 'anxious', label: 'Anxious', emoji: '😰', score: 1.5 },
+  { value: 'stressed', label: 'Stressed', emoji: '😩', score: 1.5 },
+  { value: 'tired', label: 'Tired', emoji: '😴', score: 2.5 },
+  { value: 'calm', label: 'Calm', emoji: '😌', score: 3.5 },
 ];
 
 const prompts = [
@@ -26,7 +32,7 @@ const prompts = [
   "What's something new you'd like to learn? Why does it interest you?"
 ];
 
-const factorOptions = ['Work', 'Relationships', 'Health', 'Finance', 'Hobbies','Other'];
+const factorOptions = ['Work', 'Relationships', 'Health', 'Finance', 'Hobbies', 'Other'];
 
 const MoodTracker = () => {
   const [mood, setMood] = useState('');
@@ -39,13 +45,18 @@ const MoodTracker = () => {
   const [diaryTitle, setDiaryTitle] = useState('');
   const [diaryEntry, setDiaryContent] = useState('');
   const [currentMoodScore, setCurrentMoodScore] = useState(0);
-  const [targetMoodScore, setTargetMoodScore] = useState(4); // Default target mood score
+  const [error, setError] = useState(null);
+  const [showMoodGoals, setShowMoodGoals] = useState(true);
+  const [streak, setStreak] = useState(0);
 
   useEffect(() => {
+    console.log("Component mounted");
     const unsubscribe = auth.onAuthStateChanged(user => {
+      console.log("Auth state changed", user ? "User logged in" : "User not logged in");
       if (user) {
         setIsAuthenticated(true);
         fetchUserMoods(user.uid);
+        fetchWellbeingParams(user.uid);
       } else {
         setIsAuthenticated(false);
         setSavedMoods([]);
@@ -60,6 +71,8 @@ const MoodTracker = () => {
 
   useEffect(() => {
     if (savedMoods.length > 0) {
+      calculateStreak(savedMoods);
+      
       const latestMood = savedMoods[0];
       const latestMoodOption = moodOptions.find(option => option.value === latestMood.mood);
       if (latestMoodOption) {
@@ -68,20 +81,59 @@ const MoodTracker = () => {
     }
   }, [savedMoods]);
 
-  const setRandomPrompt = () => {
-    const randomIndex = Math.floor(Math.random() * prompts.length);
-    setCurrentPrompt(prompts[randomIndex]);
+  const calculateStreak = (moods) => {
+    let currentStreak = 0;
+    let currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);  // Set to start of day
+
+    for (let mood of moods) {
+      let moodDate = new Date(mood.date);
+      moodDate.setHours(0, 0, 0, 0);  // Set to start of day
+
+      if (currentDate.getTime() === moodDate.getTime()) {
+        currentStreak++;
+        currentDate.setDate(currentDate.getDate() - 1);  // Move to previous day
+      } else if (currentDate.getTime() - moodDate.getTime() === 86400000) {  // One day difference
+        currentStreak++;
+        currentDate = moodDate;
+      } else {
+        break;  // Streak is broken
+      }
+    }
+
+    setStreak(currentStreak);
   };
 
   const fetchUserMoods = async (userId) => {
+    console.log("Fetching user moods for userId:", userId);
     try {
       const moods = await fetchMoods(userId);
+      console.log("Moods fetched successfully:", moods);
       setSavedMoods(moods);
-      setIsLoading(false);
     } catch (error) {
-      console.error("Error fetching moods: ", error);
+      console.error("Error fetching moods:", error);
+      setError("Failed to fetch moods. Please try again later.");
+    } finally {
       setIsLoading(false);
     }
+  };
+
+  const fetchWellbeingParams = async (userId) => {
+    try {
+      const docRef = doc(db, 'wellbeing', userId);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setShowMoodGoals(data.dailyMoodCheck);
+      }
+    } catch (error) {
+      console.error("Error fetching wellbeing parameters:", error);
+    }
+  };
+
+  const setRandomPrompt = () => {
+    const randomIndex = Math.floor(Math.random() * prompts.length);
+    setCurrentPrompt(prompts[randomIndex]);
   };
 
   const handleFactorChange = (e) => {
@@ -122,6 +174,7 @@ const MoodTracker = () => {
       setDiaryContent('');
     } catch (error) {
       console.error("Error adding mood: ", error);
+      setError("Failed to save mood. Please try again.");
     }
   };
 
@@ -136,11 +189,16 @@ const MoodTracker = () => {
       fetchUserMoods(auth.currentUser.uid);
     } catch (error) {
       console.error("Error deleting mood: ", error);
+      setError("Failed to delete mood. Please try again.");
     }
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div>Loading... Please wait.</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
   }
 
   if (!isAuthenticated) {
@@ -153,9 +211,12 @@ const MoodTracker = () => {
       <div className="mood-tracker-container">
         <h1 className="main-title">Mood Tracker</h1>
         
-        <div className="mood-goals">
-          <p>Current Mood Score: {currentMoodScore} / Target Mood Score: {targetMoodScore}</p>
-        </div>
+        {showMoodGoals && (
+          <div className="mood-goals">
+            <p>Current Mood Score: {currentMoodScore.toFixed(1)} / 5</p>
+            <p>Current Streak: {streak} day{streak !== 1 ? 's' : ''}</p>
+          </div>
+        )}
         
         <div className="tab-navigation">
           <button 
@@ -183,7 +244,9 @@ const MoodTracker = () => {
                   onChange={(e) => setMood(e.target.value)}
                 >
                   {moodOptions.map(option => (
-                    <option key={option.value} value={option.value}>{option.label}</option>
+                    <option key={option.value} value={option.value}>
+                      {option.emoji} {option.label}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -242,9 +305,10 @@ const MoodTracker = () => {
               savedMoods.map((savedMood) => (
                 <div key={savedMood.id} className="saved-mood">
                   <button onClick={() => handleDeleteMood(savedMood.id)} className="delete-mood-btn">Delete</button>
-                  <p className="mood-date">{savedMood.date.toLocaleDateString()}</p>
-                  <div className="mood-display" style={{ backgroundColor: moodOptions.find(m => m.value === savedMood.mood)?.color }}>
-                    {moodOptions.find(m => m.value === savedMood.mood)?.label}
+                  <p className="mood-date">{new Date(savedMood.date).toLocaleDateString()}</p>
+                  <div className="mood-display">
+                    {moodOptions.find(option => option.value === savedMood.mood)?.emoji} {savedMood.mood} 
+                    (Score: {moodOptions.find(option => option.value === savedMood.mood)?.score.toFixed(1)})
                   </div>
                   <p className="mood-factors-list">Factors: {savedMood.factors.join(', ')}</p>
                   <h4 className="diary-title">{savedMood.diaryTitle}</h4>

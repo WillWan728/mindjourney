@@ -12,7 +12,6 @@ import Homepage from "./pages/homepage.js";
 import DashboardPage from "./pages/dashboard.js";
 import MindfulExercisePage from "./pages/meditation.js";
 import HealthyHabitsPage from "./pages/healthyhabit.js";
-import AchievementPage from "./pages/achivement.js";
 import ProfilePage from "./pages/profile.js";
 import WellbeingScore from "./pages/wellbeing.js";
 import Goals from "./pages/goals.js";
@@ -35,7 +34,6 @@ const App = () => {
                         <Route path="/homeaboutpage" element={<HomeAboutUsPage />} />
                         <Route path="/mindfulness" element={<MindfulExercisePage />} />
                         <Route path="/healthyhabits" element={<HealthyHabitsPage />} />
-                        <Route path="/achievements" element={<AchievementPage />} />
                         <Route path="/profile" element={<ProfilePage/>}/>
                         <Route path="/wellbeing" element={<WellbeingScore/>}/>
                         <Route path="/goals" element={<Goals/>}/>

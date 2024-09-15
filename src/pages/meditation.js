@@ -54,6 +54,7 @@ const Meditation = () => {
       const oneYearAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
       const logs = await fetchMeditations(userId, oneYearAgo, now);
       setMeditationLogs(logs);
+      calculateWeeklyMeditationTime();
     } catch (error) {
       console.error("Error fetching meditation logs: ", error);
       setError("Failed to fetch meditation logs. Please try again.");
@@ -78,9 +79,14 @@ const Meditation = () => {
   const calculateWeeklyMeditationTime = () => {
     const now = new Date();
     const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    
     const weeklyTime = meditationLogs
-      .filter(log => log.date.toDate() > oneWeekAgo)
+      .filter(log => {
+        const logDate = log.date.toDate(); // Convert Firestore Timestamp to JavaScript Date
+        return logDate >= oneWeekAgo && logDate <= now;
+      })
       .reduce((total, log) => total + log.duration, 0);
+    
     setWeeklyMeditationTime(weeklyTime);
   };
 

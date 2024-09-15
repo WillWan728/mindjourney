@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../css/register.css';
 import Navbar from './navbar';
-import { auth, db } from '../config/firebase'; 
+import { auth, db } from '../config/firebase';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 
@@ -28,42 +28,48 @@ const RegisterUser = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        console.log("Registration process started");
 
         if (!formData.username || !formData.email || !formData.password || !formData.confirmPassword) {
+            console.log("Form validation failed: Missing fields");
             setError('All fields are required');
             return;
         }
 
         if (formData.password !== formData.confirmPassword) {
+            console.log("Form validation failed: Passwords do not match");
             setError('Passwords do not match');
             return;
         }
 
         try {
-            // Firebase authentication for user registration
+            console.log("Creating user account");
             const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
             const user = userCredential.user;
+            console.log("User account created successfully", user.uid);
 
-            // Update the user's profile with the username
+            console.log("Updating user profile");
             await updateProfile(user, {
                 displayName: formData.username
             });
+            console.log("User profile updated successfully");
 
-            // Create a user document in Firestore
+            console.log("Creating user document in Firestore");
             await setDoc(doc(db, 'users', user.uid), {
                 username: formData.username,
                 email: formData.email,
                 hasCompletedWellbeingSetup: false
             });
+            console.log("User document created successfully");
 
-            console.log('User registered successfully', user);
-            // Redirect to wellbeing setup page after successful registration
+            console.log("Registration process completed successfully");
             navigate('/wellbeingSetup');
         } catch (error) {
             console.error('Registration error:', error.code, error.message);
             setError(`Registration failed: ${error.message}`);
         }
     };
+
     return (
         <div className="register-page">
             <Navbar />

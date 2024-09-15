@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../config/firebase';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import '../css/login.css';
 import Navbar from './navbar';
@@ -13,6 +13,7 @@ const Login = () => {
     });
 
     const [error, setError] = useState('');
+    const [resetMessage, setResetMessage] = useState('');
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -26,6 +27,7 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        setResetMessage('');
 
         if (!formData.email || !formData.password) {
             setError('All fields are required');
@@ -61,6 +63,22 @@ const Login = () => {
         }
     };
 
+    const handleForgotPassword = async () => {
+        if (!formData.email) {
+            setError('Please enter your email address');
+            return;
+        }
+
+        try {
+            await sendPasswordResetEmail(auth, formData.email);
+            setResetMessage('Password reset email sent. Please check your inbox.');
+            setError('');
+        } catch (error) {
+            console.error('Password reset error:', error.code, error.message);
+            setError(`Password reset failed: ${error.message}`);
+        }
+    };
+
     return (
         <div className="login-page">
             <Navbar />
@@ -90,8 +108,15 @@ const Login = () => {
                         />
                     </div>
                     {error && <p className="error-message">{error}</p>}
+                    {resetMessage && <p className="success-message">{resetMessage}</p>}
                     <button type="submit" className="login-button">Login</button>
                 </form>
+                <button 
+                    onClick={handleForgotPassword} 
+                    className="forgot-password-button"
+                >
+                    Forgot Password?
+                </button>
             </div>
         </div>
     );
