@@ -111,16 +111,29 @@ export const TABS = {
 };
 
 export const fetchMeditations = async (userId, startDate, endDate) => {
-  const meditationsRef = collection(db, FIREBASE_COLLECTION_NAME);
-  const q = query(
-    meditationsRef,
-    where("userId", "==", userId),
-    where("date", ">=", startDate),
-    where("date", "<=", endDate),
-    orderBy("date", "desc")
-  );
-  const querySnapshot = await getDocs(q);
-  return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  try {
+    const meditationsRef = collection(db, 'meditations');
+    let constraints = [where('userId', '==', userId)];
+    
+    if (startDate instanceof Date) {
+      constraints.push(where('date', '>=', startDate));
+    }
+    if (endDate instanceof Date) {
+      constraints.push(where('date', '<=', endDate));
+    }
+    
+    constraints.push(orderBy('date', 'desc'));
+    
+    const q = query(meditationsRef, ...constraints);
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+  } catch (error) {
+    console.error("Error fetching meditations:", error);
+    return [];
+  }
 };
 
 export const addMeditation = async (userId, meditationData) => {

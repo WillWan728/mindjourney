@@ -31,6 +31,7 @@ const Navbar2 = () => {
           <Link to="/fitness" className="nav-link">Fitness</Link>
           <Link to="/sleeptracker" className="nav-link">Sleep</Link>
           <Link to="/mindfulness" className="nav-link">Meditation</Link>
+          <Link to="/moodtracker" className="nav-link">Journaling</Link>
           <Link to="/wellbeing" className="nav-link">Wellbeing</Link>
           <Link to="/achievements" className="nav-link">Achievements</Link>
         </div>

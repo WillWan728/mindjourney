@@ -1,31 +1,35 @@
 /* css/meditation.css */
 
-body {
-  margin: 0;
-  padding: 0;
-  font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
-}
-
+/* Container Styles */
 .meditation-container {
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
 }
 
-.main-title {
+.content-box {
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+/* Typography */
+.meditation-container .main-title {
   text-align: center;
   color: #333;
   margin-bottom: 20px;
 }
 
-.tab-navigation {
+/* Navigation Styles */
+.tab-navigation,
+.category-buttons {
   display: flex;
   justify-content: center;
   margin-bottom: 20px;
 }
 
-.tab-navigation button {
+.tab-navigation button,
+.category-buttons button {
   background-color: #f0f0f0;
   border: none;
   padding: 10px 20px;
@@ -35,41 +39,16 @@ body {
   transition: background-color 0.3s ease;
 }
 
-.tab-navigation button.active {
-  background-color: #5f9ea0;
-  color: white;
-}
-
-.content-box {
-  background-color: #f9f9f9;
-  border-radius: 10px;
-  padding: 20px;
-}
-
-.exercises-container {
-  display: flex;
-  flex-direction: column;
-}
-
-.category-buttons {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
-}
-
-.category-buttons button {
-  background-color: #f0f0f0;
-  border: none;
-  padding: 8px 16px;
-  margin: 0 5px;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.3s ease;
-}
-
+.tab-navigation button.active,
 .category-buttons button.active {
   background-color: #5f9ea0;
   color: white;
+}
+
+/* Exercise Grid Styles */
+.exercises-container {
+  display: flex;
+  flex-direction: column;
 }
 
 .exercise-grid {
@@ -97,14 +76,7 @@ body {
   margin-bottom: 15px;
 }
 
-.error-message {
-  background-color: #ffcccb;
-  color: #d8000c;
-  padding: 10px;
-  margin-bottom: 20px;
-  border-radius: 4px;
-}
-
+/* Exercise Details Modal */
 .exercise-details {
   position: fixed;
   top: 50%;
@@ -140,48 +112,41 @@ body {
   margin-top: 20px;
 }
 
-/* Add styles for meditation form, history, etc. here */
-
-@media (max-width: 900px) {
-  .exercise-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+/* Meditation Goals */
+.meditation-goals {
+  background-color: #ffffff;
+  border-radius: 5px;
+  padding: 20px;
+  margin-bottom: 20px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
 }
 
-@media (max-width: 600px) {
-  .exercise-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .category-buttons,
-  .tab-navigation {
-    flex-direction: column;
-  }
-  
-  .category-buttons button,
-  .tab-navigation button {
-    margin-bottom: 5px;
-    border-radius: 5px;
-  }
+.meditation-goals p {
+  margin: 5px 0;
+  font-size: 1.1em;
+  color: #333;
 }
-/* Add these styles to your existing meditation.css file */
 
+/* History Styles */
 .history-container {
   max-width: 800px;
   margin: 0 auto;
 }
 
+.meditation-logs,
 .log-list {
   list-style-type: none;
   padding: 0;
 }
 
+.meditation-log-item,
 .log-item {
-  background-color: #ffffff;
+  background-color: #f0f0f0;
+  border-radius: 8px;
   margin-bottom: 10px;
   padding: 15px;
-  border-radius: 4px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -191,10 +156,27 @@ body {
   flex-grow: 1;
 }
 
-.log-content p {
-  margin: 5px 0;
+.log-date {
+  font-weight: bold;
+  margin-bottom: 5px;
 }
 
+.log-exercise {
+  color: #4a4a4a;
+}
+
+.log-duration {
+  color: #007bff;
+  font-weight: bold;
+}
+
+.log-notes {
+  font-style: italic;
+  margin-top: 5px;
+  color: #6c757d;
+}
+
+/* Button Styles */
 .log-actions {
   display: flex;
   gap: 10px;
@@ -226,18 +208,36 @@ body {
 .delete-button:hover {
   background-color: #da190b;
 }
-.meditation-goals {
-  background-color: #ffffff;
-  border-radius: 5px;
-  padding: 20px;
+
+/* Error Message */
+.error-message {
+  background-color: #ffcccb;
+  color: #d8000c;
+  padding: 10px;
   margin-bottom: 20px;
-  text-align: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  width: 100%;
+  border-radius: 4px;
 }
 
-.meditation-goals p {
-  margin: 5px 0;
-  font-size: 1.1em;
-  color: #333;
+/* Responsive Styles */
+@media (max-width: 900px) {
+  .exercise-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .exercise-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .category-buttons,
+  .tab-navigation {
+    flex-direction: column;
+  }
+  
+  .category-buttons button,
+  .tab-navigation button {
+    margin-bottom: 5px;
+    border-radius: 5px;
+  }
 }

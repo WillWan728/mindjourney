@@ -34,6 +34,11 @@ const useFitnessData = () => {
   const [dailyCalories, setDailyCalories] = useState(0);
 
   const fetchData = useCallback(async () => {
+    if (!auth.currentUser) {
+      console.error("No authenticated user");
+      setLoading(false);
+      return;
+    }
     try {
       setLoading(true);
       const [exercisesData, mealsData, waterData] = await Promise.all([
@@ -53,6 +58,10 @@ const useFitnessData = () => {
   }, []);
 
   const fetchUserWellbeingParams = useCallback(async () => {
+    if (!auth.currentUser) {
+      console.error("No authenticated user");
+      return;
+    }
     try {
       const params = await fetchWellbeingParams();
       setWellbeingParams(params);
@@ -99,6 +108,10 @@ const useFitnessData = () => {
         fetchUserWellbeingParams();
       } else {
         setLoading(false);
+        setExercises([]);
+        setMeals([]);
+        setWaterIntakes([]);
+        setWellbeingParams(null);
       }
     });
 
@@ -112,6 +125,10 @@ const useFitnessData = () => {
 
   const handleExerciseSubmit = async (e) => {
     e.preventDefault();
+    if (!auth.currentUser) {
+      setError("You must be logged in to submit an exercise.");
+      return;
+    }
     try {
       setLoading(true);
       setError(null);
@@ -131,6 +148,10 @@ const useFitnessData = () => {
 
   const handleMealSubmit = async (e) => {
     e.preventDefault();
+    if (!auth.currentUser) {
+      setError("You must be logged in to submit a meal.");
+      return;
+    }
     try {
       setLoading(true);
       await addMeal(mealForm);
@@ -149,6 +170,10 @@ const useFitnessData = () => {
 
   const handleWaterSubmit = async (e) => {
     e.preventDefault();
+    if (!auth.currentUser) {
+      setError("You must be logged in to submit water intake.");
+      return;
+    }
     try {
       setLoading(true);
       await addWater(waterForm);
@@ -163,6 +188,10 @@ const useFitnessData = () => {
   };
 
   const handleDeleteExercise = async (exerciseId) => {
+    if (!auth.currentUser) {
+      setError("You must be logged in to delete an exercise.");
+      return;
+    }
     try {
       setLoading(true);
       await deleteExercise(exerciseId);
@@ -176,6 +205,10 @@ const useFitnessData = () => {
   };
 
   const handleDeleteMeal = async (mealId) => {
+    if (!auth.currentUser) {
+      setError("You must be logged in to delete a meal.");
+      return;
+    }
     try {
       setLoading(true);
       await deleteMeal(mealId);
@@ -189,6 +222,10 @@ const useFitnessData = () => {
   };
 
   const handleDeleteWater = async (waterId) => {
+    if (!auth.currentUser) {
+      setError("You must be logged in to delete water intake.");
+      return;
+    }
     try {
       setLoading(true);
       await deleteWater(waterId);

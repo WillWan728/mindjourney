@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { auth } from '../config/firebase';
-import Navbar2 from './navbar2';
-import ExerciseForm from './fitness/ExerciseForm';
-import MealForm from './fitness/MealForm';
-import WaterForm from './fitness/WaterForm';
-import History from './fitness/HistoryForm';
-import useFitnessData from '../hooks/fitnessHooks';
-import '../css/fitnesstracker.css';
+import Navbar2 from '../navbar2';
+import ExerciseForm from './ExerciseForm';
+import MealForm from './MealForm';
+import WaterForm from './WaterForm';
+import History from './HistoryForm';
+import useFitnessData from '../../hooks/fitnessHooks';
+import '../../css/fitnesstracker.css';
 
 const FitnessTracker = () => {
   const [activeTab, setActiveTab] = useState('exercise');

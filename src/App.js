@@ -3,19 +3,20 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Footer from "./pages/footer";
 import RegisterUser from "./pages/register";
 import LoginUser from "./pages/login";
-import SleepTracker from "./pages/sleeptracker";
-import FitnessTracker from "./pages/fitnesstracker";
+import SleepTracker from "./pages/sleep/sleeptracker.js";
+import FitnessTracker from "./pages/fitness/fitnesstracker.js";
 import AboutUs from "./pages/about";
 import HomeAboutUsPage from "./pages/homeaboutpage.js";
-import MoodTracker from "./pages/moodtracker";
+import MoodTracker from "./pages/Journaling/moodtracker.js";
 import Homepage from "./pages/homepage.js"; 
 import DashboardPage from "./pages/dashboard.js";
-import MindfulExercisePage from "./pages/meditation.js";
+import MindfulExercisePage from "./pages/meditation/meditation.js";
 import HealthyHabitsPage from "./pages/healthyhabit.js";
 import ProfilePage from "./pages/profile.js";
-import WellbeingScore from "./pages/wellbeing.js";
+import Wellbeing from "./pages/wellbeing.js";
 import Goals from "./pages/goals.js";
 import GoalSetupPage from "./pages/welbeingSetup.js";
+import AchievementPage from "./pages/achievements.js";
 
 const App = () => {
     return (
@@ -35,9 +36,10 @@ const App = () => {
                         <Route path="/mindfulness" element={<MindfulExercisePage />} />
                         <Route path="/healthyhabits" element={<HealthyHabitsPage />} />
                         <Route path="/profile" element={<ProfilePage/>}/>
-                        <Route path="/wellbeing" element={<WellbeingScore/>}/>
+                        <Route path="/wellbeing" element={<Wellbeing/>}/>
                         <Route path="/goals" element={<Goals/>}/>
                         <Route path="/wellbeingSetup" element={<GoalSetupPage/>}/>
+                        <Route path="/achievements" element={<AchievementPage/>}/>
                     </Routes>
                     <Footer />
                 </div>

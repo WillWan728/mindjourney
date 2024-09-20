@@ -1,13 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { auth } from '../config/firebase';
-import { getDashboardData } from '../backend/dashboard';
-import { calculateOverallWellbeingScore } from '../backend/scoreCalculation';
-import { getSleepLogs } from '../backend/sleep';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { auth, db } from '../config/firebase';
+import { collection, query, where, onSnapshot, Timestamp } from 'firebase/firestore';
 import Navbar2 from './navbar2';
 import { Link } from 'react-router-dom';
 import '../css/dashboard.css';
 
-const Card = ({ title, emoji, link, children }) => (
+const MemoizedCard = React.memo(({ title, emoji, link, children }) => (
   <Link to={link} className="card-link">
     <div className="card">
       <div className="card-header">
@@ -19,111 +17,97 @@ const Card = ({ title, emoji, link, children }) => (
       </div>
     </div>
   </Link>
-);
-
-const formatMinutes = (minutes) => {
-  if (!minutes) return 'No data';
-  const hours = Math.floor(minutes / 60);
-  const remainingMinutes = minutes % 60;
-  return `${hours}h ${remainingMinutes}m`;
-}; 
-
-const calculateSleepStatistics = (sleepLogs) => {
-  if (!sleepLogs || sleepLogs.length === 0) {
-    return {
-      avgDuration: 'N/A',
-      avgQuality: 'N/A',
-    };
-  }
-
-  let totalDuration = 0;
-  let totalQuality = 0;
-  let totalBedtimeMinutes = 0;
-  let totalWaketimeMinutes = 0;
-
-  sleepLogs.forEach(log => {
-    const bedtime = new Date(log.bedtime);
-    const waketime = new Date(log.waketime);
-    
-    // Calculate duration considering midnight crossover
-    let duration = (waketime - bedtime) / (1000 * 60 * 60); // in hours
-    if (duration < 0) {
-      duration += 24; // Add 24 hours if waketime is on the next day
-    }
-
-    totalDuration += duration;
-    totalQuality += log.quality;
-
-    totalBedtimeMinutes += bedtime.getHours() * 60 + bedtime.getMinutes();
-    totalWaketimeMinutes += waketime.getHours() * 60 + waketime.getMinutes();
-  });
-
-  const avgDuration = (totalDuration / sleepLogs.length).toFixed(2);
-  const avgQuality = (totalQuality / sleepLogs.length).toFixed(1);
-  const avgBedtimeMinutes = Math.round(totalBedtimeMinutes / sleepLogs.length);
-  const avgWaketimeMinutes = Math.round(totalWaketimeMinutes / sleepLogs.length);
-
-  const avgBedtime = new Date(0, 0, 0, Math.floor(avgBedtimeMinutes / 60), avgBedtimeMinutes % 60);
-  const avgWaketime = new Date(0, 0, 0, Math.floor(avgWaketimeMinutes / 60), avgWaketimeMinutes % 60);
-
-  return { avgDuration, avgQuality, avgBedtime, avgWaketime };
-};
+));
 
 const Dashboard = () => {
-  const [dashboardData, setDashboardData] = useState(null);
-  const [sleepStats, setSleepStats] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [dashboardData, setDashboardData] = useState(null);
 
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
-      if (user) {
-        try {
-          const [rawData, sleepLogs] = await Promise.all([
-            getDashboardData(user.uid),
-            getSleepLogs(user.uid)
-          ]);
+  const fetchDashboardData = useCallback((userId) => {
+    const oneWeekAgo = Timestamp.fromDate(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000));
 
-          if (rawData && typeof rawData === 'object') {
-            const wellbeingScore = calculateOverallWellbeingScore(rawData.componentScores);
-            const dashboardScore = {
-              ...rawData,
-              wellbeingScore: Math.round(wellbeingScore)
-            };
-            setDashboardData(dashboardScore);
-          } else {
-            throw new Error('Invalid data structure received from getDashboardData');
-          }
+    const queries = [
+      { collection: 'sleepLogs', emoji: '💤', link: '/sleeptracker' },
+      { collection: 'exercises', emoji: '🏃‍♂️', link: '/fitness' },
+      { collection: 'moodLogs', emoji: '✏️', link: '/moodtracker' },
+      { collection: 'meditations', emoji: '🧘', link: '/mindfulness' },
+      { collection: 'goals', emoji: '🎯', link: '/goals' },
+    ];
 
-          const calculatedSleepStats = calculateSleepStatistics(sleepLogs);
-          setSleepStats(calculatedSleepStats);
-        } catch (err) {
-          console.error("Error fetching dashboard data:", err);
-          setError("Failed to fetch dashboard data. Please try again later.");
-        } finally {
-          setLoading(false);
-        }
-      } else {
+    const unsubscribes = queries.map(({ collection: collectionName, emoji, link }) => {
+      const collectionRef = collection(db, 'users', userId, collectionName);
+      const q = query(collectionRef, where('date', '>=', oneWeekAgo));
+
+      return onSnapshot(q, (snapshot) => {
+        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setDashboardData(prevData => ({
+          ...prevData,
+          [collectionName]: { data, emoji, link }
+        }));
         setLoading(false);
-        setError("Please log in to view your dashboard.");
-      }
+      }, (err) => {
+        console.error(`Error fetching ${collectionName}:`, err);
+        setError(`Failed to load ${collectionName} data. Please try again later.`);
+        setLoading(false);
+      });
     });
-    
-    return () => unsubscribe();
+
+    return () => unsubscribes.forEach(unsubscribe => unsubscribe());
   }, []);
 
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        fetchDashboardData(user.uid);
+      } else {
+        setError("Please log in to view your dashboard.");
+        setLoading(false);
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [fetchDashboardData]);
+
+  const wellbeingScore = useMemo(() => {
+    if (dashboardData) {
+      // Calculate wellbeing score based on available data
+      // This is a placeholder calculation
+      return Math.round(Math.random() * 100);
+    }
+    return null;
+  }, [dashboardData]);
+
+  const dailyTips = useMemo(() => [
+    "Remember to take deep breaths throughout the day to reduce stress.",
+    "Stay hydrated! Aim for 8 glasses of water daily.",
+    "Take short breaks every hour to stretch and move around.",
+    "Practice gratitude by noting three things you're thankful for today.",
+    "Try to get at least 7 hours of sleep tonight for better overall health."
+  ], []);
+
+  const randomTip = useMemo(() => dailyTips[Math.floor(Math.random() * dailyTips.length)], [dailyTips]);
+
+  const quickActions = useMemo(() => [
+    { title: "Log Sleep", link: "/sleep", icon: "🛌" },
+    { title: "Track Workout", link: "/fitness", icon: "💪" },
+    { title: "Meditate", link: "/meditation", icon: "🧘" },
+    { title: "Journal", link: "/journal", icon: "📓" }
+  ], []);
+
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="loading">Loading...</div>;
   }
 
   if (error) {
-    return <div>{error}</div>;
+    return <div className="error-message">{error}</div>;
   }
 
-  if (!dashboardData || !sleepStats) {
-    return <div>No dashboard data available</div>;
+  if (!dashboardData) {
+    return <div className="no-data">No dashboard data available</div>;
   }
-
 
   return (
     <>
@@ -136,7 +120,7 @@ const Dashboard = () => {
           
           <div className="overall-wellbeing-score-container">
             <div className="overall-wellbeing-score">
-              <h2>Overall Wellbeing Score: {dashboardData.wellbeingScore}%</h2>
+              <h2>Overall Wellbeing Score: {wellbeingScore}%</h2>
               <p>This score is based on your overall engagement with sleep tracking, fitness activities, mood logging, and meditation sessions.</p>
               <Link to="/wellbeing" className="improve-button">
                 How to Improve Your Score
@@ -145,36 +129,47 @@ const Dashboard = () => {
           </div>
           
           <main className="dashboard-content">
-            <Card title="Sleep" emoji="💤" link="/sleeptracker">
-            <p>Avg Sleep Duration: {sleepStats.avgDuration} hours</p>
-            <p>Avg Sleep Quality: {sleepStats.avgQuality}/10</p>
-            </Card>
-            
-            <Card title="Fitness" emoji="🏃‍♂️" link="/fitness">
-              <p>Total calories burned: {dashboardData.fitness?.totalCaloriesBurned?.toLocaleString() || 'No data'}</p>
-              <p>Total exercise duration: {dashboardData.fitness?.totalExerciseDuration?.formatted || 'No data'}</p>
-            </Card>
-            
-            <Card title="Mood Diary" emoji="✏️" link="/moodtracker">
-              <p>Total entries: {dashboardData.mood?.totalEntries || 'No data'}</p>
-              <p>Latest mood: {dashboardData.mood?.latestMood || 'Not logged yet'}</p>
-            </Card>
-            
-            <Card title="Healthy Habits" emoji="🥳" link="/healthyhabits">
-              <p>Remember to stay hydrated</p>
-              <p>Have you had your 5 a day?</p>
-            </Card>
-            
-            <Card title="Mindfulness" emoji="🧘" link="/mindfulness">
-              <p>Meditations completed: {dashboardData.meditation?.completedSessions || 'No data'}</p>
-              <p>Total mindful minutes: {formatMinutes(dashboardData.meditation?.totalMinutes)}</p>
-            </Card>
-            
-            <Card title="Goals" emoji="🎯" link="/goals">
-              <p>Current goal: {dashboardData.goals?.title || 'No active goal'}</p>
-              <p>Target date: {dashboardData.goals?.targetDate ? new Date(dashboardData.goals.targetDate).toLocaleDateString() : 'N/A'}</p>
-            </Card>
+            {Object.entries(dashboardData).map(([key, { data, emoji, link }], index) => (
+              <MemoizedCard key={index} title={key} emoji={emoji} link={link}>
+                {data.slice(0, 3).map((item, i) => (
+                  <p key={i}>{Object.entries(item)[1][0]}: {Object.entries(item)[1][1]}</p>
+                ))}
+              </MemoizedCard>
+            ))}
           </main>
+
+          <section className="dashboard-additional-content">
+            <div className="daily-tip">
+              <h3>💡 Daily Tip</h3>
+              <p>{randomTip}</p>
+            </div>
+
+            <div className="quick-actions">
+              <h3>Quick Actions</h3>
+              <div className="quick-actions-grid">
+                {quickActions.map((action, index) => (
+                  <Link key={index} to={action.link} className="quick-action-button">
+                    <span className="quick-action-icon">{action.icon}</span>
+                    <span className="quick-action-title">{action.title}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <div className="your-progress">
+              <h3>Your Progress</h3>
+              <div className="progress-bars">
+                {Object.entries(dashboardData).map(([key, { data }], index) => (
+                  <div key={index} className="progress-item">
+                    <span>{key}</span>
+                    <div className="progress-bar">
+                      <div className="progress" style={{width: `${(data.length / 7) * 100}%`}}></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
         </div>
       </div>
     </>

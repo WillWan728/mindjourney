@@ -7,6 +7,7 @@ import {
   orderBy,  
   deleteDoc, 
   doc,
+  limit,
   getDoc,
   setDoc,
   Timestamp,
@@ -47,37 +48,25 @@ export const fetchExercises = async () => {
     const user = auth.currentUser;
     if (!user) throw new Error("User not authenticated");
 
-    console.log('Fetching exercises for user:', user.uid);
-
+    const exercisesRef = collection(db, 'exercises');
     const q = query(
-      collection(db, EXERCISE_COLLECTION),
+      exercisesRef,
       where('userId', '==', user.uid),
-      orderBy('date', 'desc')
+      orderBy('date', 'desc'),
+      limit(50)  
     );
-
     const querySnapshot = await getDocs(q);
-    console.log('Query snapshot size:', querySnapshot.size);
-
-    const exercises = querySnapshot.docs.map(doc => {
+    return querySnapshot.docs.map(doc => {
       const data = doc.data();
-      console.log('Raw exercise data from Firestore:', JSON.stringify(data, null, 2));
-      
-      const exercise = {
+      return {
         id: doc.id,
         ...data,
-        date: data.date.toDate(),
-        caloriesBurned: data.caloriesBurned
+        date: data.date instanceof Date ? data.date : data.date.toDate()
       };
-      
-      console.log('Processed exercise object:', JSON.stringify(exercise, null, 2));
-      return exercise;
     });
-
-    console.log('All processed exercises:', JSON.stringify(exercises, null, 2));
-    return exercises;
   } catch (error) {
-    console.error("Error fetching exercises: ", error);
-    throw error;
+    console.error("Error fetching exercises:", error);
+    return [];
   }
 };
 

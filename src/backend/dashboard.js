@@ -1,190 +1,307 @@
-// src/backend/dashboard.js
-
+// dashboard.js
 import { db } from '../config/firebase';
-import { collection, query, where, getDocs } from 'firebase/firestore';
-import { calculateOverallWellbeingScore } from './scoreCalculation';
+import {
+  calculateFitnessScore,
+  calculateSleepScore,
+  calculateMoodScore,
+  calculateMeditationScore,
+  calculateOverallWellbeingScore,
+  COMPONENT_WEIGHTS,
+} from '../utils/wellbeingUtils';
+import { moodOptions } from './moodDiary';
+import { 
+  doc, 
+  collection, 
+  query, 
+  where, 
+  orderBy, 
+  limit, 
+  onSnapshot, 
+  updateDoc, 
+  Timestamp, 
+  getDoc,
+  setDoc
+} from 'firebase/firestore';
 
-const emotionToEmojiMap = {
-  "Happy": "😊",
-  "Excited": "🤩",
-  "Calm": "😌",
-  "Content": "🙂",
-  "Okay": "😐",
-  "Tired": "😴",
-  "Stressed": "😩",
-  "Anxious": "😰",
-  "Sad": "😢",
-  "Angry": "😠"
-  // Add more emotions and corresponding emojis as needed
+const ONE_WEEK_IN_MS = 7 * 24 * 60 * 60 * 1000;
+
+const COMPONENT_EMOJI = {
+  sleep: "💤",
+  fitness: "🏃‍♂️",
+  mood: "✏️",
+  healthyHabits: "🥳",
+  mindfulness: "🧘",
+  goals: "🎯"
 };
 
-export const getDashboardData = async (userId) => {
-  if (!userId) {
-    console.error('User ID is undefined');
-    throw new Error('User ID is required');
+export class DashboardManager {
+  constructor(userId, onUpdate) {
+    this.userId = userId;
+    this.onUpdate = onUpdate;
+    this.unsubscribes = [];
+    this.data = {
+      user: null,
+      wellbeing: null,
+      sleepLogs: [],
+      exercises: [],
+      waterLogs: [],
+      moodLogs: [],
+      meditations: [],
+      goals: null
+    };
   }
 
-  try {
-    // Fetch sleep logs
-    const sleepLogsQuery = query(
-      collection(db, 'sleep'),
-      where('userId', '==', userId)
+  startListening() {
+    this.fetchInitialData();
+    this.listenToCollections();
+    this.listenToGoals();
+  }
+
+  stopListening() {
+    this.unsubscribes.forEach(unsubscribe => unsubscribe());
+    this.unsubscribes = [];
+  }
+
+  async fetchInitialData() {
+    try {
+      const userRef = doc(db, 'users', this.userId);
+      const wellbeingRef = doc(db, 'wellbeing', this.userId);
+      
+      const [userDoc, wellbeingDoc] = await Promise.all([
+        getDoc(userRef),
+        getDoc(wellbeingRef)
+      ]);
+
+      this.data.user = userDoc.data();
+      this.data.wellbeing = wellbeingDoc.data();
+      
+      this.updateDashboard();
+    } catch (error) {
+      console.error("Error fetching initial data:", error);
+    }
+  }
+
+  listenToCollections() {
+    const collections = ['sleepLogs', 'exercises', 'waterLogs', 'moodLogs', 'meditations'];
+    collections.forEach(collectionName => this.listenToCollection(collectionName));
+  }
+
+  listenToCollection(collectionName) {
+    const oneWeekAgo = Timestamp.fromDate(new Date(Date.now() - ONE_WEEK_IN_MS));
+    const collectionRef = collection(db, 'users', this.userId, collectionName);
+    const q = query(
+      collectionRef,
+      where('date', '>=', oneWeekAgo),
+      orderBy('date', 'desc'),
+      limit(7)
     );
-    const sleepLogsSnapshot = await getDocs(sleepLogsQuery);
-    const sleepLogs = sleepLogsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-    // Fetch exercises
-    const exercisesQuery = query(
-      collection(db, 'exercises'),
-      where('userId', '==', userId)
-    );
-    const exercisesSnapshot = await getDocs(exercisesQuery);
-    const exercises = exercisesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      this.data[collectionName] = snapshot.docs.map(doc => doc.data());
+      this.updateDashboard();
+    });
 
-    // Fetch moods
-    const moodsQuery = query(
-      collection(db, 'moods'),
-      where('userId', '==', userId)
-    );
-    const moodsSnapshot = await getDocs(moodsQuery);
-    const moods = moodsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    this.unsubscribes.push(unsubscribe);
+  }
 
-    // Fetch meditations
-    const meditationsQuery = query(
-      collection(db, 'meditations'),
-      where('userId', '==', userId)
-    );
-    const meditationsSnapshot = await getDocs(meditationsQuery);
-    const meditations = meditationsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  listenToGoals() {
+    const goalsRef = collection(db, 'users', this.userId, 'goals');
+    const q = query(goalsRef, where('status', '==', 'active'), limit(1));
 
-    // Fetch goals (assuming you want the most recent active goal)
-    const goalsQuery = query(
-      collection(db, 'goals'),
-      where('userId', '==', userId),
-      where('completed', '==', false)
-    );
-    const goalsSnapshot = await getDocs(goalsQuery);
-    const goals = goalsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      this.data.goals = snapshot.docs[0]?.data() || null;
+      this.updateDashboard();
+    });
 
-    // Calculate component data
-    const sleepData = calculateSleepData(sleepLogs);
-    const fitnessData = calculateFitnessData(exercises);
-    const moodData = calculateMoodData(moods);
-    const meditationData = calculateMeditationData(meditations);
+    this.unsubscribes.push(unsubscribe);
+  }
 
-    // Calculate component scores
+  updateDashboard() {
+    if (!this.data.user || !this.data.wellbeing) return;
+
     const componentScores = {
-      sleep: sleepData.score,
-      fitness: fitnessData.score,
-      mood: moodData.score,
-      meditation: meditationData.score
+      fitness: calculateFitnessScore(this.data.exercises, this.data.waterLogs, this.data.wellbeing),
+      sleep: calculateSleepScore(this.data.sleepLogs, this.data.wellbeing),
+      mood: calculateMoodScore({ moods: this.data.moodLogs }),
+      meditation: calculateMeditationScore(this.data.meditations, this.data.wellbeing)
     };
 
-    // Calculate overall wellbeing score
-    const wellbeingScore = calculateOverallWellbeingScore(componentScores);
+    const weights = this.data.user.componentWeights || COMPONENT_WEIGHTS;
+    const overallScore = calculateOverallWellbeingScore(componentScores, weights);
 
-    return {
-      wellbeingScore: Math.round(wellbeingScore),
-      componentScores,
-      sleep: sleepData,
-      fitness: fitnessData,
-      mood: moodData,
-      meditation: meditationData,
-      goals: goals.length > 0 ? goals[0] : null
+    const latestMood = this.data.moodLogs[0]?.mood || 'Not logged yet';
+    const latestMoodEmoji = moodOptions.find(option => option.value === latestMood)?.emoji || '❓';
+
+    const processedData = {
+      wellbeingScore: Math.round(overallScore),
+      cards: [
+        {
+          title: "Sleep",
+          emoji: COMPONENT_EMOJI.sleep,
+          link: "/sleeptracker",
+          data: {
+            averageDuration: DashboardManager.formatDuration(DashboardManager.calculateAverageSleepDuration(this.data.sleepLogs)),
+            averageQuality: DashboardManager.calculateAverageSleepQuality(this.data.sleepLogs).toFixed(1)
+          }
+        },
+        {
+          title: "Fitness",
+          emoji: COMPONENT_EMOJI.fitness,
+          link: "/fitness",
+          data: {
+            totalCaloriesBurned: DashboardManager.calculateTotalCaloriesBurned(this.data.exercises),
+            totalExerciseDuration: DashboardManager.formatDuration(DashboardManager.calculateTotalExerciseDuration(this.data.exercises))
+          }
+        },
+        {
+          title: "Mood Diary",
+          emoji: COMPONENT_EMOJI.mood,
+          link: "/moodtracker",
+          data: {
+            totalEntries: this.data.moodLogs.length,
+            latestMood: latestMood,
+            latestMoodEmoji: latestMoodEmoji
+          }
+        },
+        {
+          title: "Healthy Habits",
+          emoji: COMPONENT_EMOJI.healthyHabits,
+          link: "/healthyhabits",
+          data: {
+            reminder1: "Remember to stay hydrated",
+            reminder2: "Have you had your 5 a day?"
+          }
+        },
+        {
+          title: "Mindfulness",
+          emoji: COMPONENT_EMOJI.mindfulness,
+          link: "/mindfulness",
+          data: {
+            completedSessions: this.data.meditations.length,
+            totalMinutes: DashboardManager.formatDuration(DashboardManager.calculateTotalMeditationMinutes(this.data.meditations))
+          }
+        },
+        {
+          title: "Goals",
+          emoji: COMPONENT_EMOJI.goals,
+          link: "/goals",
+          data: this.data.goals || { title: 'No active goal', targetDate: null }
+        }
+      ],
+      componentWeights: weights
     };
-  } catch (error) {
-    console.error('Specific error in getDashboardData:', error.code, error.message);
-    if (error.code === 'permission-denied') {
-      throw new Error('Permission denied. Please check authentication and data ownership.');
-    } else {
-      throw new Error('Failed to fetch dashboard data: ' + error.message);
-    }
+
+    this.onUpdate(processedData);
+
+    this.updateWellbeingScore(overallScore);
   }
-};
 
-const calculateSleepData = (sleepLogs) => {
-  if (sleepLogs.length === 0) return { averageDuration: null, averageQuality: null, score: 0 };
-  
-  let totalDuration = 0;
-  let totalQuality = 0;
-  let validLogs = 0;
+  async updateWellbeingScore(newScore) {
+    const currentDate = new Date();
+    const lastUpdateDate = this.data.user.lastWellbeingUpdate ? this.data.user.lastWellbeingUpdate.toDate() : null;
+    const shouldUpdateScore = !lastUpdateDate || (currentDate - lastUpdateDate) >= ONE_WEEK_IN_MS;
 
-  sleepLogs.forEach(log => {
-    if (log.duration && !isNaN(log.duration)) {
-      totalDuration += log.duration;
-      totalQuality += log.sleepQuality || 0;
-      validLogs++;
-    }
-  });
-
-  const averageDuration = validLogs > 0 ? totalDuration / validLogs : 0;
-  const averageQuality = validLogs > 0 ? totalQuality / validLogs : 0;
-
-  return {
-    averageDuration: {
-      hours: averageDuration,
-      formatted: formatDuration(averageDuration)
-    },
-    averageQuality: parseFloat(averageQuality.toFixed(1)),
-    score: validLogs > 0 ? 100 : 0  // Full score if there are any valid logs
-  };
-};
-
-const calculateFitnessData = (exercises) => {
-  const totalCalories = exercises.reduce((sum, exercise) => sum + (exercise.caloriesBurned || 0), 0);
-  const totalDuration = exercises.reduce((sum, exercise) => sum + (exercise.duration || 0), 0);
-
-  return {
-    totalCaloriesBurned: totalCalories,
-    totalExerciseDuration: {
-      minutes: totalDuration,
-      formatted: formatDuration(totalDuration / 60)
-    },
-    score: exercises.length > 0 ? 100 : 0  // Full score if there are any exercises
-  };
-};
-
-const calculateMoodData = (moods) => {
-  console.log('Raw mood data:', moods); // Log raw mood data
-
-  // Sort moods by date, most recent first
-  const sortedMoods = moods.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-  
-  let latestMood = 'Not logged yet';
-  if (sortedMoods.length > 0) {
-    const latest = sortedMoods[0];
-    console.log('Latest mood entry:', latest); // Log the latest mood entry
-
-    if (latest.mood) {
-      const emoji = emotionToEmojiMap[latest.mood] || '😶'; // Use a neutral face if mood doesn't match any in the map
-      latestMood = `${latest.mood} ${emoji}`;
-    } else {
-      latestMood = 'Mood data incomplete';
-      console.warn('Incomplete mood data:', latest);
+    if (shouldUpdateScore) {
+      const userDocRef = doc(db, 'users', this.userId);
+      try {
+        await updateDoc(userDocRef, {
+          wellbeingScore: Math.round(newScore),
+          lastWellbeingUpdate: Timestamp.fromDate(currentDate)
+        });
+      } catch (error) {
+        console.error("Error updating wellbeing score:", error);
+      }
     }
   }
 
-  return {
-    totalEntries: moods.length,
-    latestMood: latestMood,
-    score: moods.length > 0 ? 100 : 0
-  };
-};
+  // Helper methods
+  static formatDuration(minutes) {
+    if (!minutes) return 'No data';
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    return `${hours}h ${remainingMinutes}m`;
+  }
 
-const calculateMeditationData = (meditations) => {
-  const totalSessions = meditations.length;
-  const totalDuration = meditations.reduce((sum, meditation) => sum + (meditation.duration || 0), 0);
+  static calculateAverageSleepDuration(sleepLogs) {
+    if (sleepLogs.length === 0) return 0;
+    const totalDuration = sleepLogs.reduce((sum, log) => sum + (log.duration || 0), 0);
+    return totalDuration / sleepLogs.length;
+  }
 
-  return {
-    completedSessions: totalSessions,
-    totalMinutes: totalDuration,
-    score: totalSessions > 0 ? 100 : 0  // Full score if there are any meditation sessions
-  };
-};
+  static calculateAverageSleepQuality(sleepLogs) {
+    if (sleepLogs.length === 0) return 0;
+    const totalQuality = sleepLogs.reduce((sum, log) => sum + (log.quality || 0), 0);
+    return totalQuality / sleepLogs.length;
+  }
 
-const formatDuration = (hours) => {
-  if (isNaN(hours) || hours === null) return 'No data';
-  const wholeHours = Math.floor(hours);
-  const minutes = Math.round((hours - wholeHours) * 60);
-  return `${wholeHours}h ${minutes}m`;
-};
+  static calculateTotalCaloriesBurned(exercises) {
+    return exercises.reduce((sum, exercise) => sum + (exercise.caloriesBurned || 0), 0);
+  }
+
+  static calculateTotalExerciseDuration(exercises) {
+    return exercises.reduce((sum, exercise) => sum + (exercise.duration || 0), 0);
+  }
+
+  static calculateTotalMeditationMinutes(meditations) {
+    return meditations.reduce((sum, meditation) => sum + (meditation.duration || 0), 0);
+  }
+
+  // Methods for optimistic updates
+  async addSleepLog(sleepLog) {
+    this.data.sleepLogs.unshift(sleepLog);
+    this.updateDashboard();
+
+    const sleepLogRef = doc(collection(db, 'users', this.userId, 'sleepLogs'));
+    try {
+      await setDoc(sleepLogRef, sleepLog);
+    } catch (error) {
+      console.error("Error adding sleep log:", error);
+      this.data.sleepLogs.shift();
+      this.updateDashboard();
+    }
+  }
+
+  async addExercise(exercise) {
+    this.data.exercises.unshift(exercise);
+    this.updateDashboard();
+
+    const exerciseRef = doc(collection(db, 'users', this.userId, 'exercises'));
+    try {
+      await setDoc(exerciseRef, exercise);
+    } catch (error) {
+      console.error("Error adding exercise:", error);
+      this.data.exercises.shift();
+      this.updateDashboard();
+    }
+  }
+
+  async addMoodLog(moodLog) {
+    this.data.moodLogs.unshift(moodLog);
+    this.updateDashboard();
+
+    const moodLogRef = doc(collection(db, 'users', this.userId, 'moodLogs'));
+    try {
+      await setDoc(moodLogRef, moodLog);
+    } catch (error) {
+      console.error("Error adding mood log:", error);
+      this.data.moodLogs.shift();
+      this.updateDashboard();
+    }
+  }
+
+  async addMeditation(meditation) {
+    this.data.meditations.unshift(meditation);
+    this.updateDashboard();
+
+    const meditationRef = doc(collection(db, 'users', this.userId, 'meditations'));
+    try {
+      await setDoc(meditationRef, meditation);
+    } catch (error) {
+      console.error("Error adding meditation:", error);
+      this.data.meditations.shift();
+      this.updateDashboard();
+    }
+  }
+}
+
+export default DashboardManager;
