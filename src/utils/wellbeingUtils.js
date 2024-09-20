@@ -1,6 +1,3 @@
-import { getDoc, doc } from 'firebase/firestore';
-import { db } from '../config/firebase';
-
 export const COMPONENT_WEIGHTS = {
   fitness: 25,
   sleep: 25,
@@ -67,13 +64,19 @@ const calculateMoodScore = (moods) => {
   return ((averageMood - 1) / 4) * 100;
 };
 
-const calculateMeditationScore = (meditations, goals) => {
-  console.log('Calculating meditation score:', { meditations, goals });
-  if (!goals || !goals.weeklyMeditationMinutes || meditations.length === 0) return 0;
+const calculateMeditationScore = (totalMeditationMinutes, streak, averageDuration, goals) => {
+  console.log('Calculating meditation score:', { totalMeditationMinutes, streak, averageDuration, goals });
+  if (!goals || !goals.weeklyMeditationMinutes) return 0;
   
-  const totalMinutes = meditations.reduce((sum, meditation) => sum + meditation.duration, 0);
-  const percentageCompleted = (totalMinutes / Number(goals.weeklyMeditationMinutes)) * 100;
-  return Math.min(100, percentageCompleted);
+  const minutesScore = Math.min(100, (totalMeditationMinutes / goals.weeklyMeditationMinutes) * 100);
+  const streakScore = Math.min(100, streak * 10); // 10 points per day, max 100
+  const durationScore = Math.min(100, (averageDuration / 20) * 100); // Assuming 20 minutes is a good average duration
+  
+  // Weighting the scores (adjust as needed)
+  const overallMeditationScore = (minutesScore * 0.5) + (streakScore * 0.3) + (durationScore * 0.2);
+  
+  console.log('Meditation score components:', { minutesScore, streakScore, durationScore, overallMeditationScore });
+  return Math.min(100, overallMeditationScore);
 };
 
 export const calculateOverallWellbeingScore = (componentScores) => {
@@ -127,14 +130,16 @@ export const getAdvice = (component, score) => {
   return adviceMap[component][category] || "Keep working on improving this aspect of your wellbeing.";
 };
 
-export const calculateWellbeingScore = async (userId, fitnessData, sleepData) => {
+export const calculateWellbeingScore = async (userId, fitnessData, sleepData, meditationData) => {
   try {
     console.log('Starting wellbeing score calculation for user:', userId);
     console.log('Fitness data received:', fitnessData);
     console.log('Sleep data received:', sleepData);
+    console.log('Meditation data received:', meditationData);
     
     const { exercises, meals, waterIntakes, wellbeingParams } = fitnessData;
     const { sleepLogs, sleepGoal } = sleepData;
+    const { totalMeditationMinutes, streak, averageDuration, meditations } = meditationData;
 
     // Use wellbeingParams as goals
     const goals = { ...wellbeingParams, sleepHoursPerNight: sleepGoal };
@@ -146,7 +151,7 @@ export const calculateWellbeingScore = async (userId, fitnessData, sleepData) =>
       fitness: calculateFitnessScore(exercises, goals),
       sleep: calculateSleepScore(sleepLogs, goals),
       mood: calculateMoodScore(exercises.filter(e => e.type === 'mood')),
-      meditation: calculateMeditationScore(exercises.filter(e => e.type === 'meditation'), goals)
+      meditation: calculateMeditationScore(totalMeditationMinutes, streak, averageDuration, goals)
     };
 
     console.log('Debug - Component scores:', componentScores);
@@ -163,7 +168,8 @@ export const calculateWellbeingScore = async (userId, fitnessData, sleepData) =>
         exercises: exercises.slice(-5),
         meals: meals.slice(-5),
         waterIntakes: waterIntakes.slice(-5),
-        sleepLogs: sleepLogs.slice(-5)
+        sleepLogs: sleepLogs.slice(-5),
+        meditations: meditations.slice(-5)
       }
     };
   } catch (error) {

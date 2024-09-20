@@ -3,6 +3,7 @@ import { auth } from '../config/firebase';
 import { calculateWellbeingScore, getComponentEmoji, getAdvice, getScoreCategory } from '../utils/wellbeingUtils';
 import useFitnessData from '../hooks/fitnessHooks';
 import useSleepData from '../hooks/sleepHooks';
+import useMeditationData from '../hooks/meditationHooks';
 import Navbar2 from './navbar2';
 import '../css/wellbeing.css';
 
@@ -13,6 +14,7 @@ const WellbeingDashboard = () => {
   
   const fitnessData = useFitnessData();
   const sleepData = useSleepData();
+  const meditationData = useMeditationData();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -24,7 +26,8 @@ const WellbeingDashboard = () => {
         console.log("Fetching wellbeing data for user:", user.uid);
         console.log("Fitness data:", fitnessData);
         console.log("Sleep data:", sleepData);
-        const data = await calculateWellbeingScore(user.uid, fitnessData, sleepData);
+        console.log("Meditation data:", meditationData);
+        const data = await calculateWellbeingScore(user.uid, fitnessData, sleepData, meditationData);
         console.log("Received wellbeing data:", data);
         setWellbeingData(data);
         setLoading(false);
@@ -35,14 +38,14 @@ const WellbeingDashboard = () => {
       }
     };
 
-    if (!fitnessData.loading && !sleepData.loading && auth.currentUser) {
+    if (!fitnessData.loading && !sleepData.loading && !meditationData.loading && auth.currentUser) {
       fetchData();
     }
-  }, [fitnessData, sleepData]);
+  }, [fitnessData, sleepData, meditationData]);
 
-  if (loading || fitnessData.loading || sleepData.loading) return <div className="loading">Loading data...</div>;
-  if (error || fitnessData.error || sleepData.error) return <div className="error">Error: {error || fitnessData.error || sleepData.error}</div>;
-  if (!wellbeingData || !fitnessData.wellbeingParams || !sleepData.sleepGoal) return <div className="no-data">No data available.</div>;
+  if (loading || fitnessData.loading || sleepData.loading || meditationData.loading) return <div className="loading">Loading data...</div>;
+  if (error || fitnessData.error || sleepData.error || meditationData.error) return <div className="error">Error: {error || fitnessData.error || sleepData.error || meditationData.error}</div>;
+  if (!wellbeingData || !fitnessData.wellbeingParams || !sleepData.sleepGoal || !meditationData.meditations) return <div className="no-data">No data available.</div>;
 
   const { overallScore = 0, componentScores = {}, recentActivities = {}, goals = {} } = wellbeingData;
 
@@ -97,6 +100,24 @@ const WellbeingDashboard = () => {
             </div>
           </div>
           
+          {/* Meditation Progress */}
+          <div className="meditation-progress">
+            <h3>Meditation Progress</h3>
+            <div className="meditation-metric">
+              <p>Weekly Meditation: {meditationData.totalMeditationMinutes} / {goals.weeklyMeditationMinutes} minutes</p>
+              <progress value={meditationData.totalMeditationMinutes} max={goals.weeklyMeditationMinutes}></progress>
+            </div>
+            <div className="meditation-metric">
+              <p>Current Streak: {meditationData.streak} days</p>
+            </div>
+            <div className="meditation-metric">
+              <p>Average Duration: {meditationData.averageDuration.toFixed(1)} minutes</p>
+            </div>
+            <div className="meditation-metric">
+              <p>Most Frequent Exercise: {meditationData.mostFrequentExercise}</p>
+            </div>
+          </div>
+          
           {/* Recent Activities */}
           <div className="recent-activities">
             <h3>Recent Activities</h3>
@@ -130,25 +151,13 @@ const WellbeingDashboard = () => {
                 </ul>
               </div>
             )}
-            {recentActivities.meals && recentActivities.meals.length > 0 && (
+            {meditationData.meditations && meditationData.meditations.length > 0 && (
               <div>
-                <h4>Recent Meals</h4>
+                <h4>Recent Meditations</h4>
                 <ul>
-                  {recentActivities.meals.map((meal, index) => (
+                  {meditationData.meditations.slice(-5).map((meditation, index) => (
                     <li key={index}>
-                      {new Date(meal.date).toLocaleDateString()}: {meal.name} - {meal.calories} calories
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            {recentActivities.waterIntakes && recentActivities.waterIntakes.length > 0 && (
-              <div>
-                <h4>Water Intake</h4>
-                <ul>
-                  {recentActivities.waterIntakes.map((water, index) => (
-                    <li key={index}>
-                      {new Date(water.date).toLocaleDateString()}: {water.amount} ml
+                      {new Date(meditation.date).toLocaleDateString()}: {meditation.exercise} - {meditation.duration} minutes
                     </li>
                   ))}
                 </ul>
