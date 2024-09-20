@@ -34,9 +34,28 @@ const calculateSleepScore = (sleepLogs, goals) => {
   console.log('Calculating sleep score:', { sleepLogs, goals });
   if (!goals || !goals.sleepHoursPerNight || sleepLogs.length === 0) return 0;
   
-  const averageSleepHours = sleepLogs.reduce((sum, log) => sum + log.duration, 0) / sleepLogs.length;
-  const percentageAchieved = (averageSleepHours / Number(goals.sleepHoursPerNight)) * 100;
-  return Math.min(100, percentageAchieved);
+  const currentDate = new Date();
+  const weekStart = new Date(currentDate.setDate(currentDate.getDate() - 7)); // Last 7 days
+
+  const recentLogs = sleepLogs.filter(log => new Date(log.date) >= weekStart);
+  
+  const avgSleepDuration = recentLogs.reduce((sum, log) => {
+    const bedtime = new Date(log.bedtime);
+    const waketime = new Date(log.waketime);
+    let duration = (waketime - bedtime) / (1000 * 60 * 60); // in hours
+    if (duration < 0) duration += 24; // Adjust for sleep past midnight
+    return sum + duration;
+  }, 0) / recentLogs.length;
+
+  const avgQuality = recentLogs.reduce((sum, log) => sum + log.quality, 0) / recentLogs.length;
+
+  const durationScore = (avgSleepDuration / Number(goals.sleepHoursPerNight)) * 100;
+  const qualityScore = (avgQuality / 10) * 100; // Assuming quality is on a scale of 1-10
+
+  const overallSleepScore = (durationScore * 0.7) + (qualityScore * 0.3); // Weighting duration more than quality
+
+  console.log('Sleep score components:', { avgSleepDuration, avgQuality, durationScore, qualityScore, overallSleepScore });
+  return Math.min(100, overallSleepScore);
 };
 
 const calculateMoodScore = (moods) => {
@@ -108,22 +127,24 @@ export const getAdvice = (component, score) => {
   return adviceMap[component][category] || "Keep working on improving this aspect of your wellbeing.";
 };
 
-export const calculateWellbeingScore = async (userId, fitnessData) => {
+export const calculateWellbeingScore = async (userId, fitnessData, sleepData) => {
   try {
     console.log('Starting wellbeing score calculation for user:', userId);
     console.log('Fitness data received:', fitnessData);
+    console.log('Sleep data received:', sleepData);
     
     const { exercises, meals, waterIntakes, wellbeingParams } = fitnessData;
+    const { sleepLogs, sleepGoal } = sleepData;
 
     // Use wellbeingParams as goals
-    const goals = wellbeingParams;
+    const goals = { ...wellbeingParams, sleepHoursPerNight: sleepGoal };
 
-    console.log('Debug - Using wellbeing params as goals:', goals);
+    console.log('Debug - Using wellbeing params and sleep goal as goals:', goals);
 
     // Calculate component scores
     const componentScores = {
       fitness: calculateFitnessScore(exercises, goals),
-      sleep: calculateSleepScore(exercises.filter(e => e.type === 'sleep'), goals),
+      sleep: calculateSleepScore(sleepLogs, goals),
       mood: calculateMoodScore(exercises.filter(e => e.type === 'mood')),
       meditation: calculateMeditationScore(exercises.filter(e => e.type === 'meditation'), goals)
     };
@@ -141,7 +162,8 @@ export const calculateWellbeingScore = async (userId, fitnessData) => {
       recentActivities: {
         exercises: exercises.slice(-5),
         meals: meals.slice(-5),
-        waterIntakes: waterIntakes.slice(-5)
+        waterIntakes: waterIntakes.slice(-5),
+        sleepLogs: sleepLogs.slice(-5)
       }
     };
   } catch (error) {
