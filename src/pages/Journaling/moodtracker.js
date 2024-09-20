@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { auth } from '../../config/firebase';
 import '../../css/moodtracker.css';
 import Navbar2 from '.././navbar2';
-import { saveMood, deleteMood, fetchMoods, moodOptions, factorOptions, getRandomPrompt } from '../../backend/moodDiary';
+import { saveMood, deleteMood, fetchMoods, moodOptions, factorOptions, getRandomPrompt } from '../../backend/mood';
 import MoodLogForm from './MoodLogForm';
 import HistoryForm from './HistoryForm';
 import StatsForm from './StatsFrom'

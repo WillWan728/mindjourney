@@ -55,15 +55,6 @@ const calculateSleepScore = (sleepLogs, goals) => {
   return Math.min(100, overallSleepScore);
 };
 
-const calculateMoodScore = (moods) => {
-  console.log('Calculating mood score:', { moods });
-  if (moods.length === 0) return 0;
-  
-  const moodValues = { 'angry': 1, 'stressed': 2, 'sad': 3, 'okay': 3, 'calm': 4, 'happy': 5 };
-  const averageMood = moods.reduce((sum, mood) => sum + (moodValues[mood.value] || 3), 0) / moods.length;
-  return ((averageMood - 1) / 4) * 100;
-};
-
 const calculateMeditationScore = (totalMeditationMinutes, streak, averageDuration, goals) => {
   console.log('Calculating meditation score:', { totalMeditationMinutes, streak, averageDuration, goals });
   if (!goals || !goals.weeklyMeditationMinutes) return 0;
@@ -130,12 +121,13 @@ export const getAdvice = (component, score) => {
   return adviceMap[component][category] || "Keep working on improving this aspect of your wellbeing.";
 };
 
-export const calculateWellbeingScore = async (userId, fitnessData, sleepData, meditationData) => {
+export const calculateWellbeingScore = async (userId, fitnessData, sleepData, meditationData, moodScore) => {
   try {
     console.log('Starting wellbeing score calculation for user:', userId);
     console.log('Fitness data received:', fitnessData);
     console.log('Sleep data received:', sleepData);
     console.log('Meditation data received:', meditationData);
+    console.log('Mood score received:', moodScore);
     
     const { exercises, meals, waterIntakes, wellbeingParams } = fitnessData;
     const { sleepLogs, sleepGoal } = sleepData;
@@ -150,7 +142,7 @@ export const calculateWellbeingScore = async (userId, fitnessData, sleepData, me
     const componentScores = {
       fitness: calculateFitnessScore(exercises, goals),
       sleep: calculateSleepScore(sleepLogs, goals),
-      mood: calculateMoodScore(exercises.filter(e => e.type === 'mood')),
+      mood: moodScore, // Use the provided mood score
       meditation: calculateMeditationScore(totalMeditationMinutes, streak, averageDuration, goals)
     };
 

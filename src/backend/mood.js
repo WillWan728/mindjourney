@@ -138,3 +138,20 @@ const calculateMoodStats = (moods) => {
     factorCounts
   };
 };
+
+// New function for wellbeing dashboard
+export const calculateMoodScoreForWellbeing = (moods) => {
+  if (moods.length === 0) return 0;
+
+  const recentMoods = moods.slice(0, 7); // Consider only the last 7 mood entries
+  let totalScore = 0;
+
+  recentMoods.forEach(mood => {
+    const moodScore = moodOptions.find(option => option.value === mood.mood)?.score || 0;
+    totalScore += moodScore;
+  });
+
+  const averageScore = totalScore / recentMoods.length;
+  // Normalize the score to be out of 100
+  return Math.round((averageScore / 5) * 100); // 5 is the max score in moodOptions
+};

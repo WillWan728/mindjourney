@@ -4,8 +4,9 @@ import { calculateWellbeingScore, getComponentEmoji, getAdvice, getScoreCategory
 import useFitnessData from '../hooks/fitnessHooks';
 import useSleepData from '../hooks/sleepHooks';
 import useMeditationData from '../hooks/meditationHooks';
-import Navbar2 from './navbar2';
+import useMoodData from '../hooks/moodHooks';
 import '../css/wellbeing.css';
+import Navbar2 from './navbar2';
 
 const WellbeingDashboard = () => {
   const [wellbeingData, setWellbeingData] = useState(null);
@@ -15,39 +16,64 @@ const WellbeingDashboard = () => {
   const fitnessData = useFitnessData();
   const sleepData = useSleepData();
   const meditationData = useMeditationData();
+  const moodData = useMoodData();
 
   useEffect(() => {
-    const fetchData = async () => {
+    const calculateData = async () => {
       try {
+        console.log('Starting wellbeing calculation');
         const user = auth.currentUser;
         if (!user) {
           throw new Error('User not authenticated');
         }
-        console.log("Fetching wellbeing data for user:", user.uid);
+
         console.log("Fitness data:", fitnessData);
         console.log("Sleep data:", sleepData);
         console.log("Meditation data:", meditationData);
-        const data = await calculateWellbeingScore(user.uid, fitnessData, sleepData, meditationData);
-        console.log("Received wellbeing data:", data);
+        console.log("Mood data:", moodData);
+
+        if (fitnessData.loading || sleepData.loading || meditationData.loading || moodData.loading) {
+          console.log('Some data is still loading');
+          return;
+        }
+
+        const data = await calculateWellbeingScore(
+          user.uid,
+          fitnessData,
+          sleepData,
+          meditationData,
+          moodData.wellbeingScore
+        );
+        console.log("Calculated wellbeing data:", data);
         setWellbeingData(data);
         setLoading(false);
       } catch (err) {
-        console.error('Error fetching wellbeing data:', err);
-        setError(`Failed to fetch wellbeing data: ${err.message}`);
+        console.error('Error calculating wellbeing data:', err);
+        setError(`Failed to calculate wellbeing data: ${err.message}`);
         setLoading(false);
       }
     };
 
-    if (!fitnessData.loading && !sleepData.loading && !meditationData.loading && auth.currentUser) {
-      fetchData();
+    if (auth.currentUser) {
+      calculateData();
     }
-  }, [fitnessData, sleepData, meditationData]);
+  }, [fitnessData, sleepData, meditationData, moodData]);
 
-  if (loading || fitnessData.loading || sleepData.loading || meditationData.loading) return <div className="loading">Loading data...</div>;
-  if (error || fitnessData.error || sleepData.error || meditationData.error) return <div className="error">Error: {error || fitnessData.error || sleepData.error || meditationData.error}</div>;
-  if (!wellbeingData || !fitnessData.wellbeingParams || !sleepData.sleepGoal || !meditationData.meditations) return <div className="no-data">No data available.</div>;
+  if (loading || fitnessData.loading || sleepData.loading || meditationData.loading || moodData.loading) {
+    return <div className="loading">Loading your wellbeing data...</div>;
+  }
 
-  const { overallScore = 0, componentScores = {}, recentActivities = {}, goals = {} } = wellbeingData;
+  if (error || fitnessData.error || sleepData.error || meditationData.error || moodData.error) {
+    return <div className="error">
+      Error: {error || fitnessData.error || sleepData.error || meditationData.error || moodData.error}
+    </div>;
+  }
+
+  if (!wellbeingData) {
+    return <div className="no-data">No wellbeing data available. Start tracking to see your progress!</div>;
+  }
+
+  const { overallScore = 0, componentScores = {}, goals = {}, recentActivities = {} } = wellbeingData;
 
   return (
     <>
@@ -107,14 +133,19 @@ const WellbeingDashboard = () => {
               <p>Weekly Meditation: {meditationData.totalMeditationMinutes} / {goals.weeklyMeditationMinutes} minutes</p>
               <progress value={meditationData.totalMeditationMinutes} max={goals.weeklyMeditationMinutes}></progress>
             </div>
-            <div className="meditation-metric">
-              <p>Current Streak: {meditationData.streak} days</p>
+          </div>
+
+          {/* Mood Progress */}
+          <div className="mood-progress">
+            <h3>Mood Progress</h3>
+            <div className="mood-metric">
+              <p>Current Mood Streak: {moodData.streak} days</p>
             </div>
-            <div className="meditation-metric">
-              <p>Average Duration: {meditationData.averageDuration.toFixed(1)} minutes</p>
+            <div className="mood-metric">
+              <p>Average Mood Score: {moodData.avgMoodScore.toFixed(2)} / 5</p>
             </div>
-            <div className="meditation-metric">
-              <p>Most Frequent Exercise: {meditationData.mostFrequentExercise}</p>
+            <div className="mood-metric">
+              <p>Mood Wellbeing Score: {moodData.wellbeingScore}%</p>
             </div>
           </div>
           
@@ -151,13 +182,26 @@ const WellbeingDashboard = () => {
                 </ul>
               </div>
             )}
-            {meditationData.meditations && meditationData.meditations.length > 0 && (
+            {recentActivities.meditations && recentActivities.meditations.length > 0 && (
               <div>
                 <h4>Recent Meditations</h4>
                 <ul>
-                  {meditationData.meditations.slice(-5).map((meditation, index) => (
+                  {recentActivities.meditations.map((meditation, index) => (
                     <li key={index}>
                       {new Date(meditation.date).toLocaleDateString()}: {meditation.exercise} - {meditation.duration} minutes
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {moodData.moods && moodData.moods.length > 0 && (
+              <div>
+                <h4>Recent Moods</h4>
+                <ul>
+                  {moodData.moods.slice(0, 5).map((mood, index) => (
+                    <li key={index}>
+                      {new Date(mood.date).toLocaleDateString()}: {mood.mood} 
+                      {mood.factors && mood.factors.length > 0 && ` (Factors: ${mood.factors.join(', ')})`}
                     </li>
                   ))}
                 </ul>
