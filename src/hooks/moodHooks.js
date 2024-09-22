@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { auth } from '../config/firebase';
-import { fetchMoods, moodOptions, calculateMoodScoreForWellbeing as calculateMoodScore } from '../backend/mood';
+import { fetchMoods, moodOptions, calculateMoodScoreForWellbeing as calculateMoodScore } from '../backend/moodDiary'
 
 const useMoodData = () => {
   const [moodData, setMoodData] = useState({

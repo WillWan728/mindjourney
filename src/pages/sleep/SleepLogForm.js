@@ -1,14 +1,34 @@
 import React from 'react';
+import { useAchievement } from '../../utils/achievementUtils';
+import { useNavigate } from 'react-router-dom';
 
 const SleepLogForm = ({ sleepForm, setSleepForm, handleSleepSubmit, loading }) => {
+  const { updateDailyTask } = useAchievement();
+  const navigate = useNavigate();
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setSleepForm(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    handleSleepSubmit();
+    try {
+      // First, submit the sleep data
+      await handleSleepSubmit();
+
+      // Then, update the daily task for sleep
+      const result = await updateDailyTask('sleep');
+      if (result.success) {
+        alert(`Sleep log saved successfully! You earned ${result.pointsEarned} points.`);
+        navigate('/achievements');
+      } else {
+        alert(result.message || 'Failed to update achievement. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error submitting sleep log:', error);
+      alert('An error occurred while submitting the sleep log. Please try again.');
+    }
   };
 
   return (

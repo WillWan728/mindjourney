@@ -17,14 +17,15 @@ import Wellbeing from "./pages/wellbeing.js";
 import Goals from "./pages/goals.js";
 import GoalSetupPage from "./pages/welbeingSetup.js";
 import AchievementPage from "./pages/achievements.js";
+import { AchievementProvider } from './utils/achievementUtils';
 
 const App = () => {
     return (
-     
+        <AchievementProvider>
             <Router>
                 <div className="app-container">
                     <Routes>
-                        <Route path="/" element={<Homepage />} /> 
+                        <Route path="/" element={<Homepage />} />
                         <Route path="/register" element={<RegisterUser />} />
                         <Route path="/login" element={<LoginUser />} />
                         <Route path="/sleeptracker" element={<SleepTracker />} />
@@ -44,7 +45,9 @@ const App = () => {
                     <Footer />
                 </div>
             </Router>
+        </AchievementProvider>
     );
 };
+
 
 export default App;

@@ -1,4 +1,6 @@
 import React from 'react';
+import { useAchievement } from '../../utils/achievementUtils';
+import { useNavigate } from 'react-router-dom';
 
 const MoodLogForm = ({ 
   mood, 
@@ -15,8 +17,32 @@ const MoodLogForm = ({
   moodOptions, 
   factorOptions 
 }) => {
+  const { updateDailyTask } = useAchievement();
+  const navigate = useNavigate();
+
+  const onSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      // First, save the mood log
+      await handleSaveMood(event);
+
+      // Then, update the daily task for journaling
+      const result = await updateDailyTask('journal');
+      if (result.success) {
+        alert(`Mood log saved successfully! You earned ${result.pointsEarned} points.`);
+        // Navigate to the achievements page
+        navigate('/achievements');
+      } else {
+        alert(result.message || 'Failed to update achievement. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error submitting mood log:', error);
+      alert('An error occurred while submitting the mood log. Please try again.');
+    }
+  };
+
   return (
-    <form onSubmit={handleSaveMood} className="mood-form">
+    <form onSubmit={onSubmit} className="mood-form">
       <div className="form-group">
         <label htmlFor="mood-select">How are you feeling today?</label>
         <select 

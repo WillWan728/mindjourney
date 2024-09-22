@@ -1,188 +1,137 @@
-.achievement-page {
-    font-family: Arial, sans-serif;
+/* achievementspage.css */
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+}
+
+.achievements-page-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.main-title {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.achievement-goals {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.achievement-goals p {
+  margin: 10px 0;
+  font-size: 16px;
+  color: #555;
+}
+
+.tab-navigation {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.tab-navigation button {
+  background-color: #f0f0f0;
+  border: none;
+  padding: 10px 20px;
+  margin: 0 5px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.tab-navigation button.active {
+  background-color: #5f9ea0;
+  color: white;
+}
+
+.tab-content {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.achievement-card {
+  background-color: #f9f9f9;
+  border-radius: 5px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.achievement-icon {
+  font-size: 2em;
+  margin-bottom: 10px;
+}
+
+.achievement-info h3 {
+  margin: 0 0 10px 0;
+  color: #333;
+}
+
+.achievement-info p {
+  margin: 5px 0;
+  color: #555;
+}
+
+.progress-bar {
+  background-color: #e0e0e0;
+  height: 10px;
+  border-radius: 5px;
+  margin: 10px 0;
+}
+
+.progress {
+  background-color: #5f9ea0;
+  height: 100%;
+  border-radius: 5px;
+}
+
+.achievement-card button {
+  background-color: #5f9ea0;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.achievement-card button:hover {
+  background-color: #4f8a8b;
+}
+
+.points {
+  margin-top: 5px;
+  font-weight: bold;
+  color: #5f9ea0;
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+  .tab-navigation {
+    flex-wrap: wrap;
   }
-  
-  .achievement-page .achievement-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-  
-  .achievement-page h1, .achievement-page h2 {
-    margin-bottom: 20px;
-  }
-  
-  .achievement-page h1 {
-    font-size: 28px;
-    text-align: center;
-  }
-  
-  .achievement-page h2 {
-    font-size: 24px;
-  }
-  
-  .achievement-page .stats {
-    display: flex;
-    justify-content: center;
-    gap: 40px;
-    margin-bottom: 30px;
-  }
-  
-  .achievement-page .stat-item {
-    text-align: center;
-  }
-  
-  .achievement-page .stat-value {
-    font-size: 36px;
-    font-weight: bold;
-    display: block;
-  }
-  
-  .achievement-page .stat-label {
-    font-size: 14px;
-  }
-  
-  .achievement-page .tabs {
-    display: flex;
-    justify-content: flex-start;
-    margin-bottom: 20px;
-    border-bottom: 1px solid var(--main-color);
-  }
-  
-  .achievement-page .tab {
-    background-color: transparent;
-    border: none;
-    padding: 10px 20px;
-    margin-right: 10px;
-    cursor: pointer;
-    font-size: 16px;
-    border-radius: 5px 5px 0 0;
-  }
-  
-  .achievement-page .tab.active {
-    background-color: var(--main-color);
-    color: white;
-  }
-  
-  .achievement-page .achievements-grid, 
-  .achievement-page .activities-grid,
-  .achievement-page .rewards-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
-  }
-  
-  .achievement-page .achievement-card, 
-  .achievement-page .activity-card,
-  .achievement-page .reward-card {
-    background-color: var(--light-color);
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .achievement-page .achievement-icon, 
-  .achievement-page .activity-icon,
-  .achievement-page .reward-icon {
-    font-size: 24px;
+
+  .tab-navigation button {
     margin-bottom: 10px;
+    flex: 1 0 calc(50% - 10px);
   }
-  
-  .achievement-page .achievement-info h3, 
-  .achievement-page .activity-info h3,
-  .achievement-page .reward-info h3 {
-    margin: 0 0 10px 0;
-    font-size: 18px;
-  }
-  
-  .achievement-page .achievement-info p, 
-  .achievement-page .activity-info p,
-  .achievement-page .reward-info p {
-    margin: 0 0 10px 0;
-    font-size: 14px;
-  }
-  
-  .achievement-page .progress-bar {
-    width: 100%;
-    height: 8px;
-    background-color: #e0e0e0;
-    border-radius: 4px;
-    overflow: hidden;
-    margin-bottom: 5px;
-  }
-  
-  .achievement-page .progress {
-    height: 100%;
-    transition: width 0.3s ease;
-  }
-  
-  .achievement-page .points,
-  .achievement-page .reward-points {
-    font-weight: bold;
-    margin-top: 10px;
-  }
-  
-  .achievement-page button {
-    border: none;
-    padding: 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    margin-top: auto;
-    transition: background-color 0.3s ease;
-  }
-  
-  .achievement-page button:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-  }
-  
-  .achievement-page .activity-card,
-  .achievement-page .reward-card {
-    padding-top: 40px;
-  }
-  
-  .achievement-page .activity-points {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    font-size: 18px;
-    font-weight: bold;
-  }
-  
-  .achievement-page .lock-icon {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    font-size: 18px;
-  }
-  
-  .achievement-page .activity-card.locked {
-    opacity: 0.7;
-  }
-  
-  .achievement-page .locked-message,
-  .achievement-page .points-message {
-    position: absolute;
-    bottom: 10px;
-    left: 20px;
-    font-size: 12px;
-  }
-  
-  @media (max-width: 768px) {
-    .achievement-page .achievements-grid, 
-    .achievement-page .activities-grid,
-    .achievement-page .rewards-grid {
-      grid-template-columns: 1fr;
-    }
-  
-    .achievement-page .stats {
-      flex-direction: column;
-      gap: 20px;
-    }
-  }
+}

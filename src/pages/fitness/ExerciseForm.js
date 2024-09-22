@@ -1,9 +1,30 @@
 import React from 'react';
+import { useAchievement } from '../../utils/achievementUtils';
+import { useNavigate } from 'react-router-dom';
 
 const ExerciseForm = ({ exerciseForm, setExerciseForm, handleExerciseSubmit, loading }) => {
-  const onSubmit = (event) => {
+  const { updateDailyTask } = useAchievement();
+  const navigate = useNavigate();
+
+  const onSubmit = async (event) => {
     event.preventDefault();
-    handleExerciseSubmit(event);
+    try {
+      // First, submit the exercise data
+      await handleExerciseSubmit(event);
+
+      // Then, update the daily task for exercise
+      const result = await updateDailyTask('exercise');
+      if (result.success) {
+        alert(`Exercise logged successfully! You earned ${result.pointsEarned} points.`);
+        // Navigate to the achievements page
+        navigate('/achievements');
+      } else {
+        alert(result.message || 'Failed to update achievement. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error submitting exercise:', error);
+      alert('An error occurred while submitting the exercise. Please try again.');
+    }
   };
 
   const handleInputChange = (e) => {
@@ -17,7 +38,6 @@ const ExerciseForm = ({ exerciseForm, setExerciseForm, handleExerciseSubmit, loa
         : value
     }));
   };
-  
 
   return (
     <div className="exercise-log">

@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
 import { INITIAL_MEDITATION_STATE, MEDITATION_EXERCISES, addMeditation } from '../../backend/meditation';
+import { useAchievement } from '../../utils/achievementUtils';
+import { useNavigate } from 'react-router-dom';
 
 const LogForm = ({ user, fetchMeditationLogs }) => {
   const [newMeditation, setNewMeditation] = useState(INITIAL_MEDITATION_STATE);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { updateDailyTask } = useAchievement();
+  const navigate = useNavigate();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -21,6 +25,16 @@ const LogForm = ({ user, fetchMeditationLogs }) => {
     setError(null);
     try {
       await addMeditation(user.uid, newMeditation);
+      
+      // Update the daily task for meditation
+      const result = await updateDailyTask('meditation');
+      if (result.success) {
+        alert(`Meditation logged successfully! You earned ${result.pointsEarned} points.`);
+        navigate('/achievements');
+      } else {
+        alert(result.message || 'Failed to update achievement. Please try again.');
+      }
+
       setNewMeditation(INITIAL_MEDITATION_STATE);
       fetchMeditationLogs(user.uid);
     } catch (error) {
