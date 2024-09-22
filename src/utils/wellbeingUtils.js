@@ -70,12 +70,22 @@ const calculateMeditationScore = (totalMeditationMinutes, streak, averageDuratio
   return Math.min(100, overallMeditationScore);
 };
 
-export const calculateOverallWellbeingScore = (componentScores) => {
-  const totalWeight = Object.values(COMPONENT_WEIGHTS).reduce((sum, weight) => sum + weight, 0);
+export const calculateOverallWellbeingScore = (componentScores, weights) => {
+  console.log('Calculating overall wellbeing score with weights:', weights);
+  console.log('Component scores:', componentScores);
+  
+  const totalWeight = Object.values(weights).reduce((sum, weight) => sum + weight, 0);
+  console.log('Total weight:', totalWeight);
+  
   const weightedScore = Object.entries(componentScores).reduce((sum, [component, score]) => {
-    return sum + (score * (COMPONENT_WEIGHTS[component] / totalWeight));
+    const weightedComponentScore = score * (weights[component] / totalWeight);
+    console.log(`${component} weighted score:`, weightedComponentScore);
+    return sum + weightedComponentScore;
   }, 0);
-  return Math.round(weightedScore);
+  
+  const roundedScore = Math.round(weightedScore);
+  console.log('Final weighted score:', roundedScore);
+  return roundedScore;
 };
 
 export const getScoreCategory = (score) => {
@@ -121,13 +131,14 @@ export const getAdvice = (component, score) => {
   return adviceMap[component][category] || "Keep working on improving this aspect of your wellbeing.";
 };
 
-export const calculateWellbeingScore = async (userId, fitnessData, sleepData, meditationData, moodScore) => {
+export const calculateWellbeingScore = async (userId, fitnessData, sleepData, meditationData, moodScore, weights) => {
   try {
     console.log('Starting wellbeing score calculation for user:', userId);
     console.log('Fitness data received:', fitnessData);
     console.log('Sleep data received:', sleepData);
     console.log('Meditation data received:', meditationData);
     console.log('Mood score received:', moodScore);
+    console.log('Weights received:', weights);
     
     const { exercises, meals, waterIntakes, wellbeingParams } = fitnessData;
     const { sleepLogs, sleepGoal } = sleepData;
@@ -148,7 +159,7 @@ export const calculateWellbeingScore = async (userId, fitnessData, sleepData, me
 
     console.log('Debug - Component scores:', componentScores);
 
-    const overallScore = calculateOverallWellbeingScore(componentScores);
+    const overallScore = calculateOverallWellbeingScore(componentScores, weights);
 
     console.log('Debug - Overall wellbeing score:', overallScore);
 
