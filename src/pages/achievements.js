@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAchievement } from '../utils/achievementUtils';
 import Navbar2 from './navbar2';
 import '../css/achievement.css';
@@ -7,6 +7,26 @@ import { Link } from 'react-router-dom';
 const AchievementPage = () => {
   const { dailyTasks, userPoints, loading, error } = useAchievement();
   const [activeTab, setActiveTab] = useState('daily');
+  const [timeUntilReset, setTimeUntilReset] = useState('');
+
+  useEffect(() => {
+    const updateTimer = () => {
+      const now = new Date();
+      const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+      const timeRemaining = tomorrow - now;
+
+      const hours = Math.floor(timeRemaining / (1000 * 60 * 60));
+      const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+
+      setTimeUntilReset(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+    };
+
+    updateTimer();
+    const timerId = setInterval(updateTimer, 1000);
+
+    return () => clearInterval(timerId);
+  }, []);
 
   if (loading) return <div className="loading">Loading achievements... Please wait.</div>;
   if (error) return <div className="error">{error}</div>;
@@ -16,13 +36,10 @@ const AchievementPage = () => {
     
     let completionDate;
     if (typeof lastCompleted === 'object' && lastCompleted.toDate) {
-      // Firestore Timestamp
       completionDate = lastCompleted.toDate();
     } else if (lastCompleted instanceof Date) {
-      // JavaScript Date object
       completionDate = lastCompleted;
     } else if (typeof lastCompleted === 'string') {
-      // ISO string or other date string
       completionDate = new Date(lastCompleted);
     } else {
       console.error('Unexpected lastCompleted format:', lastCompleted);
@@ -38,80 +55,77 @@ const AchievementPage = () => {
   return (
     <div className="achievement-page">
       <Navbar2 />
-      <div className="achievement-container">
-        <h1 className="main-title">Daily Achievements</h1>
-        <div className="achievement-summary">
-          <div className="summary-box">
-            <h2>Total Points</h2>
-            <p>{userPoints}</p>
+      <div className="achievement-container centered">
+        <div className="achievement-content">
+          <h1 className="main-title">Achievements & Rewards</h1>
+          <div className="achievement-summary">
+            <div className="summary-box">
+              <h2>Total Points</h2>
+              <p className="summary-value">{userPoints}</p>
+            </div>
+            <div className="summary-box">
+              <h2>Tasks Completed Today</h2>
+              <p className="summary-value">{tasksCompletedToday} / {dailyTasks.length}</p>
+            </div>
           </div>
-          <div className="summary-box">
-            <h2>Tasks Completed Today</h2>
-            <p>{tasksCompletedToday} / {dailyTasks.length}</p>
+          <div className="reset-timer">
+            <h3>Time until daily reset:</h3>
+            <p className="timer-value">{timeUntilReset}</p>
           </div>
-        </div>
-        <div className="tab-navigation">
-          <button 
-            className={`tab ${activeTab === 'daily' ? 'active' : ''}`}
-            onClick={() => setActiveTab('daily')}
-          >
-            Daily Tasks
-          </button>
-          <button 
-            className={`tab ${activeTab === 'achievements' ? 'active' : ''}`}
-            onClick={() => setActiveTab('achievements')}
-          >
-            Achievements
-          </button>
-          <button 
-            className={`tab ${activeTab === 'rewards' ? 'active' : ''}`}
-            onClick={() => setActiveTab('rewards')}
-          >
-            Rewards
-          </button>
-        </div>
-        <div className="tab-content">
-          {activeTab === 'daily' && (
-            <div className="daily-tasks">
-              <h2>Your Daily Tasks</h2>
-              {dailyTasks.map(task => {
-                const completedToday = isCompletedToday(task.lastCompleted);
-                
-                return (
-                  <div key={task.id} className={`task-card ${completedToday ? 'completed' : ''}`}>
-                    <div className="task-icon">{task.icon}</div>
-                    <div className="task-info">
-                      <h3>{task.name}</h3>
-                      <p>{task.description}</p>
-                      <p className="points">+{task.points} points</p>
-                      <p className="streak">Current Streak: {task.streak} day{task.streak !== 1 ? 's' : ''}</p>
-                    </div>
-                    <div className="task-status">
-                      {completedToday ? (
-                        <span className="completed-status">Completed</span>
-                      ) : (
-                        <Link to={`/${task.id}`} className="task-link">
-                          Complete Task
-                        </Link>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-          {activeTab === 'achievements' && (
-            <div className="achievements-content">
-              <h2>Your Achievements</h2>
-              <p>Long-term achievements coming soon!</p>
-            </div>
-          )}
-          {activeTab === 'rewards' && (
-            <div className="rewards-content">
-              <h2>Available Rewards</h2>
-              <p>Redeem your points for these exciting rewards!</p>
-            </div>
-          )}
+          <div className="tab-navigation centered">
+            <button 
+              className={`tab ${activeTab === 'daily' ? 'active' : ''}`}
+              onClick={() => setActiveTab('daily')}
+            >
+              Daily Tasks
+            </button>
+            <button 
+              className={`tab ${activeTab === 'rewards' ? 'active' : ''}`}
+              onClick={() => setActiveTab('rewards')}
+            >
+              Rewards
+            </button>
+          </div>
+          <div className="tab-content">
+            {activeTab === 'daily' && (
+              <div className="daily-tasks">
+                <h2 className="section-title">Your Daily Tasks</h2>
+                <div className="tasks-grid centered">
+                  {dailyTasks.map(task => {
+                    const completedToday = isCompletedToday(task.lastCompleted);
+                    
+                    return (
+                      <div key={task.id} className={`task-card ${completedToday ? 'completed' : ''}`}>
+                        <div className="task-icon">{task.icon}</div>
+                        <div className="task-info">
+                          <h3>{task.name}</h3>
+                          <p>{task.description}</p>
+                          <p className="points">+{task.points} points</p>
+                          <p className="streak">Current Streak: {task.streak} day{task.streak !== 1 ? 's' : ''}</p>
+                        </div>
+                        <div className="task-status">
+                          {completedToday ? (
+                            <span className="completed-status">Completed</span>
+                          ) : (
+                            <Link to={`/${task.id}`} className="task-link">
+                              Complete Task
+                            </Link>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            {activeTab === 'rewards' && (
+              <div className="rewards-content centered">
+                <h2 className="section-title">Available Rewards</h2>
+                <p className="coming-soon">Redeem your points for these exciting rewards!</p>
+                {/* Add your rewards content here */}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
