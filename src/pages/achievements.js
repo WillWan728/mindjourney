@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useAchievement } from '../utils/achievementUtils';
 import Navbar2 from './navbar2';
 import '../css/achievement.css';
-import { Link } from 'react-router-dom';
-import { getRewards, redeemReward, completeDailyTask } from '../backend/achievement';
+import { getRewards, redeemReward, completeDailyTask, updateAchievementProgress } from '../backend/achievement';
 import { auth } from '../config/firebase';
 
 const AchievementPage = () => {
-  const { dailyTasks, userPoints, loading, error, fetchUserData } = useAchievement();
+  const { dailyTasks, achievements, userPoints, loading, error, fetchUserData } = useAchievement();
+  console.log("Achievements:", achievements); // Debugging log
   const [activeTab, setActiveTab] = useState('daily');
   const [timeUntilReset, setTimeUntilReset] = useState('');
   const [rewards, setRewards] = useState([]);
@@ -50,21 +50,31 @@ const AchievementPage = () => {
       const result = await redeemReward(auth.currentUser.uid, rewardId);
       if (result.success) {
         alert(`Reward redeemed! Your voucher code is: ${result.voucher}`);
-        fetchUserData(auth.currentUser.uid); // Refresh user data to update points
+        fetchUserData(auth.currentUser.uid);
       }
     } catch (err) {
       setRedeemError(err.message);
     }
   };
 
-  const handleCompleteTask = async (taskId) => {
+  const handleCompleteTask = async (taskId, isExtended = false) => {
     try {
-      const result = await completeDailyTask(auth.currentUser.uid, taskId);
-      if (result.success) {
-        alert(`Task completed! You earned ${result.pointsEarned} points.`);
-        fetchUserData(auth.currentUser.uid); // Refresh user data to update tasks and points
+      if (isExtended) {
+        const result = await updateAchievementProgress(auth.currentUser.uid, taskId, 1);
+        if (result.success) {
+          alert(`Progress updated! You're one step closer to completing this extended task.`);
+          fetchUserData(auth.currentUser.uid);
+        } else {
+          alert(result.message);
+        }
       } else {
-        alert(result.message);
+        const result = await completeDailyTask(auth.currentUser.uid, taskId);
+        if (result.success) {
+          alert(`Task completed! You earned ${result.pointsEarned} points.`);
+          fetchUserData(auth.currentUser.uid);
+        } else {
+          alert(result.message);
+        }
       }
     } catch (err) {
       console.error("Error completing task:", err);
@@ -104,7 +114,7 @@ const AchievementPage = () => {
               className={`tab ${activeTab === 'daily' ? 'active' : ''}`}
               onClick={() => setActiveTab('daily')}
             >
-              Daily Tasks
+              Tasks & Achievements
             </button>
             <button 
               className={`tab ${activeTab === 'rewards' ? 'active' : ''}`}
@@ -115,36 +125,67 @@ const AchievementPage = () => {
           </div>
           <div className="tab-content">
             {activeTab === 'daily' && (
-              <div className="daily-tasks">
-                <h2 className="section-title">Your Daily Tasks</h2>
-                <div className="tasks-grid centered">
-                  {dailyTasks.map(task => {
-                    const lastCompleted = task.lastCompleted ? new Date(task.lastCompleted.seconds * 1000) : null;
-                    const completedToday = lastCompleted && lastCompleted.toDateString() === new Date().toDateString();
-                    
-                    return (
-                      <div key={task.id} className={`task-card ${completedToday ? 'completed' : ''}`}>
-                        <div className="task-icon">{task.icon}</div>
-                        <div className="task-info">
-                          <h3>{task.name}</h3>
-                          <p>{task.description}</p>
-                          <p className="points">+{task.points} points</p>
-                          <p className="streak">Current Streak: {task.streak} day{task.streak !== 1 ? 's' : ''}</p>
+              <>
+                <div className="daily-tasks">
+                  <h2 className="section-title">Your Daily Tasks</h2>
+                  <div className="tasks-grid centered">
+                    {dailyTasks.map(task => {
+                      const lastCompleted = task.lastCompleted ? new Date(task.lastCompleted.seconds * 1000) : null;
+                      const completedToday = lastCompleted && lastCompleted.toDateString() === new Date().toDateString();
+                      
+                      return (
+                        <div key={task.id} className={`task-card ${completedToday ? 'completed' : ''}`}>
+                          <div className="task-icon">{task.icon}</div>
+                          <div className="task-info">
+                            <h3>{task.name}</h3>
+                            <p>{task.description}</p>
+                            <p className="points">+{task.points} points</p>
+                            <p className="streak">Current Streak: {task.streak} day{task.streak !== 1 ? 's' : ''}</p>
+                          </div>
+                          <div className="task-status">
+                            {completedToday ? (
+                              <span className="completed-status">Completed</span>
+                            ) : (
+                              <button onClick={() => handleCompleteTask(task.id)} className="complete-task-button">
+                                Complete Task
+                              </button>
+                            )}
+                          </div>
                         </div>
-                        <div className="task-status">
-                          {completedToday ? (
-                            <span className="completed-status">Completed</span>
-                          ) : (
-                            <button onClick={() => handleCompleteTask(task.id)} className="complete-task-button">
-                              Complete Task
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
+                <div className="extended-tasks">
+                  <h2 className="section-title">Extended Tasks</h2>
+                  <div className="tasks-grid centered">
+                    {achievements && achievements.length > 0 ? (
+                      achievements.map(task => (
+                        <div key={task.id} className={`task-card ${task.completed ? 'completed' : ''}`}>
+                          <div className="task-icon">{task.icon}</div>
+                          <div className="task-info">
+                            <h3>{task.name}</h3>
+                            <p>{task.description}</p>
+                            <p className="points">+{task.points} points</p>
+                            <p className="progress">Progress: {task.progress}/{task.goal}</p>
+                          </div>
+                          <div className="task-status">
+                            {task.completed ? (
+                              <span className="completed-status">Completed</span>
+                            ) : (
+                              <button onClick={() => handleCompleteTask(task.id, true)} className="complete-task-button">
+                                Update Progress
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <p>No extended tasks available.</p>
+                    )}
+                  </div>
+                </div>
+              </>
             )}
             {activeTab === 'rewards' && (
               <div className="rewards-content centered">
