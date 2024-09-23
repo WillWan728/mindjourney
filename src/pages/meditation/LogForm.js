@@ -1,14 +1,24 @@
-import React, { useState } from 'react';
-import { INITIAL_MEDITATION_STATE, MEDITATION_EXERCISES, addMeditation } from '../../backend/meditation';
+import React, { useState, useEffect } from 'react';
+import { INITIAL_MEDITATION_STATE, MEDITATION_EXERCISES } from '../../backend/meditation';
 import { useAchievement } from '../../utils/achievementUtils';
 import { useNavigate } from 'react-router-dom';
 
-const LogForm = ({ user, fetchMeditationLogs }) => {
+const LogForm = ({ user }) => {
   const [newMeditation, setNewMeditation] = useState(INITIAL_MEDITATION_STATE);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const { updateDailyTask } = useAchievement();
+  const [message, setMessage] = useState(null);
+  const { 
+    updateDailyTask, 
+    updateExtendedTask, 
+    getAchievementProgress, 
+    achievements 
+  } = useAchievement();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Set the default date to today
+    setNewMeditation(prev => ({ ...prev, date: new Date().toISOString().split('T')[0] }));
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -18,28 +28,28 @@ const LogForm = ({ user, fetchMeditationLogs }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!user) {
-      setError("Please log in to record a meditation.");
+      setMessage("Please log in to record a meditation.");
       return;
     }
     setIsLoading(true);
-    setError(null);
+    setMessage(null);
     try {
-      await addMeditation(user.uid, newMeditation);
+      // Update the daily meditation task
+      const dailyResult = await updateDailyTask('meditation');
       
-      // Update the daily task for meditation
-      const result = await updateDailyTask('meditation');
-      if (result.success) {
-        alert(`Meditation logged successfully! You earned ${result.pointsEarned} points.`);
-        navigate('/achievements');
+      // Update the Zen Champion extended task
+      const extendedResult = await updateExtendedTask('meditate_all');
+      
+      if (dailyResult.success && extendedResult.success) {
+        const zenChampionProgress = getAchievementProgress('meditate_all');
+        setMessage(`Meditation saved!`);
+        setNewMeditation(prev => ({ ...INITIAL_MEDITATION_STATE, date: prev.date }));
       } else {
-        alert(result.message || 'Failed to update achievement. Please try again.');
+        setMessage('Failed to log meditation. Please try again.');
       }
-
-      setNewMeditation(INITIAL_MEDITATION_STATE);
-      fetchMeditationLogs(user.uid);
     } catch (error) {
       console.error("Error saving meditation log: ", error);
-      setError("Failed to save meditation log. Please try again.");
+      setMessage("Failed to save meditation log. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -98,10 +108,14 @@ const LogForm = ({ user, fetchMeditationLogs }) => {
           placeholder="Any thoughts or feelings about your session?"
         />
       </div>
+      <div className="achievement-progress">
+        <h3>Zen Champion Progress</h3>
+        <p>{getAchievementProgress('meditate_all')}/30 days</p>
+      </div>
       <button type="submit" disabled={isLoading}>
         {isLoading ? 'Saving...' : 'Log Meditation'}
       </button>
-      {error && <p className="error-message">{error}</p>}
+      {message && <p className="message">{message}</p>}
     </form>
   );
 };

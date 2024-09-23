@@ -9,6 +9,7 @@ import {
   initializeUserData,
   logNutrition,
   logWaterIntake as logWaterIntakeAPI,
+  logMeditation,
   getRewards,
   redeemReward
 } from '../backend/achievement';
