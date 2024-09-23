@@ -6,17 +6,20 @@ import {
   getAchievements, 
   completeDailyTask, 
   updateAchievementProgress, 
-  initializeUserData
+  initializeUserData,
+  logNutrition,
+  logWaterIntake as logWaterIntakeAPI,
+  getRewards,
+  redeemReward
 } from '../backend/achievement';
 
 const AchievementContext = createContext();
-
-export const useAchievement = () => useContext(AchievementContext);
 
 export const AchievementProvider = ({ children }) => {
   const [dailyTasks, setDailyTasks] = useState([]);
   const [achievements, setAchievements] = useState([]);
   const [userPoints, setUserPoints] = useState(0);
+  const [rewards, setRewards] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [userId, setUserId] = useState(null);
@@ -26,23 +29,18 @@ export const AchievementProvider = ({ children }) => {
     
     setLoading(true);
     try {
-      console.log("Fetching user data for:", uid);
-      
-      // Initialize user data if necessary
       await initializeUserData(uid);
+      const [userData, tasks, userAchievements, availableRewards] = await Promise.all([
+        getUserData(uid),
+        getDailyTasks(uid),
+        getAchievements(uid),
+        getRewards()
+      ]);
 
-      const userData = await getUserData(uid);
-      console.log("User data:", userData);
       setUserPoints(userData.points || 0);
-
-      const tasks = await getDailyTasks(uid);
-      console.log("Daily tasks:", tasks);
       setDailyTasks(tasks);
-
-      const userAchievements = await getAchievements(uid);
-      console.log("Achievements:", userAchievements);
       setAchievements(userAchievements);
-
+      setRewards(availableRewards);
       setLoading(false);
     } catch (err) {
       console.error("Error fetching user data:", err);
@@ -55,27 +53,23 @@ export const AchievementProvider = ({ children }) => {
     const unsubscribe = auth.onAuthStateChanged(user => {
       if (user) {
         setUserId(user.uid);
+        fetchUserData(user.uid);
       } else {
         setUserId(null);
         setDailyTasks([]);
         setAchievements([]);
         setUserPoints(0);
+        setRewards([]);
         setLoading(false);
         setError(null);
       }
     });
 
     return () => unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    if (userId) {
-      fetchUserData(userId);
-    }
-  }, [userId, fetchUserData]);
+  }, [fetchUserData]);
 
   const updateDailyTask = async (taskId) => {
-    if (!userId) return;
+    if (!userId) return { success: false, message: "User not authenticated" };
 
     try {
       const result = await completeDailyTask(userId, taskId);
@@ -87,17 +81,18 @@ export const AchievementProvider = ({ children }) => {
               : task
           )
         );
-        setUserPoints(prevPoints => prevPoints + result.pointsEarned);
+        setUserPoints(prevPoints => prevPoints + (result.pointsEarned || 0));
+        await fetchUserData(userId);
       }
       return result;
     } catch (err) {
-      console.error("Error completing daily task:", err);
-      return { success: false, message: "Failed to complete task" };
+      console.error("Error in updateDailyTask:", err);
+      return { success: false, message: err.message || "Failed to complete task" };
     }
   };
 
   const updateExtendedTask = async (taskId) => {
-    if (!userId) return;
+    if (!userId) return { success: false, message: "User not authenticated" };
 
     try {
       const result = await updateAchievementProgress(userId, taskId, 1);
@@ -116,11 +111,70 @@ export const AchievementProvider = ({ children }) => {
         if (result.pointsEarned) {
           setUserPoints(prevPoints => prevPoints + result.pointsEarned);
         }
+        await fetchUserData(userId);
       }
       return result;
     } catch (err) {
       console.error("Error updating extended task:", err);
       return { success: false, message: "Failed to update task" };
+    }
+  };
+
+  const logNutritionData = async (nutritionData) => {
+    if (!userId) return { success: false, message: "User not authenticated" };
+
+    try {
+      const result = await logNutrition(userId, nutritionData);
+      if (result.success) {
+        await fetchUserData(userId);
+      }
+      return result;
+    } catch (err) {
+      console.error("Error logging nutrition data:", err);
+      return { success: false, message: "Failed to log nutrition data" };
+    }
+  };
+
+  const logWaterIntake = async (waterIntakeData) => {
+    if (!userId) return { success: false, message: "User not authenticated" };
+
+    try {
+      const result = await logWaterIntakeAPI(userId, waterIntakeData);
+      if (result.success) {
+        setAchievements(prevAchievements => 
+          prevAchievements.map(achievement => 
+            achievement.id === 'hydration-hero' 
+              ? { ...achievement, progress: result.achievementUpdateResult.progress }
+              : achievement
+          )
+        );
+        setUserPoints(prevPoints => prevPoints + (result.pointsEarned || 0));
+        await fetchUserData(userId);
+      }
+      return result;
+    } catch (err) {
+      console.error("Error logging water intake data:", err);
+      return { success: false, message: "Failed to log water intake data" };
+    }
+  };
+
+  const getAchievementProgress = (taskId) => {
+    const achievement = achievements.find(a => a.id === taskId);
+    return achievement ? achievement.progress : 0;
+  };
+
+  const redeemUserReward = async (rewardId) => {
+    if (!userId) return { success: false, message: "User not authenticated" };
+
+    try {
+      const result = await redeemReward(userId, rewardId);
+      if (result.success) {
+        await fetchUserData(userId);
+      }
+      return result;
+    } catch (err) {
+      console.error("Error redeeming reward:", err);
+      return { success: false, message: "Failed to redeem reward" };
     }
   };
 
@@ -130,16 +184,29 @@ export const AchievementProvider = ({ children }) => {
         dailyTasks,
         achievements,
         userPoints,
+        rewards,
         loading,
         error,
         updateDailyTask,
         updateExtendedTask,
-        fetchUserData
+        getAchievementProgress,
+        fetchUserData,
+        logNutritionData,
+        logWaterIntake,
+        redeemUserReward
       }}
     >
       {children}
     </AchievementContext.Provider>
   );
+};
+
+export const useAchievement = () => {
+  const context = useContext(AchievementContext);
+  if (context === undefined) {
+    throw new Error('useAchievement must be used within an AchievementProvider');
+  }
+  return context;
 };
 
 export default AchievementProvider;

@@ -110,6 +110,7 @@ export const initializeDailyTasks = async (userId) => {
     { id: 'sleep', name: 'Sleep Master', description: 'Log your sleep', icon: '😴', points: 5 },
     { id: 'meditation', name: 'Zen Master', description: 'Complete a meditation session', icon: '🧘', points: 5 },
     { id: 'journal', name: 'Reflective Writer', description: 'Write a journal entry', icon: '✍️', points: 5 },
+    { id: 'nutrition', name: 'Nutrition Tracker', description: 'Log your meals', icon: '🍎', points: 5 },
   ];
 
   const batch = writeBatch(db);
@@ -135,29 +136,72 @@ export const getDailyTasks = async (userId) => {
 
 // Function to complete a daily task
 export const completeDailyTask = async (userId, taskId) => {
-  const userRef = doc(db, 'users', userId);
-  const taskRef = doc(db, 'users', userId, 'dailyTasks', taskId);
+  try {
+    const userRef = doc(db, 'users', userId);
+    const taskRef = doc(db, 'users', userId, 'dailyTasks', taskId);
 
-  const taskDoc = await getDoc(taskRef);
-  const taskData = taskDoc.data();
+    const taskDoc = await getDoc(taskRef);
+    
+    if (!taskDoc.exists()) {
+      console.error(`Task document does not exist for user ${userId} and task ${taskId}`);
+      return { 
+        success: false, 
+        message: "Task not found. Please try again or contact support.",
+        error: new Error("Task document does not exist")
+      };
+    }
 
-  const now = Timestamp.now();
-  const lastCompleted = taskData.lastCompleted ? taskData.lastCompleted.toDate() : null;
-  const isNewDay = !lastCompleted || lastCompleted.getDate() !== now.toDate().getDate();
+    const taskData = taskDoc.data();
+    console.log('Task data:', taskData); // Add this line for debugging
 
-  if (isNewDay) {
+    if (!taskData) {
+      console.error(`Task data is undefined for user ${userId} and task ${taskId}`);
+      return { 
+        success: false, 
+        message: "Task data is missing. Please try again or contact support.",
+        error: new Error("Task data is undefined")
+      };
+    }
+
+    const now = Timestamp.now();
+    const lastCompleted = taskData.lastCompleted ? taskData.lastCompleted.toDate() : null;
+    const isNewDay = !lastCompleted || lastCompleted.getDate() !== now.toDate().getDate();
+
+    let pointsEarned = 0;
+    let streakIncremented = false;
+
+    if (isNewDay) {
+      await updateDoc(taskRef, {
+        lastCompleted: now,
+        streak: increment(1)
+      });
+
+      await updateDoc(userRef, {
+        points: increment(taskData.points)
+      });
+
+      pointsEarned = taskData.points;
+      streakIncremented = true;
+    }
+
+    // Always log the activity
     await updateDoc(taskRef, {
-      lastCompleted: now,
-      streak: increment(1)
+      lastLogged: now
     });
 
-    await updateDoc(userRef, {
-      points: increment(taskData.points)
-    });
-
-    return { success: true, message: 'Task completed!', pointsEarned: taskData.points };
-  } else {
-    return { success: false, message: 'Task already completed today.' };
+    return { 
+      success: true, 
+      message: isNewDay ? 'Task completed and streak updated!' : 'Activity logged successfully!',
+      pointsEarned: pointsEarned,
+      streakIncremented: streakIncremented
+    };
+  } catch (error) {
+    console.error('Error in completeDailyTask:', error);
+    return { 
+      success: false, 
+      message: `Error completing task: ${error.message}`,
+      error: error
+    };
   }
 };
 
@@ -167,10 +211,10 @@ export const initializeAchievements = async (userId) => {
   const achievementsRef = collection(userRef, 'extendedTasks');
 
   const defaultAchievements = [
-    { id: 'water', name: 'Hydration Hero', description: 'Log water intake', icon: '💧', points: 10, goal: 7, progress: 0 },
-    { id: 'food', name: 'Nutrition Master', description: 'Log your food intake', icon: '🍎', points: 15, goal: 7, progress: 0 },
-    { id: 'meditate_all', name: 'Zen Champion', description: 'Meditate all 4 sessions', icon: '🧘', points: 20, goal: 4, progress: 0 },
-    { id: 'write_diary', name: 'Diary Devotee', description: 'Write in your diary for 7 days in a row', icon: '📖', points: 25, goal: 7, progress: 0 }
+    { id: 'water', name: 'Hydration Hero', description: 'Log your water intake 7 days in a row', icon: '💧', points: 15, goal: 7, progress: 0 },
+    { id: 'food', name: 'Nutrition Master', description: 'Log your calorie intake for your nutrition for 7 days in a row', icon: '🍎', points: 15, goal: 7, progress: 0 },
+    { id: 'meditate_all', name: 'Zen Champion', description: 'Mindfull meditation excercise for a 30 day streak  ', icon: '🧘', points: 200, goal: 30, progress: 0 },
+    { id: 'write_diary', name: 'Diary Devotee', description: 'Log your diary for 7 days in a row', icon: '📖', points: 25, goal: 7, progress: 0 }
   ];
 
   const batch = writeBatch(db);
@@ -234,3 +278,66 @@ export const initializeUserData = async (userId) => {
     await initializeAchievements(userId);
   }
 };
+
+// New function to log nutrition
+export const logNutrition = async (userId, nutritionData) => {
+  try {
+    const userRef = doc(db, 'users', userId);
+    const nutritionLogRef = collection(userRef, 'nutritionLogs');
+    const dailyTaskRef = doc(db, 'users', userId, 'dailyTasks', 'nutrition');
+
+    // Log the nutrition data
+    await setDoc(doc(nutritionLogRef), {
+      ...nutritionData,
+      timestamp: serverTimestamp()
+    });
+
+    // Update the daily nutrition task
+    const result = await completeDailyTask(userId, 'nutrition');
+
+    // Update the Nutrition Master achievement
+    await updateAchievementProgress(userId, 'food', 1);
+
+    return { 
+      success: true, 
+      message: 'Nutrition logged successfully!',
+      taskUpdateResult: result
+    };
+  } catch (error) {
+    console.error('Error in logNutrition:', error);
+    return { 
+      success: false, 
+      message: `Error logging nutrition: ${error.message}`,
+      error: error
+    };
+  }
+};
+export const logWaterIntake = async (userId, waterIntakeData) => {
+    try {
+      const userRef = doc(db, 'users', userId);
+      const waterIntakeLogRef = collection(userRef, 'waterIntakeLogs');
+  
+      // Log the water intake data
+      await setDoc(doc(waterIntakeLogRef), {
+        ...waterIntakeData,
+        timestamp: serverTimestamp()
+      });
+  
+      // Update the Hydration Hero achievement
+      await updateAchievementProgress(userId, 'water', 1);
+  
+      return { 
+        success: true, 
+        message: 'Water intake logged successfully!',
+        achievementUpdateResult: await getAchievements(userId)
+      };
+    } catch (error) {
+      console.error('Error in logWaterIntake:', error);
+      return { 
+        success: false, 
+        message: `Error logging water intake: ${error.message}`,
+        error: error
+      };
+    }
+  };
+  

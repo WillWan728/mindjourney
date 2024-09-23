@@ -1,17 +1,74 @@
 import React from 'react';
+import { useAchievement } from '../../utils/achievementUtils';
+import { useNavigate } from 'react-router-dom';
 
 const MealForm = ({ mealForm, setMealForm, handleMealSubmit, loading }) => {
+  const { logNutritionData, getAchievementProgress, fetchUserData } = useAchievement();
+  const navigate = useNavigate();
+
+  const onSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      // First, submit the meal data
+      await handleMealSubmit(event);
+
+      // Then, log the nutrition data
+      try {
+        console.log("Logging nutrition data");
+        const result = await logNutritionData(mealForm);
+        console.log('logNutritionData result:', result);
+
+        if (result.success) {
+          // Fetch updated user data to ensure we have the latest progress
+          await fetchUserData();
+          
+          // Now get the updated progress
+          const updatedProgress = getAchievementProgress('food');
+          console.log('Updated achievement progress:', updatedProgress);
+
+          if (updatedProgress >= 7) {
+            alert(`Congratulations! You've logged your meals for 7 days in a row and earned 15 points for completing the Nutrition Master achievement!`);
+            navigate('/achievements');
+          } else {
+            alert(`Meal logged successfully!`);
+          }
+        } else {
+          console.error('Failed to log nutrition:', result.message);
+          alert(`Meal logged successfully, but there was an issue updating your achievement progress. Please try again later. Error: ${result.message}`);
+        }
+      } catch (nutritionError) {
+        console.error('Error logging nutrition:', nutritionError);
+        alert(`Meal logged successfully! However, there was an error updating your achievement progress. Your meal has been recorded, but the achievement may not have updated correctly. Error: ${nutritionError.message}`);
+      }
+    } catch (error) {
+      console.error('Error submitting meal:', error);
+      alert(`An error occurred while submitting the meal: ${error.message}. Please try again.`);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { id, value } = e.target;
+    const field = id.split('-')[1];
+  
+    setMealForm((prevForm) => ({
+      ...prevForm,
+      [field]: ['calories', 'protein', 'carbs', 'fat', 'fiber', 'sugar'].includes(field)
+        ? (value === '' ? '' : parseFloat(value))
+        : value
+    }));
+  };
+
   return (
     <div className="meal-log">
       <h2>Log Meal</h2>
-      <form onSubmit={handleMealSubmit} className="fitness-form">
+      <form onSubmit={onSubmit} className="fitness-form">
         <div className="form-group">
           <label htmlFor="meal-date">Date</label>
           <input 
             id="meal-date"
             type="date" 
             value={mealForm.date} 
-            onChange={(e) => setMealForm({...mealForm, date: e.target.value})} 
+            onChange={handleInputChange}
             required 
           />
         </div>
@@ -21,7 +78,7 @@ const MealForm = ({ mealForm, setMealForm, handleMealSubmit, loading }) => {
             id="meal-name"
             type="text" 
             value={mealForm.name} 
-            onChange={(e) => setMealForm({...mealForm, name: e.target.value})} 
+            onChange={handleInputChange}
             placeholder="e.g., Breakfast, Lunch, Dinner, Snack" 
             required 
           />
@@ -31,7 +88,7 @@ const MealForm = ({ mealForm, setMealForm, handleMealSubmit, loading }) => {
           <textarea 
             id="meal-description"
             value={mealForm.description} 
-            onChange={(e) => setMealForm({...mealForm, description: e.target.value})} 
+            onChange={handleInputChange}
             placeholder="Brief description of the meal" 
             required 
           />
@@ -42,7 +99,7 @@ const MealForm = ({ mealForm, setMealForm, handleMealSubmit, loading }) => {
             id="meal-calories"
             type="number" 
             value={mealForm.calories} 
-            onChange={(e) => setMealForm({...mealForm, calories: e.target.value})} 
+            onChange={handleInputChange}
             placeholder="Total calories" 
             required 
           />
@@ -53,7 +110,7 @@ const MealForm = ({ mealForm, setMealForm, handleMealSubmit, loading }) => {
             id="meal-protein"
             type="number" 
             value={mealForm.protein} 
-            onChange={(e) => setMealForm({...mealForm, protein: e.target.value})} 
+            onChange={handleInputChange}
             placeholder="Protein in grams" 
           />
         </div>
@@ -63,7 +120,7 @@ const MealForm = ({ mealForm, setMealForm, handleMealSubmit, loading }) => {
             id="meal-carbs"
             type="number" 
             value={mealForm.carbs} 
-            onChange={(e) => setMealForm({...mealForm, carbs: e.target.value})} 
+            onChange={handleInputChange}
             placeholder="Carbohydrates in grams" 
           />
         </div>
@@ -73,7 +130,7 @@ const MealForm = ({ mealForm, setMealForm, handleMealSubmit, loading }) => {
             id="meal-fat"
             type="number" 
             value={mealForm.fat} 
-            onChange={(e) => setMealForm({...mealForm, fat: e.target.value})} 
+            onChange={handleInputChange}
             placeholder="Fat in grams" 
           />
         </div>
@@ -83,7 +140,7 @@ const MealForm = ({ mealForm, setMealForm, handleMealSubmit, loading }) => {
             id="meal-fiber"
             type="number" 
             value={mealForm.fiber} 
-            onChange={(e) => setMealForm({...mealForm, fiber: e.target.value})} 
+            onChange={handleInputChange}
             placeholder="Fiber in grams" 
           />
         </div>
@@ -93,7 +150,7 @@ const MealForm = ({ mealForm, setMealForm, handleMealSubmit, loading }) => {
             id="meal-sugar"
             type="number" 
             value={mealForm.sugar} 
-            onChange={(e) => setMealForm({...mealForm, sugar: e.target.value})} 
+            onChange={handleInputChange}
             placeholder="Sugar in grams" 
           />
         </div>
@@ -102,7 +159,7 @@ const MealForm = ({ mealForm, setMealForm, handleMealSubmit, loading }) => {
           <textarea 
             id="meal-notes"
             value={mealForm.notes} 
-            onChange={(e) => setMealForm({...mealForm, notes: e.target.value})} 
+            onChange={handleInputChange}
             placeholder="Any additional notes" 
           />
         </div>

@@ -1,8 +1,8 @@
-/* achievement.css */
-
+/* Overall page layout */
 .achievement-page {
   background-color: #f0f4f8;
   min-height: 100vh;
+  font-family: Arial, sans-serif;
 }
 
 .achievement-container {
@@ -20,11 +20,12 @@
   max-width: 1200px;
   width: 100%;
   padding: 2rem;
-  background-color: #f6f6f6;
+  background-color: white;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+/* Main title */
 .main-title {
   font-size: 2.5rem;
   text-align: center;
@@ -32,6 +33,7 @@
   color: #333;
 }
 
+/* Achievement summary */
 .achievement-summary {
   display: flex;
   justify-content: center;
@@ -60,18 +62,19 @@
   color: #5f9ea0;
 }
 
+/* Reset timer */
 .reset-timer {
   text-align: center;
   margin-bottom: 2rem;
   padding: 1rem;
-  background-color: #f6f6f6;
+  background-color: #f0f4f8;
   border-radius: 8px;
 }
 
 .reset-timer h3 {
   font-size: 1rem;
   margin-bottom: 0.5rem;
-  color: black;
+  color: #5f9ea0;
 }
 
 .timer-value {
@@ -80,6 +83,7 @@
   color: black;
 }
 
+/* Tab navigation */
 .tab-navigation {
   display: flex;
   justify-content: center;
@@ -106,10 +110,11 @@
 }
 
 .tab.active {
-  background-color: #6c757d;;
+  background-color: #6c757d;
   color: white;
 }
 
+/* Section titles */
 .section-title {
   font-size: 1.8rem;
   text-align: center;
@@ -117,6 +122,7 @@
   color: #333;
 }
 
+/* Tasks grid */
 .tasks-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -124,20 +130,22 @@
   justify-content: center;
 }
 
+/* Task cards */
 .task-card {
-  background-color: #f8f9fa;
+  background-color: #fff;
   border-radius: 8px;
   padding: 1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .task-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .task-icon {
@@ -160,46 +168,93 @@
   color: #28a745;
 }
 
-.streak {
+.progress, .streak {
   font-style: italic;
   color: #6c757d;
+  background-color: transparent; /* Remove the turquoise background */
+  padding: 0.25rem;
+  border-radius: 4px;
+  margin-top: 0.5rem;
 }
 
-.task-status {
-  margin-top: auto;
-}
-
-.completed-status {
+/* Status badges */
+.status-badge {
   display: inline-block;
   padding: 0.25rem 0.5rem;
-  background-color: #28a745;
-  color: white;
   border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: bold;
+  margin-top: 0.5rem;
 }
 
-.task-link {
-  display: inline-block;
+.status-badge.completed {
+  background-color: #28a745;
+  color: white;
+}
+
+.status-badge.in-progress {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+/* Buttons */
+.complete-task-button {
   padding: 0.5rem 1rem;
   background-color: #007bff;
   color: white;
-  text-decoration: none;
+  border: none;
   border-radius: 4px;
+  cursor: pointer;
   transition: background-color 0.3s;
 }
 
-.task-link:hover {
-  background-color: black;
+.complete-task-button:hover {
+  background-color: #0056b3;
 }
 
+/* Rewards section */
 .rewards-content {
   text-align: center;
 }
 
-.coming-soon {
-  font-size: 1.2rem;
-  color: #6c757d;
+.rewards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
 }
 
+.reward-card {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.points-cost {
+  font-weight: bold;
+  color: #28a745;
+}
+
+.redeem-button {
+  padding: 0.5rem 1rem;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.redeem-button:hover {
+  background-color: #218838;
+}
+
+.redeem-button:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Loading and error states */
 .loading, .error {
   text-align: center;
   font-size: 1.2rem;
@@ -227,7 +282,22 @@
     width: 100%;
   }
 
-  .tasks-grid {
+  .tasks-grid, .rewards-grid {
     grid-template-columns: 1fr;
   }
+
+  .achievement-content {
+    padding: 1rem;
+  }
+
+  .main-title {
+    font-size: 2rem;
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+  }
+}
+.achievement-content .progress {
+  color: #333; /* Override color specifically in this context */
 }
