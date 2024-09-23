@@ -3,11 +3,28 @@ import { useAchievement } from '../utils/achievementUtils';
 import Navbar2 from './navbar2';
 import '../css/achievement.css';
 import { Link } from 'react-router-dom';
+import { getRewards, redeemReward, completeDailyTask } from '../backend/achievement';
+import { auth } from '../config/firebase';
 
 const AchievementPage = () => {
-  const { dailyTasks, userPoints, loading, error } = useAchievement();
+  const { dailyTasks, userPoints, loading, error, fetchUserData } = useAchievement();
   const [activeTab, setActiveTab] = useState('daily');
   const [timeUntilReset, setTimeUntilReset] = useState('');
+  const [rewards, setRewards] = useState([]);
+  const [redeemError, setRedeemError] = useState(null);
+
+  useEffect(() => {
+    const fetchRewards = async () => {
+      try {
+        const rewardsData = await getRewards();
+        setRewards(rewardsData);
+      } catch (err) {
+        console.error("Error fetching rewards:", err);
+      }
+    };
+
+    fetchRewards();
+  }, []);
 
   useEffect(() => {
     const updateTimer = () => {
@@ -28,29 +45,39 @@ const AchievementPage = () => {
     return () => clearInterval(timerId);
   }, []);
 
+  const handleRedeemReward = async (rewardId) => {
+    try {
+      const result = await redeemReward(auth.currentUser.uid, rewardId);
+      if (result.success) {
+        alert(`Reward redeemed! Your voucher code is: ${result.voucher}`);
+        fetchUserData(auth.currentUser.uid); // Refresh user data to update points
+      }
+    } catch (err) {
+      setRedeemError(err.message);
+    }
+  };
+
+  const handleCompleteTask = async (taskId) => {
+    try {
+      const result = await completeDailyTask(auth.currentUser.uid, taskId);
+      if (result.success) {
+        alert(`Task completed! You earned ${result.pointsEarned} points.`);
+        fetchUserData(auth.currentUser.uid); // Refresh user data to update tasks and points
+      } else {
+        alert(result.message);
+      }
+    } catch (err) {
+      console.error("Error completing task:", err);
+    }
+  };
+
   if (loading) return <div className="loading">Loading achievements... Please wait.</div>;
   if (error) return <div className="error">{error}</div>;
 
-  const isCompletedToday = (lastCompleted) => {
-    if (!lastCompleted) return false;
-    
-    let completionDate;
-    if (typeof lastCompleted === 'object' && lastCompleted.toDate) {
-      completionDate = lastCompleted.toDate();
-    } else if (lastCompleted instanceof Date) {
-      completionDate = lastCompleted;
-    } else if (typeof lastCompleted === 'string') {
-      completionDate = new Date(lastCompleted);
-    } else {
-      console.error('Unexpected lastCompleted format:', lastCompleted);
-      return false;
-    }
-
-    const today = new Date();
-    return completionDate.toDateString() === today.toDateString();
-  };
-
-  const tasksCompletedToday = dailyTasks.filter(task => isCompletedToday(task.lastCompleted)).length;
+  const tasksCompletedToday = dailyTasks.filter(task => {
+    const lastCompleted = task.lastCompleted ? new Date(task.lastCompleted.seconds * 1000) : null;
+    return lastCompleted && lastCompleted.toDateString() === new Date().toDateString();
+  }).length;
 
   return (
     <div className="achievement-page">
@@ -92,7 +119,8 @@ const AchievementPage = () => {
                 <h2 className="section-title">Your Daily Tasks</h2>
                 <div className="tasks-grid centered">
                   {dailyTasks.map(task => {
-                    const completedToday = isCompletedToday(task.lastCompleted);
+                    const lastCompleted = task.lastCompleted ? new Date(task.lastCompleted.seconds * 1000) : null;
+                    const completedToday = lastCompleted && lastCompleted.toDateString() === new Date().toDateString();
                     
                     return (
                       <div key={task.id} className={`task-card ${completedToday ? 'completed' : ''}`}>
@@ -107,9 +135,9 @@ const AchievementPage = () => {
                           {completedToday ? (
                             <span className="completed-status">Completed</span>
                           ) : (
-                            <Link to={`/${task.id}`} className="task-link">
+                            <button onClick={() => handleCompleteTask(task.id)} className="complete-task-button">
                               Complete Task
-                            </Link>
+                            </button>
                           )}
                         </div>
                       </div>
@@ -121,8 +149,23 @@ const AchievementPage = () => {
             {activeTab === 'rewards' && (
               <div className="rewards-content centered">
                 <h2 className="section-title">Available Rewards</h2>
-                <p className="coming-soon">Redeem your points for these exciting rewards!</p>
-                {/* Add your rewards content here */}
+                {redeemError && <p className="error">{redeemError}</p>}
+                <div className="rewards-grid">
+                  {rewards.map(reward => (
+                    <div key={reward.id} className="reward-card">
+                      <h3>{reward.name}</h3>
+                      <p>{reward.description}</p>
+                      <p className="points-cost">{reward.points} points</p>
+                      <button 
+                        onClick={() => handleRedeemReward(reward.id)}
+                        disabled={userPoints < reward.points}
+                        className="redeem-button"
+                      >
+                        Redeem
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>

@@ -48,37 +48,54 @@ export const updateAchievementProgress = async (userId, achievementId, progress)
 };
 
 // Function to get all rewards
-export const getRewards = async (userId) => {
-  const rewardsRef = collection(db, 'users', userId, 'rewards');
+export const getRewards = async () => {
+  const rewardsRef = collection(db, 'rewards');
   const rewardsSnapshot = await getDocs(rewardsRef);
   return rewardsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 };
 
-// Function to redeem a reward
 export const redeemReward = async (userId, rewardId) => {
-  const userRef = doc(db, 'users', userId);
-  const rewardRef = doc(db, 'users', userId, 'rewards', rewardId);
-
-  const userDoc = await getDoc(userRef);
-  const rewardDoc = await getDoc(rewardRef);
-
-  const userData = userDoc.data();
-  const rewardData = rewardDoc.data();
-
-  if (userData.points < rewardData.points) {
-    throw new Error("Insufficient points");
-  }
-
-  await updateDoc(userRef, {
-    points: increment(-rewardData.points),
-    redeemedRewards: arrayUnion({
+    const userRef = doc(db, 'users', userId);
+    const rewardRef = doc(db, 'rewards', rewardId);
+  
+    const userDoc = await getDoc(userRef);
+    const rewardDoc = await getDoc(rewardRef);
+  
+    const userData = userDoc.data();
+    const rewardData = rewardDoc.data();
+  
+    if (userData.points < rewardData.points) {
+      throw new Error("Insufficient points");
+    }
+  
+    // Generate a 12-digit voucher code
+    const voucher = Math.random().toString(36).substring(2, 14).toUpperCase();
+  
+    // Create the reward object without the serverTimestamp
+    const redeemedReward = {
       rewardId: rewardId,
-      redeemedAt: serverTimestamp()
-    })
-  });
-
-  return true;
-};
+      voucher: voucher
+    };
+  
+    // Step 1: Update the points and add the redeemed reward (without timestamp)
+    await updateDoc(userRef, {
+      points: increment(-rewardData.points),
+      redeemedRewards: arrayUnion(redeemedReward)
+    });
+  
+    // Step 2: Update the document to add the serverTimestamp separately
+    const updatedRewards = userData.redeemedRewards || []; // Get the existing rewards or empty array
+    const updatedIndex = updatedRewards.length; // Index of the new reward in the array
+  
+    // Add the timestamp to the specific redeemed reward
+    const updatedRewardPath = `redeemedRewards.${updatedIndex}.redeemedAt`; // Path to the new reward's timestamp
+    await updateDoc(userRef, {
+      [updatedRewardPath]: serverTimestamp()
+    });
+  
+    return { success: true, voucher: voucher };
+  };
+  
 
 // Function to initialize daily tasks
 export const initializeDailyTasks = async (userId) => {
