@@ -1,11 +1,14 @@
+import { doc, setDoc, collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
+import { db } from '../config/firebase';
+
 export const COMPONENT_WEIGHTS = {
   fitness: 25,
   sleep: 25,
-  mood: 25,
-  meditation: 25
+  meditation: 25,
+  mood: 25
 };
 
-const calculateFitnessScore = (exercises, goals) => {
+export const calculateFitnessScore = (exercises, goals) => {
   console.log('Calculating fitness score:', { exercises, goals });
   if (!goals || !goals.weeklyExerciseMinutes || exercises.length === 0) return 0;
   
@@ -27,7 +30,7 @@ const calculateFitnessScore = (exercises, goals) => {
   return Math.min(100, percentageCompleted);
 };
 
-const calculateSleepScore = (sleepLogs, goals) => {
+export const calculateSleepScore = (sleepLogs, goals) => {
   console.log('Calculating sleep score:', { sleepLogs, goals });
   if (!goals || !goals.sleepHoursPerNight || sleepLogs.length === 0) return 0;
   
@@ -55,7 +58,7 @@ const calculateSleepScore = (sleepLogs, goals) => {
   return Math.min(100, overallSleepScore);
 };
 
-const calculateMeditationScore = (totalMeditationMinutes, streak, averageDuration, goals) => {
+export const calculateMeditationScore = (totalMeditationMinutes, streak, averageDuration, goals) => {
   console.log('Calculating meditation score:', { totalMeditationMinutes, streak, averageDuration, goals });
   if (!goals || !goals.weeklyMeditationMinutes) return 0;
   
@@ -131,6 +134,38 @@ export const getAdvice = (component, score) => {
   return adviceMap[component][category] || "Keep working on improving this aspect of your wellbeing.";
 };
 
+export const storeDailyWellbeingScore = async (userId, date, score) => {
+  try {
+    const scoreRef = doc(collection(db, 'users', userId, 'dailyWellbeingScores'));
+    await setDoc(scoreRef, { date, score });
+  } catch (error) {
+    console.error('Error storing daily wellbeing score:', error);
+  }
+};
+
+export const getWellbeingTrend = async (userId) => {
+  try {
+    const scoresRef = collection(db, 'users', userId, 'dailyWellbeingScores');
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - 7);
+    
+    const q = query(scoresRef, 
+      where('date', '>=', startDate), 
+      orderBy('date', 'asc'), 
+      limit(7)
+    );
+    
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({
+      date: doc.data().date.toDate(),
+      score: doc.data().score
+    }));
+  } catch (error) {
+    console.error('Error getting wellbeing trend:', error);
+    return [];
+  }
+};
+
 export const calculateWellbeingScore = async (userId, fitnessData, sleepData, meditationData, moodScore, weights) => {
   try {
     console.log('Starting wellbeing score calculation for user:', userId);
@@ -162,6 +197,9 @@ export const calculateWellbeingScore = async (userId, fitnessData, sleepData, me
     const overallScore = calculateOverallWellbeingScore(componentScores, weights);
 
     console.log('Debug - Overall wellbeing score:', overallScore);
+
+    // Store the daily score
+    await storeDailyWellbeingScore(userId, new Date(), overallScore);
 
     return {
       overallScore,

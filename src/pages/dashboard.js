@@ -9,6 +9,7 @@ import useFitnessData from '../hooks/fitnessHooks';
 import useSleepData from '../hooks/sleepHooks';
 import useMeditationData from '../hooks/meditationHooks';
 import useMoodData from '../hooks/moodHooks';
+import WellnessTrendGraph from '../utils/wellnessGraph';
 import sunImage from '../images/sun.png';
 
 const MemoizedCard = React.memo(({ title, emoji, link, children }) => (
@@ -120,6 +121,7 @@ const Dashboard = () => {
   const wellbeingScoreDisplay = useMemo(() => {
     return wellbeingScore !== null ? Math.round(wellbeingScore) : 'Calculating...';
   }, [wellbeingScore]);
+
   const mentalHealthResources = useMemo(() => [
     { 
       title: "National Suicide Prevention Lifeline", 
@@ -156,6 +158,7 @@ const Dashboard = () => {
   ], []);
 
   const randomTip = useMemo(() => dailyTips[Math.floor(Math.random() * dailyTips.length)], [dailyTips]);
+
   if (loading) {
     return <div className="loading">Loading...</div>;
   }
@@ -228,18 +231,9 @@ const Dashboard = () => {
               </div>
             </div>
 
-            <div className="your-progress">
-              <h3>Your Progress</h3>
-              <div className="progress-bars">
-                {Object.entries(dashboardData).map(([key, { data }], index) => (
-                  <div key={index} className="progress-item">
-                    <span>{key}</span>
-                    <div className="progress-bar">
-                      <div className="progress" style={{width: `${(data.length / 7) * 100}%`}}></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+            <div className="card wellness-trend">
+              <h3>Your Wellness Trend</h3>
+              <WellnessTrendGraph />
             </div>
           </section>
         </div>

@@ -1,7 +1,16 @@
 /* ../css/dashboard.css */
 
+:root {
+  --primary-color: #5f9ea0;  /* Teal as the primary color */
+  --secondary-color: #ffa07a;  /* Light salmon for contrast */
+  --background-color: #f0f5f5;  /* Light teal tint for background */
+  --text-color: #333333;  /* Dark gray for text */
+  --card-background: #ffffff;  /* White for card backgrounds */
+  --accent-color: #20b2aa;  /* Light sea green for accents */
+}
+
 body {
-  background-color: #f0f5f5;
+  background-color: var(--background-color);
   color: var(--text-color);
   font-family: Arial, sans-serif;
   margin: 0;
@@ -27,10 +36,10 @@ body {
   background-size: cover;
   background-position: center;
   border-radius: 10px;
-  padding: 20px;
-  margin-bottom: 20px;
-  color: white;
-  text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+  padding: 30px;
+  margin-bottom: 30px;
+  color: var(--card-background);;
+
 }
 
 .dashboard-header {
@@ -39,7 +48,7 @@ body {
 }
 
 .dashboard-header h1 {
-  font-size: 24px;
+  font-size: 28px;
   margin: 0;
 }
 
@@ -47,21 +56,28 @@ body {
   text-align: center;
 }
 
+.overall-wellbeing-score h2 {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
 .improve-button {
-  background-color: rgba(255, 255, 255, 0.2);
-  color: white;
-  border: 1px solid white;
-  padding: 10px 20px;
-  border-radius: 5px;
+  background-color: #5f9ea0;
+  color:white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 25px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, transform 0.2s;
   display: inline-block;
-  margin-top: 10px;
+  margin-top: 15px;
   text-decoration: none;
+  font-weight: bold;
 }
 
 .improve-button:hover {
-  background-color: rgba(255, 255, 255, 0.3);
+  background-color: #ff8c5a;
+  transform: translateY(-2px);
 }
 
 .dashboard-content {
@@ -76,15 +92,16 @@ body {
 }
 
 .card {
-  background-color: #f0f0f0;
+  background-color: var(--card-background);
   border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(95, 158, 160, 0.1);
   padding: 20px;
-  transition: transform 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .card:hover {
   transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(95, 158, 160, 0.2);
 }
 
 .card-header {
@@ -100,7 +117,7 @@ body {
 
 .card-header h3 {
   margin: 0;
-  color: var(--main-color);
+  color: var(--primary-color);
 }
 
 .card-content p {
@@ -114,20 +131,21 @@ body {
   gap: 20px;
 }
 
-.daily-tip, .mental-health-resources, .your-progress {
-  background-color: white;
+.daily-tip, .mental-health-resources{
+  background-color: var(--card-background);
   border-radius: 8px;
   padding: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(95, 158, 160, 0.1);
 }
 
 .daily-tip {
   grid-column: 1 / -1;
+  border-left: 4px solid var(--accent-color);
 }
 
 .daily-tip h3, .mental-health-resources h3, .your-progress h3 {
   margin-bottom: 15px;
-  color: #333;
+  color: var(--primary-color);
 }
 
 .resources-grid {
@@ -137,20 +155,21 @@ body {
 }
 
 .resource-card {
-  background-color: #fff;
+  background-color: var(--card-background);
   padding: 1rem;
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
+  box-shadow: 0 1px 3px rgba(95, 158, 160, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .resource-card:hover {
   transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(95, 158, 160, 0.2);
 }
 
 .resource-card h4 {
   margin-bottom: 0.5rem;
-  color: #5f9ea0;
+  color: var(--primary-color);
 }
 
 .resource-card p {
@@ -162,8 +181,8 @@ body {
   display: inline-block;
   margin-top: 0.5rem;
   padding: 0.5rem 1rem;
-  background-color: #5f9ea0;
-  color: #fff;
+  background-color: var(--primary-color);
+  color: var(--card-background);
   text-decoration: none;
   border-radius: 4px;
   transition: background-color 0.3s ease;
@@ -187,20 +206,22 @@ body {
 
 .progress-item span {
   flex: 0 0 100px;
+  font-weight: bold;
 }
 
 .progress-bar {
   flex-grow: 1;
   height: 10px;
-  background-color: #f0f0f0;
+  background-color: #e0e0e0;
   border-radius: 5px;
   overflow: hidden;
 }
 
 .progress {
   height: 100%;
-  background-color: #5f9ea0;
+  background-color: var(--accent-color);
   border-radius: 5px;
+  transition: width 0.3s ease;
 }
 
 @media (max-width: 1024px) {
@@ -221,4 +242,75 @@ body {
   .dashboard-additional-content {
     grid-template-columns: 1fr;
   }
+}
+.dashboard-additional-content {
+  margin-top: 2rem;
+}
+
+.daily-tip {
+  background-color: #f0f8ff;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.resources-and-trend {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 1rem;
+  flex: 1;
+  min-width: 300px;
+}
+
+.mental-health-resources .resources-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.resource-item {
+  background-color: #f9f9f9;
+  padding: 1rem;
+  border-radius: 4px;
+}
+
+.wellness-trend {
+  display: flex;
+  flex-direction: column;
+}
+
+.wellness-trend h3,
+.wellness-trend-heading {
+  margin-bottom: 1rem;
+  color: #5f9ea0;
+}
+
+@media (max-width: 768px) {
+  .resources-and-trend {
+    flex-direction: column;
+  }
+}
+.daily-tip {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.daily-tip h3 {
+  color: #5f9ea0;
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+.daily-tip p {
+  margin: 5;
 }
