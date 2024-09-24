@@ -96,6 +96,12 @@ export const AchievementProvider = ({ children }) => {
     if (!userId) return { success: false, message: "User not authenticated" };
 
     try {
+      const achievement = achievements.find(a => a.id === taskId);
+      if (!achievement) {
+        console.warn(`Achievement ${taskId} not found. Skipping update.`);
+        return { success: false, message: "Achievement not found" };
+      }
+
       const result = await updateAchievementProgress(userId, taskId, 1);
       if (result.success) {
         setAchievements(prevAchievements =>

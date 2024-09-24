@@ -110,7 +110,6 @@ export const initializeDailyTasks = async (userId) => {
     { id: 'sleep', name: 'Sleep Master', description: 'Log your sleep', icon: '😴', points: 5 },
     { id: 'meditation', name: 'Zen Master', description: 'Complete a meditation session', icon: '🧘', points: 5 },
     { id: 'journal', name: 'Reflective Writer', description: 'Write a journal entry', icon: '✍️', points: 5 },
-    { id: 'nutrition', name: 'Nutrition Tracker', description: 'Log your meals', icon: '🍎', points: 5 },
   ];
 
   const batch = writeBatch(db);

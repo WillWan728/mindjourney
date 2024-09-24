@@ -6,7 +6,7 @@ import { getRewards, redeemReward } from '../backend/achievement';
 import { auth } from '../config/firebase';
 
 const AchievementPage = () => {
-  const { dailyTasks, achievements, userPoints, loading, error, updateDailyTask, updateExtendedTask, fetchUserData } = useAchievement();
+  const { dailyTasks, achievements, userPoints, loading, error, fetchUserData } = useAchievement();
   const [activeTab, setActiveTab] = useState('daily');
   const [timeUntilReset, setTimeUntilReset] = useState('');
   const [rewards, setRewards] = useState([]);
@@ -56,31 +56,10 @@ const AchievementPage = () => {
     }
   };
 
-  const handleCompleteTask = async (taskId, isExtended = false) => {
-    try {
-      if (isExtended) {
-        const result = await updateExtendedTask(taskId);
-        if (result.success) {
-          alert(result.message);
-        } else {
-          alert(result.message);
-        }
-      } else {
-        const result = await updateDailyTask(taskId);
-        if (result.success) {
-          alert(`Task completed! You earned ${result.pointsEarned} points.`);
-        } else {
-          alert(result.message);
-        }
-      }
-    } catch (err) {
-      console.error("Error completing task:", err);
-    }
-  };
-
   const renderTaskCard = (task, isExtended = false) => {
     const lastCompleted = task.lastCompleted ? new Date(task.lastCompleted.seconds * 1000) : null;
     const completedToday = lastCompleted && lastCompleted.toDateString() === new Date().toDateString();
+    const isCompleted = isExtended ? task.completed : completedToday;
     
     return (
       <div key={task.id} className="task-card">
@@ -95,18 +74,8 @@ const AchievementPage = () => {
             <p className="streak">Current Streak: {task.streak} day{task.streak !== 1 ? 's' : ''}</p>
           )}
         </div>
-        <div className="task-status">
-          {isExtended ? (
-            <span className={`status-badge ${task.completed ? 'completed' : 'in-progress'}`}>
-              {task.completed ? 'Completed' : 'In Progress'}
-            </span>
-          ) : completedToday ? (
-            <span className="status-badge completed">Completed</span>
-          ) : (
-            <button onClick={() => handleCompleteTask(task.id, isExtended)} className="complete-task-button">
-              Complete Task
-            </button>
-          )}
+        <div className={`task-status ${isCompleted ? 'completed' : 'in-progress'}`}>
+          {isCompleted ? 'Completed' : 'In Progress'}
         </div>
       </div>
     );
@@ -132,7 +101,7 @@ const AchievementPage = () => {
               <p className="summary-value">{userPoints}</p>
             </div>
             <div className="summary-box">
-              <h2>Daily Tasks</h2>
+              <h2>Daily Tasks Completed</h2>
               <p className="summary-value">{tasksCompletedToday}</p>
             </div>
           </div>
@@ -164,12 +133,12 @@ const AchievementPage = () => {
                   </div>
                 </div>
                 <div className="extended-tasks">
-                  <h2 className="section-title">Extended Tasks</h2>
+                  <h2 className="section-title">Achievements</h2>
                   <div className="tasks-grid centered">
                     {achievements && achievements.length > 0 ? (
                       achievements.map(task => renderTaskCard(task, true))
                     ) : (
-                      <p>No extended tasks available.</p>
+                      <p>No achievements available.</p>
                     )}
                   </div>
                 </div>
