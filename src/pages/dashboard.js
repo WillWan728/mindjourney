@@ -9,6 +9,7 @@ import useFitnessData from '../hooks/fitnessHooks';
 import useSleepData from '../hooks/sleepHooks';
 import useMeditationData from '../hooks/meditationHooks';
 import useMoodData from '../hooks/moodHooks';
+import sunImage from '../images/sun.png';
 
 const MemoizedCard = React.memo(({ title, emoji, link, children }) => (
   <Link to={link} className="card-link">
@@ -172,11 +173,20 @@ const Dashboard = () => {
       <Navbar2 />
       <div className="dashboard-container">
         <div className="dashboard">
-          <header className="dashboard-header">
-            <h1>Welcome to Your Wellbeing Dashboard!</h1>
-          </header>
-          
-          <div className="overall-wellbeing-score-container">
+          <div className="dashboard-hero" style={{
+            backgroundImage: `url(${sunImage})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            padding: '2rem',
+            borderRadius: '15px',
+            marginBottom: '20px',
+            color: 'white',
+            textShadow: '1px 1px 3px rgba(0,0,0,0.5)'
+          }}>
+            <header className="dashboard-header">
+              <h1>Welcome to Your Wellbeing Dashboard!</h1>
+            </header>
+            
             <div className="overall-wellbeing-score">
               <h2>Overall Wellbeing Score: {wellbeingScoreDisplay}%</h2>
               <p>This score is based on your overall engagement with sleep tracking, fitness activities, mood logging, and meditation sessions.</p>
