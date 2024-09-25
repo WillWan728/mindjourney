@@ -21,15 +21,14 @@
   max-width: 1200px;
   width: 100%;
   padding: 2rem;
-  background-color: #f6f6f6;;
+  background-color: #f6f6f6;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .achievement-page .main-title {
-  font-size: 2.5rem;
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   color: #333;
 }
 
@@ -43,49 +42,49 @@
 .achievement-page .achievement-summary {
   display: flex;
   justify-content: center;
-  gap: 2rem;
-  margin-bottom: 2rem;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .achievement-page .summary-box {
   flex: 1;
-  max-width: 200px;
+  max-width: 180px;
   text-align: center;
-  padding: 1rem;
-  background-color: #f0f0f0;
+  padding: 0.75rem;
+  background-color: white;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .achievement-page .summary-box h2 {
-  font-size: 1.2rem;
-  margin-bottom: 0.5rem;
+  font-size: 16px;
+  margin-bottom: 0.25rem;
   color: #555;
 }
 
 .achievement-page .summary-value {
-  font-size: 2rem;
+  font-size: 24px;
   font-weight: bold;
   color: #5f9ea0;
 }
 
 .achievement-page .reset-timer {
   text-align: center;
-  margin-bottom: 2rem;
-  padding: 1rem;
-  background-color: #f0f0f0;
+  margin-bottom: 1.5rem;
+  padding: 0.75rem;
+  background-color: white;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .achievement-page .reset-timer h3 {
-  font-size: 1rem;
-  margin-bottom: 0.5rem;
+  font-size: 16px;
+  margin-bottom: 0.25rem;
   color: #5f9ea0;
 }
 
 .achievement-page .timer-value {
-  font-size: 1.5rem;
+  font-size: 20px;
   font-weight: bold;
   color: #333;
 }
@@ -117,7 +116,7 @@
 }
 
 .achievement-page .tab.active {
-  background-color: #4f8a8b; /* Darker turquoise for active tab */
+  background-color: #4f8a8b;
 }
 
 .achievement-page .tasks-grid {
@@ -138,6 +137,7 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s, box-shadow 0.3s;
 }
+
 .achievement-page .progress {
   background-color: transparent;
   color: #333;
@@ -145,6 +145,7 @@
   margin-top: 0.5rem;
   font-style: italic;
 }
+
 .achievement-page .task-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
@@ -188,7 +189,7 @@
 }
 
 .achievement-page .task-status.completed {
-  background-color: #28a745; /* Green background */
+  background-color: #28a745;
 }
 
 .achievement-page .rewards-content {
@@ -269,7 +270,7 @@
   }
 
   .achievement-page .main-title {
-    font-size: 2rem;
+    font-size: 22px;
   }
 
   .achievement-page .section-title {
