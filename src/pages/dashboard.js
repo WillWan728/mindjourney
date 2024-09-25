@@ -46,19 +46,49 @@ const Dashboard = () => {
     }
   }, []);
 
+  const queries = [
+    { 
+      collection: 'Sleep', 
+      emoji: '💤', 
+      link: '/sleeptracker',
+      description: 'Track your sleep patterns and improve your rest quality.'
+    },
+    { 
+      collection: 'Exercise', 
+      emoji: '🏃‍♂️', 
+      link: '/fitness',
+      description: 'Log your workouts and stay on top of your fitness goals.'
+    },
+    { 
+      collection: 'Journaling', 
+      emoji: '✏️', 
+      link: '/moodtracker',
+      description: 'Reflect on your thoughts and track your emotional well-being.'
+    },
+    { 
+      collection: 'Meditations', 
+      emoji: '🧘', 
+      link: '/mindfulness',
+      description: 'Practice mindfulness and reduce stress through guided meditations.'
+    },
+    { 
+      collection: 'Goals', 
+      emoji: '🎯', 
+      link: '/goals',
+      description: 'Set and track your personal development goals and ensure you complete them.'
+    },
+    { 
+      collection: 'Healthy Habit', 
+      emoji: '🥳', 
+      link: '/healthyhabit',
+      description: 'Build and maintain positive habits for a healthier lifestyle.'
+    },
+  ];
+
   const fetchDashboardData = useCallback((userId) => {
     const oneWeekAgo = Timestamp.fromDate(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000));
 
-    const queries = [
-      { collection: 'Sleep', emoji: '💤', link: '/sleeptracker' },
-      { collection: 'Exercise', emoji: '🏃‍♂️', link: '/fitness' },
-      { collection: 'Journaling', emoji: '✏️', link: '/moodtracker' },
-      { collection: 'Meditations', emoji: '🧘', link: '/mindfulness' },
-      { collection: 'Goals', emoji: '🎯', link: '/goals' },
-      { collection: 'Healthy Habit', emoji: '🥳', link: '/healthyhabit' },
-    ];
-
-    const unsubscribes = queries.map(({ collection: collectionName, emoji, link }) => {
+    const unsubscribes = queries.map(({ collection: collectionName, emoji, link, description }) => {
       const collectionRef = collection(db, 'users', userId, collectionName);
       const q = query(collectionRef, where('date', '>=', oneWeekAgo));
 
@@ -66,7 +96,7 @@ const Dashboard = () => {
         const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setDashboardData(prevData => ({
           ...prevData,
-          [collectionName]: { data, emoji, link }
+          [collectionName]: { data, emoji, link, description }
         }));
         setLoading(false);
       }, (err) => {
@@ -156,7 +186,7 @@ const Dashboard = () => {
     "Practice gratitude by noting three things you're thankful for today.",
     "Try to get at least 7 hours of sleep tonight for better overall health."
   ], []);
-
+  
   const randomTip = useMemo(() => dailyTips[Math.floor(Math.random() * dailyTips.length)], [dailyTips]);
 
   if (loading) {
@@ -200,9 +230,15 @@ const Dashboard = () => {
           </div>
           
           <main className="dashboard-content">
-            {Object.entries(dashboardData).map(([key, { data, emoji, link }], index) => (
-              <MemoizedCard key={index} title={key} emoji={emoji} link={link}>
-                {data.slice(0, 3).map((item, i) => (
+            {queries.map((query, index) => (
+              <MemoizedCard 
+                key={index} 
+                title={query.collection} 
+                emoji={query.emoji} 
+                link={query.link}
+              >
+                <p className="component-description">{query.description}</p>
+                {dashboardData[query.collection] && dashboardData[query.collection].data.slice(0, 3).map((item, i) => (
                   <p key={i}>{Object.entries(item)[1][0]}: {Object.entries(item)[1][1]}</p>
                 ))}
               </MemoizedCard>
