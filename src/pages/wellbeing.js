@@ -5,6 +5,7 @@ import { calculateWellbeingScore, getComponentEmoji, getAdvice, getScoreCategory
 import useFitnessData from '../hooks/fitnessHooks';
 import useSleepData from '../hooks/sleepHooks';
 import useMeditationData from '../hooks/meditationHooks';
+import WellnessTrendGraph from '../utils/wellnessGraph';
 import useMoodData from '../hooks/moodHooks';
 import Navbar2 from './navbar2';
 import '../css/wellbeing.css';
@@ -33,10 +34,17 @@ const WellbeingDashboard = () => {
   const meditationData = useMeditationData();
   const moodData = useMoodData();
 
-  const handleWeightChange = useCallback((component, value) => {
-    const newValue = Math.max(0, Math.min(100, parseInt(value.replace(/^0+/, '')) || 0));
-    setEditedWeights(prev => ({ ...prev, [component]: newValue }));
-  }, []);
+  const handleWeightChange = (component, value) => {
+    // Remove non-numeric characters and leading zeros
+    const cleanedValue = value.replace(/\D/g, '').replace(/^0+/, '');
+  
+    // Ensure the value is within the range [0, 100]
+    const finalValue = Math.max(0, Math.min(100, parseInt(cleanedValue, 10) || 0));
+  
+    // Update the weights
+    setEditedWeights(prev => ({ ...prev, [component]: finalValue }));
+  };  
+
 
   const calculateData = useCallback(async () => {
     try {
@@ -166,21 +174,54 @@ const WellbeingDashboard = () => {
 
 
   return (
-    <>
-      <Navbar2 />
-      <div className="wellbeing-dashboard-container">
-        <div className="wellbeing-dashboard">
-          <h1>Your Wellbeing Dashboard</h1>
-          
-          <div className="overall-score">
-            <progress value={overallScore} max="100"></progress>
-            <h2>Overall Wellbeing: {Math.round(overallScore)}%</h2>
-            {needsRefresh && (
-              <p className="refresh-notice">Your weights have changed. Click 'Refresh Scores' to update your wellbeing score.</p>
-            )}
-            <button onClick={refreshScores} className="refresh-btn">Refresh Scores</button>
-          </div>
-          
+    <div className="wellbeing-dashboard-container">
+      <div className="wellbeing-dashboard">
+        <h1 className="dashboard-title">Your Wellbeing Dashboard</h1>
+        
+        <div className="overall-score">
+          <progress value={overallScore} max="100"></progress>
+          <h2>Overall Wellbeing: {Math.round(overallScore)}%</h2>
+          {needsRefresh && (
+            <p className="refresh-notice">Your weights have changed. Click 'Refresh Scores' to update your wellbeing score.</p>
+          )}
+          <button onClick={refreshScores} className="refresh-btn">Refresh Scores</button>
+        </div>
+        
+        <div className="component-row">
+          {Object.entries(componentScores).map(([component, score]) => (
+            <div key={component} className="component-card">
+              <div className="component-header">
+                <span className="component-emoji">{getComponentEmoji(component)}</span>
+                <h3>{component.charAt(0).toUpperCase() + component.slice(1)}</h3>
+              </div>
+              <progress value={score} max="100"></progress>
+              <p>{Math.round(score)}%</p>
+              <p className="component-category">{getScoreCategory(score)}</p>
+              <p className="component-advice">{getAdvice(component, score)}</p>
+            </div>
+          ))}
+        </div>
+  
+        <div className="wellness-trend-graph">
+          <WellnessTrendGraph data={wellbeingData} />
+        </div>
+        
+        <div className="tab-navigation">
+          <button 
+            className={`tab-button ${activeTab === 'weights' ? 'active' : ''}`}
+            onClick={() => setActiveTab('weights')}
+          >
+            Weight Adjustment
+          </button>
+          <button 
+            className={`tab-button ${activeTab === 'progress' ? 'active' : ''}`}
+            onClick={() => setActiveTab('progress')}
+          >
+            Detailed Progress
+          </button>
+        </div>
+  
+        {activeTab === 'weights' && (
           <div className="weight-adjustment">
             <h3>Adjust Component Weights</h3>
             <p className="weight-info">
@@ -209,145 +250,75 @@ const WellbeingDashboard = () => {
             <button onClick={confirmWeightChanges} className="confirm-weights-btn">Confirm Changes</button>
             <button onClick={resetWeights} className="reset-weights-btn">Reset to Default</button>
           </div>
-
-          <div className="tab-navigation">
-            <button 
-              className={`tab-button ${activeTab === 'progress' ? 'active' : ''}`}
-              onClick={() => setActiveTab('progress')}
-            >
-              Progress
-            </button>
-            <button 
-              className={`tab-button ${activeTab === 'activities' ? 'active' : ''}`}
-              onClick={() => setActiveTab('activities')}
-            >
-              Recent Activities
-            </button>
+        )}
+  
+        {activeTab === 'progress' && (
+          <div className="progress-content">
+            <div className="fitness-progress">
+              <h3>Fitness Progress</h3>
+              <div className="fitness-metric">
+                <p>Weekly Exercise: {fitnessData.currentExerciseMinutes} / {goals.weeklyExerciseMinutes} minutes</p>
+                <progress value={fitnessData.currentExerciseMinutes} max={goals.weeklyExerciseMinutes}></progress>
+              </div>
+              <div className="fitness-metric">
+                <p>Daily Calories: {fitnessData.dailyCalories} / {goals.dailyCalorieTarget} calories</p>
+                <progress value={fitnessData.dailyCalories} max={goals.dailyCalorieTarget}></progress>
+              </div>
+            </div>
+            
+            <div className="sleep-progress">
+              <h3>Sleep Progress</h3>
+              <div className="sleep-metric">
+                <p>Last Night's Sleep: {sleepData.currentSleepDuration.toFixed(1)} / {goals.sleepHoursPerNight} hours</p>
+                <progress value={sleepData.currentSleepDuration} max={goals.sleepHoursPerNight}></progress>
+              </div>
+            </div>
+            
+            <div className="meditation-progress">
+              <h3>Meditation Progress</h3>
+              <div className="meditation-metric">
+                <p>Weekly Meditation: {meditationData.totalMeditationMinutes} / {goals.weeklyMeditationMinutes} minutes</p>
+                <progress value={meditationData.totalMeditationMinutes} max={goals.weeklyMeditationMinutes}></progress>
+              </div>
+            </div>
+  
+            <div className="mood-progress">
+              <h3>Mood Progress</h3>
+              <div className="mood-metric">
+                <p>Current Mood Streak: {moodData.streak} days</p>
+              </div>
+              <div className="mood-metric">
+                <p>Average Mood Score: {moodData.avgMoodScore.toFixed(2)} / 5</p>
+              </div>
+              <div className="mood-metric">
+                <p>Mood Wellbeing Score: {moodData.wellbeingScore}%</p>
+              </div>
+            </div>
           </div>
-
-          {activeTab === 'progress' && (
-            <div className="progress-content">
-              <div className="component-grid">
-                {Object.entries(componentScores).map(([component, score]) => (
-                  <div key={component} className="component-card">
-                    <div className="component-header">
-                      <span className="component-emoji">{getComponentEmoji(component)}</span>
-                      <h3>{component.charAt(0).toUpperCase() + component.slice(1)}</h3>
-                    </div>
-                    <progress value={score} max="100"></progress>
-                    <p>{Math.round(score)}%</p>
-                    <p className="component-category">{getScoreCategory(score)}</p>
-                    <p className="component-advice">{getAdvice(component, score)}</p>
-                  </div>
-                ))}
-              </div>
-              
-              <div className="fitness-progress">
-                <h3>Fitness Progress</h3>
-                <div className="fitness-metric">
-                  <p>Weekly Exercise: {fitnessData.currentExerciseMinutes} / {goals.weeklyExerciseMinutes} minutes</p>
-                  <progress value={fitnessData.currentExerciseMinutes} max={goals.weeklyExerciseMinutes}></progress>
-                </div>
-                <div className="fitness-metric">
-                  <p>Daily Calories: {fitnessData.dailyCalories} / {goals.dailyCalorieTarget} calories</p>
-                  <progress value={fitnessData.dailyCalories} max={goals.dailyCalorieTarget}></progress>
-                </div>
-              </div>
-              
-              <div className="sleep-progress">
-                <h3>Sleep Progress</h3>
-                <div className="sleep-metric">
-                  <p>Last Night's Sleep: {sleepData.currentSleepDuration.toFixed(1)} / {goals.sleepHoursPerNight} hours</p>
-                  <progress value={sleepData.currentSleepDuration} max={goals.sleepHoursPerNight}></progress>
-                </div>
-              </div>
-              
-              <div className="meditation-progress">
-                <h3>Meditation Progress</h3>
-                <div className="meditation-metric">
-                  <p>Weekly Meditation: {meditationData.totalMeditationMinutes} / {goals.weeklyMeditationMinutes} minutes</p>
-                  <progress value={meditationData.totalMeditationMinutes} max={goals.weeklyMeditationMinutes}></progress>
-                </div>
-              </div>
-
-              <div className="mood-progress">
-                <h3>Mood Progress</h3>
-                <div className="mood-metric">
-                  <p>Current Mood Streak: {moodData.streak} days</p>
-                </div>
-                <div className="mood-metric">
-                  <p>Average Mood Score: {moodData.avgMoodScore.toFixed(2)} / 5</p>
-                </div>
-                <div className="mood-metric">
-                  <p>Mood Wellbeing Score: {moodData.wellbeingScore}%</p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'activities' && (
-            <div className="recent-activities">
-              <h3>Recent Activities</h3>
-              {recentActivities.exercises && recentActivities.exercises.length > 0 && (
-                <div>
-                  <h4>Exercises</h4>
-                  <ul>
-                    {recentActivities.exercises.map((exercise, index) => (
-                      <li key={index}>
-                        {new Date(exercise.date).toLocaleDateString()}: {exercise.type} - {exercise.duration} minutes
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {recentActivities.sleepLogs && recentActivities.sleepLogs.length > 0 && (
-                <div>
-                  <h4>Sleep Logs</h4>
-                  <ul>
-                    {recentActivities.sleepLogs.map((log, index) => {
-                      const bedtime = new Date(log.bedtime);
-                      const waketime = new Date(log.waketime);
-                      let duration = (waketime - bedtime) / (1000 * 60 * 60); // in hours
-                      if (duration < 0) duration += 24; // Adjust for sleep past midnight
-                      return (
-                        <li key={index}>
-                          {new Date(log.date).toLocaleDateString()}: {duration.toFixed(1)} hours (Quality: {log.quality}/10)
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              )}
-              {recentActivities.meditations && recentActivities.meditations.length > 0 && (
-                <div>
-                  <h4>Recent Meditations</h4>
-                  <ul>
-                    {recentActivities.meditations.map((meditation, index) => (
-                      <li key={index}>
-                        {new Date(meditation.date).toLocaleDateString()}: {meditation.exercise} - {meditation.duration} minutes
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {moodData.moods && moodData.moods.length > 0 && (
-                <div>
-                  <h4>Recent Moods</h4>
-                  <ul>
-                    {moodData.moods.slice(0, 5).map((mood, index) => (
-                      <li key={index}>
-                        {new Date(mood.date).toLocaleDateString()}: {mood.mood} 
-                        {mood.factors && mood.factors.length > 0 && ` (Factors: ${mood.factors.join(', ')})`}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          )}
+        )}
+  
+        <div className="wellbeing-calculation-explanation">
+          <h3>How Your Wellbeing Score is Calculated</h3>
+          <p>Your overall wellbeing score is a weighted average of your individual component scores:</p>
+          <ul>
+            <li>Fitness: Based on your exercise minutes and calorie intake</li>
+            <li>Sleep: Calculated from your sleep duration and quality</li>
+            <li>Meditation: Derived from your meditation minutes and consistency</li>
+            <li>Mood: Assessed from your daily mood ratings and factors</li>
+          </ul>
+          <p>Each component's score is multiplied by its weight (which you can adjust above), then these weighted scores are summed to give your overall wellbeing percentage.</p>
+          <p>For example, if your components are:</p>
+          <ul>
+            <li>Fitness: 80% (weight 25%)</li>
+            <li>Sleep: 70% (weight 25%)</li>
+            <li>Meditation: 60% (weight 25%)</li>
+            <li>Mood: 90% (weight 25%)</li>
+          </ul>
+          <p>Your overall score would be: (80 * 0.25) + (70 * 0.25) + (60 * 0.25) + (90 * 0.25) = 75%</p>
+          <p>Adjust the weights to reflect the importance of each component in your personal wellbeing journey.</p>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
