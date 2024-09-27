@@ -133,7 +133,7 @@ const AchievementPage = () => {
                   </div>
                 </div>
                 <div className="extended-tasks">
-                  <h2 className="section-title">Achievements</h2>
+                  <h2 className="section-title">Extended Tasks</h2>
                   <div className="tasks-grid centered">
                     {achievements && achievements.length > 0 ? (
                       achievements.map(task => renderTaskCard(task, true))
