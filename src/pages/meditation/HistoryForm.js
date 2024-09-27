@@ -1,9 +1,22 @@
-// src/components/meditation/HistoryForm.js
 import React from 'react';
 
 const HistoryForm = ({ meditationLogs, handleDeleteMeditation }) => {
   const formatDate = (date) => {
-    return date.toDate().toLocaleDateString('en-US', {
+    if (date instanceof Date) {
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      });
+    }
+    if (date && typeof date === 'object' && typeof date.toDate === 'function') {
+      return date.toDate().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      });
+    }
+    return new Date(date).toLocaleDateString('en-US', {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit'
@@ -23,6 +36,7 @@ const HistoryForm = ({ meditationLogs, handleDeleteMeditation }) => {
                 <strong>{formatDate(log.date)}</strong> - {log.exercise}
                 <br />
                 Duration: {log.duration} minutes
+                {log.notes && <p className="history-notes">Notes: {log.notes}</p>}
               </div>
               <button 
                 onClick={() => handleDeleteMeditation(log.id)}

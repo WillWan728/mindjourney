@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { auth, db } from '../../config/firebase';
-import { doc, getDoc, deleteDoc } from 'firebase/firestore';
+import { collection, query, where, orderBy, onSnapshot, doc, deleteDoc, getDoc } from 'firebase/firestore';
 import Navbar2 from '../navbar2';
 import '../../css/meditation.css';
-import { TABS, fetchMeditations } from '../../backend/meditation';
+import { TABS } from '../../backend/meditation';
 import ExerciseForm from './ExerciseForm';
 import LogForm from './LogForm';
 import HistoryForm from './HistoryForm';
@@ -11,7 +11,7 @@ import HistoryForm from './HistoryForm';
 const Meditation = () => {
   const [activeTab, setActiveTab] = useState(TABS.EXERCISES);
   const [meditationLogs, setMeditationLogs] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [user, setUser] = useState(null);
   const [weeklyMeditationGoal, setWeeklyMeditationGoal] = useState(0);
@@ -23,7 +23,7 @@ const Meditation = () => {
     
     const weeklyTime = meditationLogs
       .filter(log => {
-        const logDate = log.date.toDate();
+        const logDate = log.date instanceof Date ? log.date : new Date(log.date);
         return logDate >= oneWeekAgo && logDate <= now;
       })
       .reduce((total, log) => total + parseInt(log.duration, 10), 0);
@@ -31,64 +31,74 @@ const Meditation = () => {
     setWeeklyMeditationTime(weeklyTime);
   }, [meditationLogs]);
 
-  const fetchMeditationLogs = useCallback(async (userId) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const now = new Date();
-      const oneYearAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
-      const logs = await fetchMeditations(userId, oneYearAgo, now);
-      setMeditationLogs(logs);
-    } catch (error) {
-      console.error("Error fetching meditation logs: ", error);
-      setError("Failed to fetch meditation logs. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  const fetchMeditationGoal = useCallback(async (userId) => {
-    try {
-      const docRef = doc(db, 'wellbeing', userId);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        setWeeklyMeditationGoal(data.weeklyMeditationMinutes || 0);
-      }
-    } catch (error) {
-      console.error("Error fetching meditation goal: ", error);
-    }
-  }, []);
-
-  const handleDeleteMeditation = useCallback(async (logId) => {
-    try {
-      await deleteDoc(doc(db, 'meditations', logId));
-      setMeditationLogs(prevLogs => prevLogs.filter(log => log.id !== logId));
-      calculateWeeklyMeditationTime();
-    } catch (error) {
-      console.error("Error deleting meditation log: ", error);
-      setError("Failed to delete meditation log. Please try again.");
-    }
-  }, [calculateWeeklyMeditationTime]);
-
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(user => {
+    const unsubscribeAuth = auth.onAuthStateChanged(user => {
+      setUser(user);
       if (user) {
-        setUser(user);
-        fetchMeditationLogs(user.uid);
-        fetchMeditationGoal(user.uid);
+        const meditationsRef = collection(db, 'meditations');
+        const q = query(
+          meditationsRef,
+          where('userId', '==', user.uid),
+          orderBy('date', 'desc')
+        );
+
+        const unsubscribeMeditations = onSnapshot(q, (snapshot) => {
+          const logs = snapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+              id: doc.id,
+              ...data,
+              date: data.date instanceof Date ? data.date : new Date(data.date)
+            };
+          });
+          setMeditationLogs(logs);
+          setIsLoading(false);
+        }, (error) => {
+          console.error("Error fetching meditation logs: ", error);
+          setError("Failed to fetch meditation logs. Please try again.");
+          setIsLoading(false);
+        });
+
+        // Fetch meditation goal
+        const fetchMeditationGoal = async () => {
+          try {
+            const docRef = doc(db, 'wellbeing', user.uid);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+              const data = docSnap.data();
+              setWeeklyMeditationGoal(data.weeklyMeditationMinutes || 0);
+            }
+          } catch (error) {
+            console.error("Error fetching meditation goal: ", error);
+          }
+        };
+        fetchMeditationGoal();
+
+        return () => unsubscribeMeditations();
       } else {
-        setUser(null);
         setMeditationLogs([]);
+        setIsLoading(false);
       }
     });
 
-    return () => unsubscribe();
-  }, [fetchMeditationLogs, fetchMeditationGoal]);
+    return () => unsubscribeAuth();
+  }, []);
 
   useEffect(() => {
     calculateWeeklyMeditationTime();
   }, [calculateWeeklyMeditationTime, meditationLogs]);
+
+  const handleDeleteMeditation = async (logId) => {
+    try {
+      await deleteDoc(doc(db, 'meditations', logId));
+      // No need to update state here as the onSnapshot listener will handle it
+    } catch (error) {
+      console.error("Error deleting meditation log: ", error);
+      setError("Failed to delete meditation log. Please try again.");
+    }
+  };
+
+  console.log("Meditation log example:", meditationLogs[0]);
 
   return (
     <>
@@ -119,7 +129,7 @@ const Meditation = () => {
         ) : (
           <div className="content-box">
             {activeTab === TABS.EXERCISES && <ExerciseForm />}
-            {activeTab === TABS.LOG && <LogForm user={user} fetchMeditationLogs={fetchMeditationLogs} />}
+            {activeTab === TABS.LOG && <LogForm user={user} />}
             {activeTab === TABS.HISTORY && (
               <HistoryForm 
                 meditationLogs={meditationLogs} 
