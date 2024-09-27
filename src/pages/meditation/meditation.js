@@ -23,8 +23,7 @@ const Meditation = () => {
     
     const weeklyTime = meditationLogs
       .filter(log => {
-        const logDate = log.date instanceof Date ? log.date : new Date(log.date);
-        return logDate >= oneWeekAgo && logDate <= now;
+        return log.date >= oneWeekAgo && log.date <= now;
       })
       .reduce((total, log) => total + parseInt(log.duration, 10), 0);
     
@@ -48,9 +47,10 @@ const Meditation = () => {
             return {
               id: doc.id,
               ...data,
-              date: data.date instanceof Date ? data.date : new Date(data.date)
+              date: data.date ? new Date(data.date.seconds * 1000) : new Date(),
             };
           });
+          console.log("Received updated meditation logs:", logs);
           setMeditationLogs(logs);
           setIsLoading(false);
         }, (error) => {
@@ -59,7 +59,6 @@ const Meditation = () => {
           setIsLoading(false);
         });
 
-        // Fetch meditation goal
         const fetchMeditationGoal = async () => {
           try {
             const docRef = doc(db, 'wellbeing', user.uid);
@@ -91,14 +90,11 @@ const Meditation = () => {
   const handleDeleteMeditation = async (logId) => {
     try {
       await deleteDoc(doc(db, 'meditations', logId));
-      // No need to update state here as the onSnapshot listener will handle it
     } catch (error) {
       console.error("Error deleting meditation log: ", error);
       setError("Failed to delete meditation log. Please try again.");
     }
   };
-
-  console.log("Meditation log example:", meditationLogs[0]);
 
   return (
     <>

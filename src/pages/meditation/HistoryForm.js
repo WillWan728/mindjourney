@@ -9,19 +9,10 @@ const HistoryForm = ({ meditationLogs, handleDeleteMeditation }) => {
         day: '2-digit'
       });
     }
-    if (date && typeof date === 'object' && typeof date.toDate === 'function') {
-      return date.toDate().toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
-      });
-    }
-    return new Date(date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    });
+    return 'Invalid Date';
   };
+
+  console.log("Received meditation logs in HistoryForm:", meditationLogs);
 
   return (
     <div className="history-container">
