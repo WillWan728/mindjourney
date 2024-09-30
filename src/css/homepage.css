@@ -1,6 +1,6 @@
 :root {
     --main-color: #5f9ea0;
-    --secondary-color: #8fbc8f;
+    --secondary-color: #ffa07a;
     --light-color: #f0f5f5;
     --dark-color: #4a6a6d;
     --accent-color: #d7c49e;
@@ -151,10 +151,10 @@
   {
       width: 50%;
       padding: 1rem 2rem;
-      background-color: var(--accent-color);
+      background-color: #ec8b64;
       border-radius: 20px;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      color: var(--text-color);
+      color: black;
       font-size: 1.1rem;
       line-height: 1.8;
   }
@@ -163,7 +163,7 @@
       text-align: center;
       font-size: 2rem;
       font-weight: 700;
-      color: var(--main-color);
+      color: black;
       margin-top: 3rem;
       margin-bottom: 1.5rem;
   }
@@ -171,7 +171,7 @@
     text-align: center;
     font-size: 2rem;
     font-weight: 700;
-    color: var(--main-color);
+    color: black;
     margin-top: 3rem;
     margin-bottom: 1.5rem;
   }

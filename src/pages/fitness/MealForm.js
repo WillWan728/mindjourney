@@ -1,10 +1,9 @@
 import React from 'react';
 import { useAchievement } from '../../utils/achievementUtils';
-import { useNavigate } from 'react-router-dom';
+
 
 const MealForm = ({ mealForm, setMealForm, handleMealSubmit, loading }) => {
   const { logNutritionData, getAchievementProgress, fetchUserData } = useAchievement();
-  const navigate = useNavigate();
 
   const onSubmit = async (event) => {
     event.preventDefault();
@@ -28,7 +27,6 @@ const MealForm = ({ mealForm, setMealForm, handleMealSubmit, loading }) => {
 
           if (updatedProgress >= 7) {
             alert(`Congratulations! You've logged your meals for 7 days in a row and earned 15 points for completing the Nutrition Master achievement!`);
-            navigate('/achievements');
           } else {
             alert(`Meal logged successfully!`);
           }

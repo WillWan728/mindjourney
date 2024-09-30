@@ -1,10 +1,8 @@
 import React from 'react';
 import { useAchievement } from '../../utils/achievementUtils';
-import { useNavigate } from 'react-router-dom';
 
 const ExerciseForm = ({ exerciseForm, setExerciseForm, handleExerciseSubmit, loading }) => {
   const { updateDailyTask } = useAchievement();
-  const navigate = useNavigate();
 
   const onSubmit = async (event) => {
     event.preventDefault();
@@ -16,8 +14,6 @@ const ExerciseForm = ({ exerciseForm, setExerciseForm, handleExerciseSubmit, loa
       const result = await updateDailyTask('exercise');
       if (result.success) {
         alert(`Exercise logged successfully! You earned ${result.pointsEarned} points.`);
-        // Navigate to the achievements page
-        navigate('/achievements');
       } else {
         alert(result.message || 'Failed to update achievement. Please try again.');
       }

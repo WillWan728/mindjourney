@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAchievement } from '../../utils/achievementUtils';
-import { useNavigate } from 'react-router-dom';
+
 
 const MoodLogForm = ({
   mood,
@@ -18,7 +18,6 @@ const MoodLogForm = ({
   factorOptions
 }) => {
   const { updateDailyTask, updateExtendedTask, getAchievementProgress, achievements } = useAchievement();
-  const navigate = useNavigate();
   const [journalStreak, setJournalStreak] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -56,8 +55,6 @@ const MoodLogForm = ({
           }
         }
         alert(message);
-        // Navigate to the achievements page
-        navigate('/achievements');
       } else {
         alert('Failed to update achievement. Please try again.');
       }

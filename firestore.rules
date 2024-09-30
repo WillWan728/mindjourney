@@ -1,0 +1,79 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Reusable functions
+    function isAuth() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuth() && request.auth.uid == userId;
+    }
+
+    // Rule for top-level user document
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // Rule for all subcollections under a user
+    match /users/{userId}/{collection}/{document=**} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // Rule for user settings
+    match /userSettings/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // Rule for userWellbeingSettings
+    match /userWellbeingSettings/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // Rules for top-level collections
+    match /{collection}/{documentId} {
+      allow read: if isAuth() && (resource == null || resource.data.userId == request.auth.uid);
+      allow create: if isAuth() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAuth() && resource.data.userId == request.auth.uid;
+    }
+
+    // Specific rule for wellbeing, if it's not under users
+    match /wellbeing/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // Rules for activities collection
+    match /activities/{activityId} {
+      allow read: if isAuth() && resource.data.userId == request.auth.uid;
+      allow create: if isAuth() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAuth() && resource.data.userId == request.auth.uid;
+      // Validate activity data on write
+      allow write: if isAuth() && 
+                      request.resource.data.userId == request.auth.uid &&
+                      request.resource.data.date is timestamp &&
+                      request.resource.data.type in ['exercise', 'calories', 'sleep', 'mood', 'meditation'] &&
+                      request.resource.data.duration is number;
+    }
+
+    // Rules for achievements and rewards
+    match /achievements/{achievementId} {
+      allow read: if isAuth();
+      allow write: if false;  // Disable direct writes to global achievements
+    }
+
+    match /rewards/{rewardId} {
+      allow read: if isAuth();
+      allow create: if isAuth() && !exists(/databases/$(database)/documents/rewards/$(rewardId));
+      allow update, delete: if false;  // Prevent modification of existing rewards
+    }
+
+    // User-specific achievements and rewards
+    match /users/{userId}/achievements/{achievementId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    match /users/{userId}/rewards/{rewardId} {
+      allow read, write: if isOwner(userId);
+    }
+  }
+}
